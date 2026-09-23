@@ -11,6 +11,12 @@ interface ParsedLine {
   number: number
 }
 
+const sectionHeaderPattern = /:\s*\d+$/
+
+function isSectionHeader(line: string): boolean {
+  return sectionHeaderPattern.test(line.trim())
+}
+
 function parseLine(line: string): ParsedLine {
   const tokens = line.trim().split(/\s+/)
   const number = tokens[tokens.length - 1]
@@ -31,7 +37,10 @@ export function convertDecklist(
   condition: Condition,
   language: Language,
 ): ConvertDecklistResult {
-  const lines = decklist.split('\n').filter((line) => line.trim().length > 0)
+  const lines = decklist
+    .split('\n')
+    .filter((line) => line.trim().length > 0)
+    .filter((line) => !isSectionHeader(line))
   const ligaPokemonLines: string[] = []
   const mypCardsLines: string[] = []
   const unresolvedCards: UnresolvedCard[] = []

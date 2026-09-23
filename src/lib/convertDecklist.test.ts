@@ -21,4 +21,15 @@ describe('convertDecklist', () => {
     expect(result.ligaPokemon).toBe('1 Iron Valiant ex (091/132) [QUALIDADE=NM][IDIOMA=PTEN]')
     expect(result.mypCards).toBe('1 Iron Valiant ex (091/132)')
   })
+
+  it('ignores section headers and converts every card line', () => {
+    const decklist = ['Pokemon: 2', '1 Abra MEG 53', '2 Fragmento Encantado PFL 94', 'Trainer: 0'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132, PFL: 94 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon.split('\n')).toEqual([
+      '1 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]',
+      '2 Fragmento Encantado (094/094) [QUALIDADE=NM][IDIOMA=PTEN]',
+    ])
+  })
 })
