@@ -5,6 +5,7 @@ function padLeft3(value: number): string {
 }
 
 interface ParsedLine {
+  sourceLine: string
   quantity: number
   name: string
   collection: string
@@ -24,6 +25,7 @@ function parseLine(line: string): ParsedLine {
   const name = tokens.slice(1, tokens.length - 2).join(' ')
 
   return {
+    sourceLine: line,
     quantity: Number(tokens[0]),
     name,
     collection,
@@ -65,8 +67,14 @@ export function convertDecklist(
   const mypCardsLines: string[] = []
   const unresolvedCards: UnresolvedCard[] = []
 
-  for (const { quantity, name, collection, number } of parsedLines) {
+  for (const { sourceLine, quantity, name, collection, number } of parsedLines) {
     const total = config[collection]
+
+    if (total === undefined) {
+      unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
+      continue
+    }
+
     const numberFormatted = padLeft3(number)
     const totalFormatted = padLeft3(total)
 
