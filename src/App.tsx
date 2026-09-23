@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { convertDecklist } from '@/lib/convertDecklist'
 import type { AppConfig, Condition, ConvertDecklistResult, Language } from '@/lib/types'
 
-const { collections, languages } = config as AppConfig
+const { collections, languages, portal } = config as AppConfig
 
 const conditions: Condition[] = ['M', 'NM', 'SP', 'MP', 'HP', 'D']
 
@@ -105,7 +105,7 @@ export default function App() {
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
-      <h1 className="text-xl font-semibold">tcg-mp-converter</h1>
+      <h1 className="text-xl font-semibold">{portal.title}</h1>
 
       <section className="flex flex-col gap-6 md:flex-row">
         <div className="flex flex-1 flex-col gap-2">
@@ -146,8 +146,8 @@ export default function App() {
       </Button>
 
       <section className="flex flex-col gap-6 md:flex-row">
-        <MarketplaceResult title="Liga Pokemon" text={result?.ligaPokemon ?? ''} />
-        <MarketplaceResult title="MYPCards" text={result?.mypCards ?? ''} />
+        <MarketplaceResult title={portal.marketplaces.ligaPokemon} text={result?.ligaPokemon ?? ''} />
+        <MarketplaceResult title={portal.marketplaces.mypCards} text={result?.mypCards ?? ''} />
       </section>
 
       {result && result.unresolvedCards.length > 0 && (

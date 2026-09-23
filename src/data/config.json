@@ -1,4 +1,11 @@
 {
   "collections": { "MEG": 132 },
-  "languages": ["PTEN", "PT", "EN"]
+  "languages": ["PTEN", "PT", "EN"],
+  "portal": {
+    "title": "tcg-mp-converter",
+    "marketplaces": {
+      "ligaPokemon": "Liga Pokemon",
+      "mypCards": "MYPCards"
+    }
+  }
 }
