@@ -18,18 +18,30 @@ function isSectionHeader(line: string): boolean {
   return sectionHeaderPattern.test(line.trim())
 }
 
-function parseLine(line: string): ParsedLine {
+const integerPattern = /^\d+$/
+
+type ParseLineResult = { ok: true; value: ParsedLine } | { ok: false }
+
+function parseLine(line: string): ParseLineResult {
   const tokens = line.trim().split(/\s+/)
-  const number = tokens[tokens.length - 1]
+  const quantityToken = tokens[0]
+  const numberToken = tokens[tokens.length - 1]
   const collection = tokens[tokens.length - 2]
   const name = tokens.slice(1, tokens.length - 2).join(' ')
 
+  if (tokens.length < 4 || !integerPattern.test(quantityToken) || !integerPattern.test(numberToken)) {
+    return { ok: false }
+  }
+
   return {
-    sourceLine: line,
-    quantity: Number(tokens[0]),
-    name,
-    collection,
-    number: Number(number),
+    ok: true,
+    value: {
+      sourceLine: line,
+      quantity: Number(quantityToken),
+      name,
+      collection,
+      number: Number(numberToken),
+    },
   }
 }
 
@@ -61,11 +73,24 @@ export function convertDecklist(
     .filter((line) => line.trim().length > 0)
     .filter((line) => !isSectionHeader(line))
 
-  const parsedLines = mergeDuplicates(lines.map(parseLine))
-
   const ligaPokemonLines: string[] = []
   const mypCardsLines: string[] = []
   const unresolvedCards: UnresolvedCard[] = []
+
+  const validLines: ParsedLine[] = []
+
+  for (const line of lines) {
+    const parsed = parseLine(line)
+
+    if (!parsed.ok) {
+      unresolvedCards.push({ line, reason: 'Linha em formato inválido' })
+      continue
+    }
+
+    validLines.push(parsed.value)
+  }
+
+  const parsedLines = mergeDuplicates(validLines)
 
   for (const { sourceLine, quantity, name, collection, number } of parsedLines) {
     const total = config[collection]

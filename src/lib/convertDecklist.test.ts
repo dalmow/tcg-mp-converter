@@ -52,4 +52,16 @@ describe('convertDecklist', () => {
       { line: '1 Mewtwo ZZZ 1', reason: 'Coleção "ZZZ" não cadastrada' },
     ])
   })
+
+  it('reports malformed lines as unresolved, without stopping the rest', () => {
+    const decklist = ['1 Abra MEG 53', '1 Abra MEG', 'x3 Pikachu MEG 10'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('1 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Abra MEG', reason: 'Linha em formato inválido' },
+      { line: 'x3 Pikachu MEG 10', reason: 'Linha em formato inválido' },
+    ])
+  })
 })
