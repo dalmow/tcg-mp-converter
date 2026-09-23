@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -10,6 +10,21 @@ import type { Condition, ConvertDecklistResult, Language } from '@/lib/types'
 const conditions: Condition[] = ['M', 'NM', 'SP', 'MP', 'HP', 'D']
 const languages: Language[] = ['PTEN', 'PT', 'EN']
 
+const conditionColorClasses: Record<Condition, string> = {
+  M: 'bg-green-600 text-white border-green-600',
+  NM: 'bg-lime-600 text-white border-lime-600',
+  SP: 'bg-yellow-500 text-black border-yellow-500',
+  MP: 'bg-amber-600 text-white border-amber-600',
+  HP: 'bg-orange-600 text-white border-orange-600',
+  D: 'bg-red-600 text-white border-red-600',
+}
+
+const languageFlags: Record<Language, string> = {
+  PT: '🇧🇷',
+  EN: '🇺🇸',
+  PTEN: '🇧🇷🇺🇸',
+}
+
 async function copyToClipboard(text: string) {
   await navigator.clipboard.writeText(text)
 }
@@ -19,26 +34,34 @@ function BadgeGroup<T extends string>({
   options,
   value,
   onChange,
+  renderContent,
+  classNameFor,
 }: {
   label: string
   options: T[]
   value: T
   onChange: (value: T) => void
+  renderContent?: (option: T) => ReactNode
+  classNameFor?: (option: T, selected: boolean) => string
 }) {
   return (
     <div className="flex flex-col gap-2">
       <Label>{label}</Label>
       <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <Badge
-            key={option}
-            variant={option === value ? 'default' : 'outline'}
-            className="cursor-pointer"
-            onClick={() => onChange(option)}
-          >
-            {option}
-          </Badge>
-        ))}
+        {options.map((option) => {
+          const selected = option === value
+
+          return (
+            <Badge
+              key={option}
+              variant={classNameFor ? 'outline' : selected ? 'default' : 'outline'}
+              className={`cursor-pointer ${selected ? 'ring-2 ring-offset-2 ring-primary' : 'opacity-60'} ${classNameFor ? classNameFor(option, selected) : ''}`}
+              onClick={() => onChange(option)}
+            >
+              {renderContent ? renderContent(option) : option}
+            </Badge>
+          )
+        })}
       </div>
     </div>
   )
@@ -87,8 +110,24 @@ export default function App() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <BadgeGroup label="Qualidade" options={conditions} value={condition} onChange={setCondition} />
-        <BadgeGroup label="Idioma" options={languages} value={language} onChange={setLanguage} />
+        <BadgeGroup
+          label="Qualidade"
+          options={conditions}
+          value={condition}
+          onChange={setCondition}
+          classNameFor={(option) => conditionColorClasses[option]}
+        />
+        <BadgeGroup
+          label="Idioma"
+          options={languages}
+          value={language}
+          onChange={setLanguage}
+          renderContent={(option) => (
+            <span title={option}>
+              {languageFlags[option]} {option}
+            </span>
+          )}
+        />
       </section>
 
       <section className="flex gap-6">
