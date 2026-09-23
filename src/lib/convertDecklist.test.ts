@@ -53,6 +53,13 @@ describe('convertDecklist', () => {
     expect(result.mypCards).toBe('3 Abra (053/132)')
   })
 
+  it('matches a collection code case-insensitively', () => {
+    const result = convertDecklist('3 Abra meg 53', { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('3 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.unresolvedCards).toEqual([])
+  })
+
   it('reports a card with an unregistered collection as unresolved, without stopping the rest', () => {
     const decklist = ['1 Abra MEG 53', '1 Mewtwo ZZZ 1'].join('\n')
 

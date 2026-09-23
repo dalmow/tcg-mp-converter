@@ -93,7 +93,10 @@ export function convertDecklist(
   const parsedLines = mergeDuplicates(validLines)
 
   for (const { sourceLine, quantity, name, collection, number } of parsedLines) {
-    const total = config[collection]
+    const normalizedCollection = Object.keys(config).find(
+      (registeredCollection) => registeredCollection.toUpperCase() === collection.toUpperCase(),
+    )
+    const total = normalizedCollection === undefined ? undefined : config[normalizedCollection]
 
     if (total === undefined) {
       unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
