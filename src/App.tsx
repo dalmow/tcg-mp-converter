@@ -1,122 +1,112 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import collections from '@/data/collections.json'
+import { convertDecklist } from '@/lib/convertDecklist'
+import type { Condition, ConvertDecklistResult, Language } from '@/lib/types'
 
-function App() {
-  const [count, setCount] = useState(0)
+const conditions: Condition[] = ['M', 'NM', 'SP', 'MP', 'HP', 'D']
+const languages: Language[] = ['PTEN', 'PT', 'EN']
 
+async function copyToClipboard(text: string) {
+  await navigator.clipboard.writeText(text)
+}
+
+function MarketplaceResult({ title, text }: { title: string; text: string }) {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <div className="flex flex-1 flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-medium">{title}</h2>
+        <Button variant="outline" size="sm" onClick={() => copyToClipboard(text)} disabled={!text}>
+          Copiar
+        </Button>
+      </div>
+      <Textarea value={text} readOnly className="h-48 resize-none overflow-y-auto" />
+    </div>
   )
 }
 
-export default App
+export default function App() {
+  const [decklistInput, setDecklistInput] = useState('')
+  const [condition, setCondition] = useState<Condition>('NM')
+  const [language, setLanguage] = useState<Language>('PTEN')
+  const [result, setResult] = useState<ConvertDecklistResult | null>(null)
+
+  function handleConvert() {
+    setResult(convertDecklist(decklistInput, collections, condition, language))
+  }
+
+  return (
+    <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
+      <h1 className="text-xl font-semibold">tcg-mp-converter</h1>
+
+      <section className="flex flex-col gap-2">
+        <Label htmlFor="decklist">Decklist</Label>
+        <Textarea
+          id="decklist"
+          value={decklistInput}
+          onChange={(event) => setDecklistInput(event.target.value)}
+          placeholder="3 Abra MEG 53"
+          className="h-40 resize-none overflow-y-auto"
+        />
+        <Button onClick={handleConvert} className="self-start">
+          Converter
+        </Button>
+      </section>
+
+      <section className="flex gap-6">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="condition">Qualidade</Label>
+          <Select value={condition} onValueChange={(value) => setCondition(value as Condition)}>
+            <SelectTrigger id="condition">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {conditions.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="language">Idioma</Label>
+          <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
+            <SelectTrigger id="language">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
+
+      <section className="flex gap-6">
+        <MarketplaceResult title="Liga Pokemon" text={result?.ligaPokemon ?? ''} />
+        <MarketplaceResult title="MYPCards" text={result?.mypCards ?? ''} />
+      </section>
+
+      {result && result.unresolvedCards.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-destructive">Cartas não resolvidas</h2>
+          <ul className="flex flex-col gap-1 text-sm">
+            {result.unresolvedCards.map((card, index) => (
+              <li key={index} className="text-muted-foreground">
+                <span className="font-mono">{card.line}</span> — {card.reason}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </main>
+  )
+}
