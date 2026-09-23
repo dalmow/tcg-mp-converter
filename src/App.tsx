@@ -3,20 +3,22 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import collections from '@/data/collections.json'
+import config from '@/data/config.json'
+import { cn } from '@/lib/utils'
 import { convertDecklist } from '@/lib/convertDecklist'
-import type { Condition, ConvertDecklistResult, Language } from '@/lib/types'
+import type { AppConfig, Condition, ConvertDecklistResult, Language } from '@/lib/types'
+
+const { collections, languages } = config as AppConfig
 
 const conditions: Condition[] = ['M', 'NM', 'SP', 'MP', 'HP', 'D']
-const languages: Language[] = ['PTEN', 'PT', 'EN']
 
 const conditionColorClasses: Record<Condition, string> = {
-  M: 'bg-green-600 text-white border-green-600',
-  NM: 'bg-lime-600 text-white border-lime-600',
-  SP: 'bg-yellow-500 text-black border-yellow-500',
-  MP: 'bg-amber-600 text-white border-amber-600',
-  HP: 'bg-orange-600 text-white border-orange-600',
-  D: 'bg-red-600 text-white border-red-600',
+  M: 'bg-green-600 text-white',
+  NM: 'bg-lime-600 text-white',
+  SP: 'bg-yellow-500 text-black',
+  MP: 'bg-amber-600 text-white',
+  HP: 'bg-orange-600 text-white',
+  D: 'bg-red-600 text-white',
 }
 
 const languageFlags: Record<Language, string> = {
@@ -54,8 +56,12 @@ function BadgeGroup<T extends string>({
           return (
             <Badge
               key={option}
-              variant={classNameFor ? 'outline' : selected ? 'default' : 'outline'}
-              className={`cursor-pointer ${selected ? 'ring-2 ring-offset-2 ring-primary' : 'opacity-60'} ${classNameFor ? classNameFor(option, selected) : ''}`}
+              variant="ghost"
+              className={cn(
+                'cursor-pointer border',
+                selected ? 'border-primary/40' : 'border-transparent opacity-60',
+                classNameFor ? classNameFor(option, selected) : 'bg-muted text-foreground',
+              )}
               onClick={() => onChange(option)}
             >
               {renderContent ? renderContent(option) : option}
@@ -72,7 +78,13 @@ function MarketplaceResult({ title, text }: { title: string; text: string }) {
     <div className="flex flex-1 flex-col gap-2">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium">{title}</h2>
-        <Button variant="outline" size="sm" onClick={() => copyToClipboard(text)} disabled={!text}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => copyToClipboard(text)}
+          disabled={!text}
+        >
           Copiar
         </Button>
       </div>
@@ -95,42 +107,45 @@ export default function App() {
     <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
       <h1 className="text-xl font-semibold">tcg-mp-converter</h1>
 
-      <section className="flex flex-col gap-2">
-        <Label htmlFor="decklist">Decklist</Label>
-        <Textarea
-          id="decklist"
-          value={decklistInput}
-          onChange={(event) => setDecklistInput(event.target.value)}
-          placeholder="3 Abra MEG 53"
-          className="h-40 resize-none overflow-y-auto"
-        />
-        <Button onClick={handleConvert} className="self-start">
-          Converter
-        </Button>
+      <section className="flex flex-col gap-6 md:flex-row">
+        <div className="flex flex-1 flex-col gap-2">
+          <Label htmlFor="decklist">Decklist</Label>
+          <Textarea
+            id="decklist"
+            value={decklistInput}
+            onChange={(event) => setDecklistInput(event.target.value)}
+            placeholder="3 Abra MEG 53"
+            className="h-40 resize-none overflow-y-auto"
+          />
+        </div>
+
+        <div className="flex flex-1 flex-col gap-4">
+          <BadgeGroup
+            label="Qualidade"
+            options={conditions}
+            value={condition}
+            onChange={setCondition}
+            classNameFor={(option) => conditionColorClasses[option]}
+          />
+          <BadgeGroup
+            label="Idioma"
+            options={languages}
+            value={language}
+            onChange={setLanguage}
+            renderContent={(option) => (
+              <span title={option}>
+                {languageFlags[option]} {option}
+              </span>
+            )}
+          />
+        </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <BadgeGroup
-          label="Qualidade"
-          options={conditions}
-          value={condition}
-          onChange={setCondition}
-          classNameFor={(option) => conditionColorClasses[option]}
-        />
-        <BadgeGroup
-          label="Idioma"
-          options={languages}
-          value={language}
-          onChange={setLanguage}
-          renderContent={(option) => (
-            <span title={option}>
-              {languageFlags[option]} {option}
-            </span>
-          )}
-        />
-      </section>
+      <Button onClick={handleConvert} className="cursor-pointer self-start">
+        Converter
+      </Button>
 
-      <section className="flex gap-6">
+      <section className="flex flex-col gap-6 md:flex-row">
         <MarketplaceResult title="Liga Pokemon" text={result?.ligaPokemon ?? ''} />
         <MarketplaceResult title="MYPCards" text={result?.mypCards ?? ''} />
       </section>
