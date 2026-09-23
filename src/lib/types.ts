@@ -4,20 +4,6 @@ export type Language = 'PTEN' | 'PT' | 'EN'
 
 export type CollectionConfig = Record<string, number>
 
-export interface PortalConfig {
-  title: string
-  marketplaces: {
-    ligaPokemon: string
-    mypCards: string
-  }
-}
-
-export interface AppConfig {
-  collections: CollectionConfig
-  languages: Language[]
-  portal: PortalConfig
-}
-
 export interface UnresolvedCard {
   line: string
   reason: string
