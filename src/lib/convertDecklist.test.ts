@@ -22,6 +22,17 @@ describe('convertDecklist', () => {
     expect(result.mypCards).toBe('1 Iron Valiant ex (091/132)')
   })
 
+  it('parses card name suffixes like "V" and "VSTAR"', () => {
+    const decklist = ['1 Arceus V MEG 100', '1 Arceus VSTAR MEG 101'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon.split('\n')).toEqual([
+      '1 Arceus V (100/132) [QUALIDADE=NM][IDIOMA=PTEN]',
+      '1 Arceus VSTAR (101/132) [QUALIDADE=NM][IDIOMA=PTEN]',
+    ])
+  })
+
   it('ignores section headers and converts every card line', () => {
     const decklist = ['Pokemon: 2', '1 Abra MEG 53', '2 Fragmento Encantado PFL 94', 'Trainer: 0'].join('\n')
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import collections from '@/data/collections.json'
 import { convertDecklist } from '@/lib/convertDecklist'
@@ -12,6 +12,36 @@ const languages: Language[] = ['PTEN', 'PT', 'EN']
 
 async function copyToClipboard(text: string) {
   await navigator.clipboard.writeText(text)
+}
+
+function BadgeGroup<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: T[]
+  value: T
+  onChange: (value: T) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label>{label}</Label>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <Badge
+            key={option}
+            variant={option === value ? 'default' : 'outline'}
+            className="cursor-pointer"
+            onClick={() => onChange(option)}
+          >
+            {option}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 function MarketplaceResult({ title, text }: { title: string; text: string }) {
@@ -56,38 +86,9 @@ export default function App() {
         </Button>
       </section>
 
-      <section className="flex gap-6">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="condition">Qualidade</Label>
-          <Select value={condition} onValueChange={(value) => setCondition(value as Condition)}>
-            <SelectTrigger id="condition">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {conditions.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="language">Idioma</Label>
-          <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
-            <SelectTrigger id="language">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {languages.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <section className="flex flex-col gap-4">
+        <BadgeGroup label="Qualidade" options={conditions} value={condition} onChange={setCondition} />
+        <BadgeGroup label="Idioma" options={languages} value={language} onChange={setLanguage} />
       </section>
 
       <section className="flex gap-6">
