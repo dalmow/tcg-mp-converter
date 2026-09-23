@@ -31,6 +31,23 @@ function parseLine(line: string): ParsedLine {
   }
 }
 
+function mergeDuplicates(parsedLines: ParsedLine[]): ParsedLine[] {
+  const merged = new Map<string, ParsedLine>()
+
+  for (const parsedLine of parsedLines) {
+    const key = `${parsedLine.collection}/${parsedLine.number}`
+    const existing = merged.get(key)
+
+    if (existing) {
+      existing.quantity += parsedLine.quantity
+    } else {
+      merged.set(key, { ...parsedLine })
+    }
+  }
+
+  return [...merged.values()]
+}
+
 export function convertDecklist(
   decklist: string,
   config: CollectionConfig,
@@ -41,12 +58,14 @@ export function convertDecklist(
     .split('\n')
     .filter((line) => line.trim().length > 0)
     .filter((line) => !isSectionHeader(line))
+
+  const parsedLines = mergeDuplicates(lines.map(parseLine))
+
   const ligaPokemonLines: string[] = []
   const mypCardsLines: string[] = []
   const unresolvedCards: UnresolvedCard[] = []
 
-  for (const line of lines) {
-    const { quantity, name, collection, number } = parseLine(line)
+  for (const { quantity, name, collection, number } of parsedLines) {
     const total = config[collection]
     const numberFormatted = padLeft3(number)
     const totalFormatted = padLeft3(total)

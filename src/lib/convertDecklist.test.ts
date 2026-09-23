@@ -32,4 +32,13 @@ describe('convertDecklist', () => {
       '2 Fragmento Encantado (094/094) [QUALIDADE=NM][IDIOMA=PTEN]',
     ])
   })
+
+  it('merges duplicate lines for the same collection and number by summing quantity', () => {
+    const decklist = ['2 Abra MEG 53', '1 Abra MEG 53'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('3 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.mypCards).toBe('3 Abra (053/132)')
+  })
 })
