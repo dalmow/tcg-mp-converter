@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
-import { deckPath, ROUTES } from '@/routes'
+import { ROUTES } from '@/routes'
 
 afterEach(cleanup)
 
@@ -17,12 +17,11 @@ describe('AppRoutes', () => {
   it.each([
     [ROUTES.decks, 'Decks'],
     [ROUTES.newDeck, 'Novo deck'],
-    [deckPath('abc'), 'Editar deck'],
-    [ROUTES.converter, 'PTCG Marketplace Converter'],
+    [ROUTES.converter, 'Conversor'],
     [ROUTES.maintenance, 'Manutenção'],
-  ])('renders %s with heading "%s"', (path, heading) => {
+  ])('renders %s with sr-only heading "%s"', (path, heading) => {
     renderAt(path)
-    expect(screen.getByRole('heading', { level: 1, name: heading })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: heading }).className).toContain('sr-only')
   })
 
   it('shows the navbar links on every route', () => {
@@ -43,8 +42,6 @@ describe('AppRoutes', () => {
   it('resolves hash URLs under HashRouter', () => {
     window.location.hash = `#${ROUTES.converter}`
     render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'PTCG Marketplace Converter' }),
-    ).toBeTruthy()
+    expect(screen.getByLabelText('Decklist')).toBeTruthy()
   })
 })

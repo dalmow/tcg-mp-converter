@@ -39,7 +39,7 @@ describe('MaintenancePage', () => {
       makeDeck('2', 'Absol', [{ ...boss, quantity: 3 }]),
     ])
     renderPage()
-    expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' }).className).toContain('sr-only')
     expect(screen.getByRole('heading', { name: 'Pokémon' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Treinadores' })).toBeTruthy()
     const card = within(rowOf('Ordem da chefia'))
