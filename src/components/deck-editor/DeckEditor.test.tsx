@@ -412,7 +412,7 @@ describe('DeckEditor', () => {
 
   it('shows a not-found state for an unknown deck id without creating a deck', () => {
     renderEditor(deckPath('missing'))
-    expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
+    expect(screen.getByRole('heading', { level: 1, name: 'Editar deck' }).className).toContain('sr-only')
     expect(screen.getByText('Deck não encontrado')).toBeTruthy()
     expect(screen.getByRole('link', { name: /Voltar/ }).getAttribute('href')).toBe(ROUTES.decks)
     expect(screen.queryByPlaceholderText('Nome do deck')).toBeNull()
