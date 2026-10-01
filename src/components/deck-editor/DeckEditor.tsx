@@ -18,6 +18,8 @@ import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
 import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
 import { CARD_CATEGORIES } from '@/lib/deck/types'
+import { deckEditorMeta } from '@/lib/pageMeta'
+import { usePageMeta } from '@/lib/usePageMeta'
 import type { CardCategory } from '@/lib/deck/types'
 import { deckPath, ROUTES } from '@/routes'
 import { CategoryPanel } from './CategoryPanel'
@@ -52,6 +54,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   const [focusRowId, setFocusRowId] = useState<string | null>(null)
 
   const dirty = isDirty(name, rows, stored)
+  usePageMeta(deckEditorMeta(deckId, initial && (stored?.name ?? initial.name)))
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
   const leavingRef = useRef(false)
   const blocker = useBlocker(() => dirty && !leavingRef.current)

@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { PAGE_META } from '@/lib/pageMeta'
+import { usePageMeta } from '@/lib/usePageMeta'
 import { PageLayout } from '@/components/PageLayout'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -94,6 +96,7 @@ function MarketplaceResult({ title, text }: { title: string; text: string }) {
 }
 
 export default function ConverterPage() {
+  usePageMeta(PAGE_META.converter)
   const [decklistInput, setDecklistInput] = useState('')
   const [condition, setCondition] = useState<Condition>('NM')
   const [language, setLanguage] = useState<Language>('PTEN')

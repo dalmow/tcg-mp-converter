@@ -1,6 +1,8 @@
 import { CircleAlert, CircleCheck, Plus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import { PAGE_META } from '@/lib/pageMeta'
+import { usePageMeta } from '@/lib/usePageMeta'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
 import collections from '@/data/collections.json'
@@ -54,6 +56,7 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
 }
 
 export default function DeckListPage() {
+  usePageMeta(PAGE_META.decks)
   const { decks, owned } = useDeckData()
 
   return (

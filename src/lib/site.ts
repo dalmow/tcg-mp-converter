@@ -2,11 +2,10 @@
 export const SITE_NAME = 'PTCG Tools'
 
 /**
- * Canonical origin of the production site, without trailing slash.
- * TODO(DAL-23): placeholder, confirm the real production domain. Can be
+ * Canonical origin of the production site, without trailing slash. Can be
  * overridden at build time with the `SITE_URL` environment variable.
  */
-export const DEFAULT_SITE_URL = 'https://ptcgtools.com'
+export const DEFAULT_SITE_URL = 'https://ptcgtools.dalm.dev'
 
 export const SITE_DESCRIPTION =
   'Converta decklists de Pokémon TCG para o formato de busca da Liga Pokemon e da MYPCards, monte decks e controle as cartas que você possui.'

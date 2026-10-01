@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event'
 import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
-import { ROUTES } from '@/routes'
+import { getDeckStore } from '@/lib/deck/deckStore'
+import { deckPath, ROUTES } from '@/routes'
 
 afterEach(cleanup)
 
@@ -43,5 +44,57 @@ describe('AppRoutes', () => {
     window.location.hash = `#${ROUTES.converter}`
     render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
     expect(screen.getByLabelText('Decklist')).toBeTruthy()
+  })
+})
+
+function metaContent(name: string): string | null {
+  return document.head.querySelector(`meta[name="${name}"]`)?.getAttribute('content') ?? null
+}
+
+describe('AppRoutes page metadata', () => {
+  it.each([
+    [ROUTES.decks, 'Meus decks | PTCG Tools'],
+    [ROUTES.converter, 'Conversor | PTCG Tools'],
+    [ROUTES.maintenance, 'Manutenção | PTCG Tools'],
+    [ROUTES.newDeck, 'Novo deck | PTCG Tools'],
+  ])('sets the title of %s to "%s"', (path, title) => {
+    renderAt(path)
+    expect(document.title).toBe(title)
+  })
+
+  it('gives the public routes unique descriptions and no noindex', () => {
+    const descriptions = new Set<string | null>()
+    for (const path of [ROUTES.decks, ROUTES.converter, ROUTES.maintenance]) {
+      renderAt(path)
+      expect(metaContent('robots')).toBeNull()
+      descriptions.add(metaContent('description'))
+      cleanup()
+    }
+    expect(descriptions.has(null)).toBe(false)
+    expect(descriptions.size).toBe(3)
+  })
+
+  it('titles and marks noindex on the not-found deck route', () => {
+    renderAt(deckPath('missing'))
+    expect(document.title).toBe('Deck não encontrado | PTCG Tools')
+    expect(metaContent('robots')).toBe('noindex')
+  })
+
+  it('puts the deck name in the title of the edit route and marks editing routes noindex', () => {
+    getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
+    renderAt(deckPath('abc'))
+    expect(document.title).toBe('Editando deck Alakazam | PTCG Tools')
+    expect(metaContent('robots')).toBe('noindex')
+    cleanup()
+    renderAt(ROUTES.newDeck)
+    expect(metaContent('robots')).toBe('noindex')
+  })
+
+  it('lifts noindex when navigating from an editing route to a public one', async () => {
+    renderAt(ROUTES.newDeck)
+    expect(metaContent('robots')).toBe('noindex')
+    await userEvent.click(screen.getByRole('link', { name: 'Conversor' }))
+    expect(document.title).toBe('Conversor | PTCG Tools')
+    expect(metaContent('robots')).toBeNull()
   })
 })
