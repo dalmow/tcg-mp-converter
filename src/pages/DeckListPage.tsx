@@ -57,7 +57,7 @@ export default function DeckListPage() {
   const { decks, owned } = useDeckData()
 
   return (
-    <PageLayout title="Decks">
+    <PageLayout>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
         {decks.map((deck) => (
           <DeckBlock key={deck.id} deck={deck} owned={owned} />

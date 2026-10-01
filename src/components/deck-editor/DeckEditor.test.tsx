@@ -172,6 +172,15 @@ describe('DeckEditor', () => {
     expect(savedDeck()).toBeUndefined()
   })
 
+  it('titles an existing deck "Editando deck {name}" and a new deck not at all', () => {
+    getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
+    renderEditor(deckPath('abc'))
+    expect(screen.getByRole('heading', { level: 1, name: 'Editando deck Alakazam' })).toBeTruthy()
+    cleanup()
+    renderEditor()
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
+  })
+
   it('does not save on Enter in the name field and an empty name does not revert', async () => {
     getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
     renderEditor(deckPath('abc'))
@@ -403,7 +412,7 @@ describe('DeckEditor', () => {
 
   it('shows a not-found state for an unknown deck id without creating a deck', () => {
     renderEditor(deckPath('missing'))
-    expect(screen.getByRole('heading', { level: 1, name: 'Editar deck' })).toBeTruthy()
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
     expect(screen.getByText('Deck não encontrado')).toBeTruthy()
     expect(screen.getByRole('link', { name: /Voltar/ }).getAttribute('href')).toBe(ROUTES.decks)
     expect(screen.queryByPlaceholderText('Nome do deck')).toBeNull()

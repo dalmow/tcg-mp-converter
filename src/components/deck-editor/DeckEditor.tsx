@@ -123,6 +123,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   return (
     <>
+      {stored && <h1 className="text-xl font-semibold">Editando deck {stored.name}</h1>}
       <div className="flex items-start gap-2">
         <div className="flex flex-1 flex-col gap-1">
           <Input

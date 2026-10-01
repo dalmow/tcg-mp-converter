@@ -104,7 +104,7 @@ export default function ConverterPage() {
   }
 
   return (
-    <PageLayout title="PTCG Marketplace Converter">
+    <PageLayout>
       <section className="flex flex-col gap-6 md:flex-row">
         <div className="flex flex-1 flex-col gap-2">
           <Label htmlFor="decklist">Decklist</Label>

@@ -14,16 +14,13 @@ function renderAt(path: string) {
 }
 
 describe('AppRoutes', () => {
-  it.each([
-    [ROUTES.decks, 'Decks'],
-    [ROUTES.newDeck, 'Novo deck'],
-    [deckPath('abc'), 'Editar deck'],
-    [ROUTES.converter, 'PTCG Marketplace Converter'],
-    [ROUTES.maintenance, 'Manutenção'],
-  ])('renders %s with heading "%s"', (path, heading) => {
-    renderAt(path)
-    expect(screen.getByRole('heading', { level: 1, name: heading })).toBeTruthy()
-  })
+  it.each([ROUTES.decks, ROUTES.newDeck, deckPath('abc'), ROUTES.converter, ROUTES.maintenance])(
+    'renders %s without a page title',
+    (path) => {
+      renderAt(path)
+      expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
+    },
+  )
 
   it('shows the navbar links on every route', () => {
     renderAt(ROUTES.converter)
@@ -43,8 +40,6 @@ describe('AppRoutes', () => {
   it('resolves hash URLs under HashRouter', () => {
     window.location.hash = `#${ROUTES.converter}`
     render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'PTCG Marketplace Converter' }),
-    ).toBeTruthy()
+    expect(screen.getByLabelText('Decklist')).toBeTruthy()
   })
 })
