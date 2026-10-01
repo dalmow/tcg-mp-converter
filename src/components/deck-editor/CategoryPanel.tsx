@@ -38,7 +38,7 @@ export function CategoryPanel({
   onDeleteRow,
 }: CategoryPanelProps) {
   return (
-    <Panel role="region" aria-label={title} className="self-start">
+    <Panel role="region" aria-label={title} className="self-start overflow-visible">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardAction>
