@@ -1,29 +1,46 @@
 import { CircleAlert, CircleCheck, Plus } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
 import collections from '@/data/collections.json'
 import { validateDeck } from '@/lib/deck/deckRules'
 import { useDeckData } from '@/lib/deck/deckStore'
-import { DECK_SIZE } from '@/lib/deck/types'
-import type { Deck, OwnedMap } from '@/lib/deck/types'
-import { deckPath, ROUTES } from '@/routes'
+import { DECK_SIZE, type Deck, type OwnedMap } from '@/lib/deck/types'
 import { cn } from '@/lib/utils'
+import { deckPath, ROUTES } from '@/routes'
 
-const BLOCK_CLASS = 'h-36 transition-colors hover:border-primary'
+const DECK_TILE_CLASS = 'h-36 transition-colors hover:border-primary'
+
+function DeckTile({
+  to,
+  label,
+  className,
+  children,
+}: {
+  to: string
+  label?: string
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <Link to={to} aria-label={label} className="block">
+      <Panel className={cn(DECK_TILE_CLASS, className)}>{children}</Panel>
+    </Link>
+  )
+}
 
 function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
   const validation = validateDeck(deck, owned, collections)
 
   return (
-    <Link to={deckPath(deck.id)} className="block">
-      <Panel className={cn(BLOCK_CLASS, 'justify-between')}>
+    <DeckTile to={deckPath(deck.id)} className="justify-between">
         <div className="flex items-start justify-between gap-2 px-4">
           <span className="font-semibold uppercase break-words">{deck.name}</span>
           {validation.valid ? (
-            <CircleCheck aria-label="Deck válido" className="size-5 shrink-0 text-primary" />
+            <CircleCheck role="img" aria-label="Deck válido" className="size-5 shrink-0 text-primary" />
           ) : (
-            <CircleAlert aria-label="Deck inválido" className="size-5 shrink-0 text-danger" />
+            <CircleAlert role="img" aria-label="Deck inválido" className="size-5 shrink-0 text-danger" />
           )}
         </div>
         <div className="flex items-end justify-between gap-2 px-4 text-sm">
@@ -32,8 +49,7 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
             {validation.total}/{DECK_SIZE}
           </span>
         </div>
-      </Panel>
-    </Link>
+    </DeckTile>
   )
 }
 
@@ -46,11 +62,9 @@ export default function DeckListPage() {
         {decks.map((deck) => (
           <DeckBlock key={deck.id} deck={deck} owned={owned} />
         ))}
-        <Link to={ROUTES.newDeck} aria-label="Novo deck" className="block">
-          <Panel className={cn(BLOCK_CLASS, 'items-center justify-center')}>
-            <Plus aria-hidden className="size-8 text-muted-foreground" />
-          </Panel>
-        </Link>
+        <DeckTile to={ROUTES.newDeck} label="Novo deck" className="items-center justify-center">
+          <Plus aria-hidden className="size-8 text-muted-foreground" />
+        </DeckTile>
       </div>
     </PageLayout>
   )

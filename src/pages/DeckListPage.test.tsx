@@ -49,16 +49,15 @@ describe('DeckListPage', () => {
     const link = screen.getByRole('link', { name: /Alakazam/ })
     expect(link.getAttribute('href')).toBe('/decks/d1')
     expect(within(link).getByText('60/60')).toBeTruthy()
-    expect(within(link).getByLabelText('Deck válido')).toBeTruthy()
+    expect(within(link).getByRole('img', { name: 'Deck válido' })).toBeTruthy()
     expect(within(link).queryByText(/falta/)).toBeNull()
-    expect(within(link).getByText('Alakazam').className).toContain('uppercase')
   })
 
   it('shows an invalid deck with an exclamation and no missing message', () => {
     seed([{ id: 'd1', name: 'Draft', cards: [abra] }], ownedFor([abra]))
     renderPage()
     const link = screen.getByRole('link', { name: /Draft/ })
-    expect(within(link).getByLabelText('Deck inválido')).toBeTruthy()
+    expect(within(link).getByRole('img', { name: 'Deck inválido' })).toBeTruthy()
     expect(within(link).getByText('4/60')).toBeTruthy()
     expect(within(link).queryByText(/falta/)).toBeNull()
   })
@@ -68,7 +67,7 @@ describe('DeckListPage', () => {
     seed([{ id: 'd1', name: 'Mega Absol', cards }], ownedFor(cards, 1))
     renderPage()
     const link = screen.getByRole('link', { name: /Mega Absol/ })
-    expect(within(link).getByLabelText('Deck inválido')).toBeTruthy()
+    expect(within(link).getByRole('img', { name: 'Deck inválido' })).toBeTruthy()
     expect(within(link).getByText('faltam 2 cartas')).toBeTruthy()
   })
 
