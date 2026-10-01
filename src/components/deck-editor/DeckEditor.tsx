@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
-import { Trash2Icon } from 'lucide-react'
-import { DeleteButton } from '@/components/ActionButtons'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useBlocker, useNavigate } from 'react-router'
+import { SaveIcon, Trash2Icon } from 'lucide-react'
+import { DeleteButton, SaveButton } from '@/components/ActionButtons'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +18,11 @@ import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
 import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
 import { CARD_CATEGORIES } from '@/lib/deck/types'
-import type { CardCategory, Deck, Result } from '@/lib/deck/types'
-import { ROUTES } from '@/routes'
+import type { CardCategory } from '@/lib/deck/types'
+import { deckPath, ROUTES } from '@/routes'
 import { CategoryPanel } from './CategoryPanel'
-import { applyRowSave } from './rowLogic'
-import type { RowSave } from './rowLogic'
+import { buildDeckSave, isDirty, newRow, rowsFromDeck } from './draft'
+import type { DraftRow } from './draft'
 
 const PANEL_TITLE: Record<CardCategory, string> = {
   pokemon: 'Pokémon',
@@ -30,64 +30,69 @@ const PANEL_TITLE: Record<CardCategory, string> = {
   energy: 'Energias',
 }
 
-const NAME_REQUIRED = 'Informe o nome do deck'
-
-interface Draft {
-  id: string
-  category: CardCategory
-}
-
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
   const navigate = useNavigate()
   const toast = useToast()
   const { decks, owned } = useDeckData()
-  // A new deck gets its id up front but only reaches storage when its first row is saved.
+  // A new deck gets its id up front but only reaches storage on its first Save.
   const [newDeckId] = useState(() => crypto.randomUUID())
   const id = deckId ?? newDeckId
   const stored = decks.find((deck) => deck.id === id)
-  const deck: Deck = stored ?? { id, name: '', cards: [] }
+  // The deck as it was when the editor opened: seeds the draft and tells "not found" from "deleted elsewhere".
+  const [initial] = useState(stored)
 
-  const [name, setName] = useState(stored?.name ?? '')
+  // The draft: everything edited here stays in memory until Save deck commits it in one go.
+  const [name, setName] = useState(initial?.name ?? '')
+  const [rows, setRows] = useState<DraftRow[]>(() => (initial ? rowsFromDeck(initial) : []))
   const [nameError, setNameError] = useState<string | null>(null)
-  const [drafts, setDrafts] = useState<Draft[]>([])
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
 
-  function commitName() {
-    if (!stored || name.trim() === stored.name) return
-    if (!name.trim()) {
-      // The stored name stays; show the error and put it back in the input.
-      setName(stored.name)
-      return setNameError(NAME_REQUIRED)
+  const dirty = isDirty(name, rows, stored)
+  // Set right before an intentional navigation (after saving or deleting), which must not prompt.
+  const leavingRef = useRef(false)
+  const blocker = useBlocker(() => dirty && !leavingRef.current)
+
+  useEffect(() => {
+    if (!dirty) return
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
     }
-    getDeckStore().saveDeck({ ...stored, name: name.trim() })
-    toast.success('Nome do deck salvo')
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
+
+  function changeRow(rowId: string, patch: Partial<DraftRow>) {
+    setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)))
+    setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
   }
 
-  function removeDraft(draftId: string) {
-    setDrafts((current) => current.filter((draft) => draft.id !== draftId))
+  function deleteRow(rowId: string) {
+    setRows((current) => current.filter((row) => row.id !== rowId))
   }
 
-  function saveRow({ originalKey, card, ownedEntry, draftId }: RowSave): Result {
-    const trimmedName = name.trim()
-    if (!trimmedName) {
-      setNameError(NAME_REQUIRED)
-      return { ok: false, error: NAME_REQUIRED }
+  function saveDeck() {
+    const result = buildDeckSave({ id, name, rows }, owned, collections)
+    if (!result.ok) {
+      setNameError(result.nameError)
+      setRowErrors(result.rowErrors)
+      return
     }
-    const result = applyRowSave({ ...deck, name: trimmedName }, originalKey, card)
-    if (!result.ok) return result
-    getDeckStore().saveDeck(result.deck, { [card.key]: ownedEntry })
-    toast.success('Carta salva')
+    getDeckStore().saveDeck(result.deck, result.owned)
     setNameError(null)
-    if (draftId) removeDraft(draftId)
-    return { ok: true }
-  }
-
-  function deleteRow(key: string) {
-    getDeckStore().saveDeck({ ...deck, cards: deck.cards.filter((card) => card.key !== key) })
-    toast.success('Carta removida do deck')
+    setRowErrors({})
+    setName(result.deck.name)
+    setRows(rowsFromDeck(result.deck))
+    toast.success('Deck salvo')
+    if (!deckId) {
+      leavingRef.current = true
+      navigate(deckPath(id), { replace: true })
+    }
   }
 
   function deleteDeck() {
+    leavingRef.current = true
     if (stored) {
       getDeckStore().deleteDeck(id)
       toast.success('Deck excluído')
@@ -96,7 +101,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   }
 
   // `/decks/:id` for an id that is not in storage must not create a deck under that id.
-  if (deckId && !stored) {
+  if (deckId && !initial) {
     return (
       <div className="flex flex-col items-start gap-2">
         <p>Deck não encontrado</p>
@@ -120,10 +125,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
               setName(event.target.value)
               setNameError(null)
             }}
-            onBlur={commitName}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') commitName()
-            }}
           />
           {nameError && (
             <p role="alert" className="text-xs text-danger">
@@ -131,6 +132,10 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </p>
           )}
         </div>
+        <SaveButton onClick={saveDeck}>
+          <SaveIcon />
+          Salvar deck
+        </SaveButton>
         <AlertDialog>
           <AlertDialogTrigger render={<DeleteButton />}>
             <Trash2Icon />
@@ -155,15 +160,32 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           <CategoryPanel
             key={category}
             title={PANEL_TITLE[category]}
-            context={{ category, deck, decks, owned, collections }}
-            draftIds={drafts.filter((draft) => draft.category === category).map((draft) => draft.id)}
-            onAddDraft={() => setDrafts((current) => [...current, { id: crypto.randomUUID(), category }])}
-            onDiscardDraft={removeDraft}
-            onSaveRow={saveRow}
+            category={category}
+            rows={rows}
+            rowErrors={rowErrors}
+            decks={decks}
+            owned={owned}
+            collections={collections}
+            onAddRow={() => setRows((current) => [...current, newRow(category)])}
+            onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />
         ))}
       </div>
+      <AlertDialog open={blocker.state === 'blocked'}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Descartar alterações?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Há alterações não salvas neste deck. Se sair agora, elas serão perdidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => blocker.reset?.()}>Continuar editando</AlertDialogCancel>
+            <AlertDialogAction onClick={() => blocker.proceed?.()}>Descartar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

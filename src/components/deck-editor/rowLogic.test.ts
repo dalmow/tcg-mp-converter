@@ -9,10 +9,10 @@ const deck: Deck = {
   name: 'Deck',
   cards: [{ category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 3 }],
 }
-const context: RowContext = { category: 'pokemon', deck, decks: [deck], owned: {}, collections }
+const context: RowContext = { category: 'pokemon', otherRows: deck, decks: [deck], owned: {}, collections }
 
-function derive(text: string, quantityText: string, ownedText: string, card = null as Deck['cards'][number] | null) {
-  return deriveRowState(context, { card, text, quantityText, ownedText })
+function derive(text: string, quantityText: string, ownedText: string) {
+  return deriveRowState(context, { text, quantityText, ownedText })
 }
 
 describe('deriveRowState', () => {
@@ -37,9 +37,5 @@ describe('deriveRowState', () => {
     const state = derive('Abra MEG 53', '2', '2')
     expect(state.warning).toBe('Mais de 4 cópias de Abra MEG 53 no deck')
     expect(state.valid).toBe(false)
-  })
-
-  it('ignores the row being edited when counting copies', () => {
-    expect(derive('Abra MEG 54', '4', '4', deck.cards[0]).warning).toBeNull()
   })
 })

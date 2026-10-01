@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { PageLayout } from '@/components/PageLayout'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -103,9 +104,7 @@ export default function ConverterPage() {
   }
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
-      <h1 className="text-xl font-semibold">PTCG Marketplace Converter</h1>
-
+    <PageLayout title="PTCG Marketplace Converter">
       <section className="flex flex-col gap-6 md:flex-row">
         <div className="flex flex-1 flex-col gap-2">
           <Label htmlFor="decklist">Decklist</Label>
@@ -161,6 +160,6 @@ export default function ConverterPage() {
           </ul>
         </section>
       )}
-    </main>
+    </PageLayout>
   )
 }
