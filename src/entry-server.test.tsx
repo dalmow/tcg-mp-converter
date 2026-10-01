@@ -20,6 +20,10 @@ describe('prerendered public pages', () => {
     expect(html).toContain('<main')
   })
 
+  it('leaves the stored-decks grid out of the prerendered home so it cannot shift layout', async () => {
+    expect(await renderApp('/')).not.toContain('Novo deck')
+  })
+
   it.each(PUBLIC_PAGES)('hydrates $path without errors', async ({ path }) => {
     const container = document.createElement('div')
     container.innerHTML = await renderApp(path)

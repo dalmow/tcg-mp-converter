@@ -2,6 +2,7 @@ import { CircleAlert, CircleCheck, Plus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { PAGE_META } from '@/lib/pageMeta'
+import { useHydrated } from '@/lib/useHydrated'
 import { usePageMeta } from '@/lib/usePageMeta'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
@@ -58,17 +59,22 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
 export default function DeckListPage() {
   usePageMeta(PAGE_META.decks)
   const { decks, owned } = useDeckData()
+  // Decks live in localStorage, so the prerendered page has none; rendering the grid only once
+  // hydrated avoids pushing already painted tiles around (layout shift) when the stored decks appear.
+  const hydrated = useHydrated()
 
   return (
     <PageLayout title="Decks">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-        {decks.map((deck) => (
-          <DeckBlock key={deck.id} deck={deck} owned={owned} />
-        ))}
-        <DeckTile to={ROUTES.newDeck} label="Novo deck" className="items-center justify-center">
-          <Plus aria-hidden className="size-8 text-muted-foreground" />
-        </DeckTile>
-      </div>
+      {hydrated && (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
+          {decks.map((deck) => (
+            <DeckBlock key={deck.id} deck={deck} owned={owned} />
+          ))}
+          <DeckTile to={ROUTES.newDeck} label="Novo deck" className="items-center justify-center">
+            <Plus aria-hidden className="size-8 text-muted-foreground" />
+          </DeckTile>
+        </div>
+      )}
     </PageLayout>
   )
 }
