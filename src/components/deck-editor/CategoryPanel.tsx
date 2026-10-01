@@ -45,7 +45,7 @@ export function CategoryPanel({
           .map((row) => (
             <CardRow
               key={row.id}
-              context={{ category, deck: otherRowsDeck(rows, row.id, collections), decks, owned, collections }}
+              context={{ category, otherRows: otherRowsDeck(rows, row.id, collections), decks, owned, collections }}
               row={row}
               error={rowErrors[row.id] ?? null}
               onChange={(patch) => onChangeRow(row.id, patch)}

@@ -77,6 +77,19 @@ describe('buildDeckSave', () => {
     }
   })
 
+  it('still reports a duplicate of a row whose owned value is invalid in the same attempt', () => {
+    const result = buildDeckSave(
+      draft('D', [
+        row({ id: 'first', quantityText: '1', text: 'Abra MEG 53', ownedText: 'x' }),
+        row({ id: 'dup', quantityText: '1', text: 'Abra MEG 53' }),
+      ]),
+      {},
+      collections,
+    )
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(Object.keys(result.rowErrors).sort()).toEqual(['dup', 'first'])
+  })
+
   it('does not block on warnings (more than 4 copies, owned below quantity)', () => {
     const result = buildDeckSave(
       draft('D', [

@@ -37,6 +37,14 @@ export function rowsFromDeck(deck: Deck): DraftRow[] {
   }))
 }
 
+/** The card a row describes, or null when its text or quantity is not valid yet. */
+function rowToCard(row: DraftRow, collections: CollectionConfig): DeckCard | null {
+  const parsed = parseCard(row.category, row.text, collections)
+  const quantity = parseIntegerText(row.quantityText)
+  if (!parsed.ok || quantity < 1) return null
+  return { category: row.category, key: parsed.card.key, displayName: parsed.card.displayName, quantity }
+}
+
 /** A row with no quantity and no card is silently discarded on save. */
 export function isBlankRow(row: DraftRow): boolean {
   return row.quantityText.trim() === '' && row.text.trim() === ''
@@ -47,11 +55,8 @@ export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: Coll
   const cards: DeckCard[] = []
   for (const row of rows) {
     if (row.id === rowId) continue
-    const parsed = parseCard(row.category, row.text, collections)
-    const quantity = parseIntegerText(row.quantityText)
-    if (parsed.ok && quantity >= 1) {
-      cards.push({ category: row.category, key: parsed.card.key, displayName: parsed.card.displayName, quantity })
-    }
+    const card = rowToCard(row, collections)
+    if (card) cards.push(card)
   }
   return { id: '', name: '', cards }
 }
@@ -112,12 +117,14 @@ export function buildDeckSave(
       rowErrors[row.id] = added.error
       continue
     }
+    // Keep the row in the running deck even when its owned value is invalid, so later duplicates
+    // and the 60-card cap are still reported in the same attempt.
+    deck = added.deck
     const ownedQuantity = parseOwnedText(row.ownedText ?? '')
     if (row.ownedText !== null && !Number.isInteger(ownedQuantity)) {
       rowErrors[row.id] = OWNED_INVALID
       continue
     }
-    deck = added.deck
     if (row.ownedText !== null || storedOwned[card.key] === undefined) {
       owned[card.key] = { displayName: card.displayName, category: card.category, quantity: ownedQuantity }
     }

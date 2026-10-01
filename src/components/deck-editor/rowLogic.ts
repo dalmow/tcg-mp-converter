@@ -11,7 +11,7 @@ const MAX_SUGGESTIONS = 8
 export interface RowContext {
   category: CardCategory
   /** The other rows of the draft that already form a valid card. */
-  deck: Deck
+  otherRows: Deck
   decks: Deck[]
   owned: OwnedMap
   collections: CollectionConfig
@@ -48,17 +48,16 @@ export function suggestCards(
     .slice(0, MAX_SUGGESTIONS)
 }
 
-/** Copies of a card name in the deck once `candidate` replaces the row at `originalKey`. Basic energy is exempt. */
-export function copiesAfterEdit(
-  deck: Deck,
-  originalKey: string | null,
+/** Copies of a card name in `otherRows` plus the `candidate` row. Basic energy is exempt. */
+export function copiesInDeck(
+  otherRows: Deck,
   candidate: { parsed: ParsedCard; quantity: number },
   collections: CollectionConfig,
 ): number {
   if (candidate.parsed.basicEnergy) return 0
   let copies = candidate.quantity
-  for (const card of deck.cards) {
-    if (card.key === originalKey || card.key === candidate.parsed.key) continue
+  for (const card of otherRows.cards) {
+    if (card.key === candidate.parsed.key) continue
     const parsed = parseCard(card.category, card.displayName, collections)
     if (parsed.ok && parsed.card.normalizedName === candidate.parsed.normalizedName) copies += card.quantity
   }
@@ -90,15 +89,15 @@ export interface RowInput {
 
 /** Derived validity and feedback of a row (green/red, inline error and warning). */
 export function deriveRowState(context: RowContext, input: RowInput) {
-  const { category, deck, collections } = context
+  const { category, otherRows, collections } = context
   const parsed = parseCard(category, input.text, collections)
   const quantity = parseIntegerText(input.quantityText)
   const ownedQuantity = parseOwnedText(input.ownedText)
-  // `deck` holds only the other rows, so there is no key of this row to exclude; '' matches none.
-  const quantityError = validateQuantity(deck, '', quantity)
+  // `otherRows` excludes this row, so there is no key to exclude; '' matches none.
+  const quantityError = validateQuantity(otherRows, '', quantity)
   const warning =
     parsed.ok && Number.isInteger(quantity)
-      ? copiesWarning(parsed.card, copiesAfterEdit(deck, null, { parsed: parsed.card, quantity }, collections))
+      ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
   const valid =
     parsed.ok && !quantityError && Number.isInteger(ownedQuantity) && ownedQuantity >= quantity && !warning

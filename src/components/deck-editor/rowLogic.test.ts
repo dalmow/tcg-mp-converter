@@ -9,7 +9,7 @@ const deck: Deck = {
   name: 'Deck',
   cards: [{ category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 3 }],
 }
-const context: RowContext = { category: 'pokemon', deck, decks: [deck], owned: {}, collections }
+const context: RowContext = { category: 'pokemon', otherRows: deck, decks: [deck], owned: {}, collections }
 
 function derive(text: string, quantityText: string, ownedText: string) {
   return deriveRowState(context, { text, quantityText, ownedText })

@@ -37,7 +37,10 @@ export function CardRow({ context, row, error, onChange, onDelete }: CardRowProp
     const nextKey = nextParsed.ok ? nextParsed.card.key : null
     const previousKey = parsed.ok ? parsed.card.key : null
     const patch: Partial<DraftRow> = { text: next }
-    if (nextKey !== previousKey) {
+    if (nextKey !== null && nextKey === row.originalKey) {
+      // Typing the saved card back is no owned edit: follow the stored map again.
+      patch.ownedText = null
+    } else if (nextKey !== previousKey) {
       // A text that resolves to a known key takes its owned quantity from the map.
       if (nextKey !== null && owned[nextKey]) patch.ownedText = String(owned[nextKey].quantity)
       else if (previousKey !== null) patch.ownedText = ''
@@ -46,7 +49,8 @@ export function CardRow({ context, row, error, onChange, onDelete }: CardRowProp
   }
 
   function pick(suggestion: CardSuggestion) {
-    onChange({ text: suggestion.displayName, ownedText: String(suggestion.quantity) })
+    const backToSaved = suggestion.key === row.originalKey
+    onChange({ text: suggestion.displayName, ownedText: backToSaved ? null : String(suggestion.quantity) })
   }
 
   return (

@@ -55,25 +55,28 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   useEffect(() => {
     if (!dirty) return
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
 
-  function edit(update: () => void) {
+  function updateDraft(update: () => void) {
     update()
     setSaved(false)
   }
 
   function changeRow(rowId: string, patch: Partial<DraftRow>) {
-    edit(() => {
+    updateDraft(() => {
       setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)))
       setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
     })
   }
 
   function deleteRow(rowId: string) {
-    edit(() => setRows((current) => current.filter((row) => row.id !== rowId)))
+    updateDraft(() => setRows((current) => current.filter((row) => row.id !== rowId)))
   }
 
   function saveDeck() {
@@ -124,7 +127,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             aria-invalid={nameError ? true : undefined}
             value={name}
             onChange={(event) =>
-              edit(() => {
+              updateDraft(() => {
                 setName(event.target.value)
                 setNameError(null)
               })
@@ -175,7 +178,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             decks={decks}
             owned={owned}
             collections={collections}
-            onAddRow={() => edit(() => setRows((current) => [...current, newRow(category)]))}
+            onAddRow={() => updateDraft(() => setRows((current) => [...current, newRow(category)]))}
             onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />
