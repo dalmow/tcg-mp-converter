@@ -7,13 +7,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+import { ROUTES } from '@/routes'
 
 const links = [
-  { to: '/', label: 'Decks', end: true },
-  { to: '/converter', label: 'Conversor', end: false },
-  { to: '/maintenance', label: 'Manutenção', end: false },
+  { to: ROUTES.decks, label: 'Decks', end: true },
+  { to: ROUTES.converter, label: 'Conversor', end: false },
+  { to: ROUTES.maintenance, label: 'Manutenção', end: false },
 ]
+
+const navLinkClass = (isActive: boolean) =>
+  buttonVariants({ variant: isActive ? 'secondary' : 'ghost' })
 
 export function Navbar() {
   return (
@@ -24,19 +27,14 @@ export function Navbar() {
             key={link.to}
             to={link.to}
             end={link.end}
-            className={({ isActive }) =>
-              cn(
-                buttonVariants({ variant: isActive ? 'secondary' : 'ghost' }),
-                'cursor-pointer',
-              )
-            }
+            className={({ isActive }) => navLinkClass(isActive)}
           >
             {link.label}
           </NavLink>
         ))}
         <DropdownMenu>
           <DropdownMenuTrigger
-            className={cn(buttonVariants({ variant: 'ghost' }), 'cursor-pointer')}
+            className={navLinkClass(false)}
           >
             Dados
             <ChevronDownIcon />

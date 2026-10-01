@@ -4,5 +4,5 @@ import { PageLayout } from '@/components/PageLayout'
 /** Serves both `/decks/new` (no id) and `/decks/:id`. */
 export default function DeckEditorPage() {
   const { id } = useParams()
-  return <PageLayout title={id ? 'Deck' : 'Novo deck'} />
+  return <PageLayout title={id ? 'Editar deck' : 'Novo deck'} />
 }
