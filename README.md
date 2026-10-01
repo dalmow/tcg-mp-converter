@@ -43,3 +43,12 @@ administração). Mapeia sigla da Coleção para o total de cartas, ex:
 npm install
 npm run dev
 ```
+
+## SEO
+
+Metadados (description, canonical, Open Graph, Twitter Card, JSON-LD),
+`robots.txt` e `sitemap.xml` são gerados no build por um plugin em
+`vite.config.ts`, a partir de `src/lib/site.ts` e `src/lib/seo.ts`. A URL
+canônica vem de `DEFAULT_SITE_URL` ou da variável de ambiente `SITE_URL`.
+A imagem de compartilhamento (`public/og-image.png`, 1200x630) é gerada a
+partir de `docs/assets/og-image.svg`.
