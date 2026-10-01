@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ComponentProps } from 'react'
 import { Command, CommandItem, CommandList } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
-import type { CardSuggestion } from './cardRows'
+import type { CardSuggestion } from './rowLogic'
 
 interface CardComboboxProps extends Omit<ComponentProps<typeof Input>, 'onChange' | 'value'> {
   value: string

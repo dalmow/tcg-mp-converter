@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { Trash2Icon } from 'lucide-react'
 import { DeleteButton } from '@/components/ActionButtons'
 import {
@@ -17,10 +17,11 @@ import { Input } from '@/components/ui/input'
 import collections from '@/data/collections.json'
 import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
 import { CARD_CATEGORIES } from '@/lib/deck/types'
-import type { CardCategory, Deck, DeckCard, OwnedEntry, Result } from '@/lib/deck/types'
+import type { CardCategory, Deck, Result } from '@/lib/deck/types'
 import { ROUTES } from '@/routes'
 import { CategoryPanel } from './CategoryPanel'
-import { applyRowSave } from './cardRows'
+import { applyRowSave } from './rowLogic'
+import type { RowSave } from './rowLogic'
 
 const PANEL_TITLE: Record<CardCategory, string> = {
   pokemon: 'Pokémon',
@@ -51,16 +52,19 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   function commitName() {
     if (!stored || name.trim() === stored.name) return
-    if (!name.trim()) return setNameError(NAME_REQUIRED)
+    if (!name.trim()) {
+      // The stored name stays; show the error and put it back in the input.
+      setName(stored.name)
+      return setNameError(NAME_REQUIRED)
+    }
     getDeckStore().saveDeck({ ...stored, name: name.trim() })
   }
 
-  function saveRow(
-    originalKey: string | null,
-    card: DeckCard,
-    ownedEntry: OwnedEntry,
-    draftId?: string,
-  ): Result {
+  function removeDraft(draftId: string) {
+    setDrafts((current) => current.filter((draft) => draft.id !== draftId))
+  }
+
+  function saveRow({ originalKey, card, ownedEntry, draftId }: RowSave): Result {
     const trimmedName = name.trim()
     if (!trimmedName) {
       setNameError(NAME_REQUIRED)
@@ -70,7 +74,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     if (!result.ok) return result
     getDeckStore().saveDeck(result.deck, { [card.key]: ownedEntry })
     setNameError(null)
-    if (draftId) setDrafts((current) => current.filter((draft) => draft.id !== draftId))
+    if (draftId) removeDraft(draftId)
     return { ok: true }
   }
 
@@ -81,6 +85,18 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   function deleteDeck() {
     if (stored) getDeckStore().deleteDeck(id)
     navigate(ROUTES.decks)
+  }
+
+  // `/decks/:id` for an id that is not in storage must not create a deck under that id.
+  if (deckId && !stored) {
+    return (
+      <div className="flex flex-col items-start gap-2">
+        <p>Deck não encontrado</p>
+        <Link to={ROUTES.decks} className="text-primary underline">
+          Voltar para os decks
+        </Link>
+      </div>
+    )
   }
 
   return (
@@ -130,15 +146,11 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel
             key={category}
-            category={category}
             title={PANEL_TITLE[category]}
-            deck={deck}
-            decks={decks}
-            owned={owned}
-            collections={collections}
+            context={{ category, deck, decks, owned, collections }}
             draftIds={drafts.filter((draft) => draft.category === category).map((draft) => draft.id)}
             onAddDraft={() => setDrafts((current) => [...current, { id: crypto.randomUUID(), category }])}
-            onDiscardDraft={(draftId) => setDrafts((current) => current.filter((draft) => draft.id !== draftId))}
+            onDiscardDraft={removeDraft}
             onSaveRow={saveRow}
             onDeleteRow={deleteRow}
           />

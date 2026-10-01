@@ -2,44 +2,31 @@ import { PlusIcon } from 'lucide-react'
 import { Panel } from '@/components/Panel'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from '@/lib/deck/types'
-import type { CollectionConfig } from '@/lib/types'
+import type { Result } from '@/lib/deck/types'
 import { CardRow } from './CardRow'
+import type { RowContext, RowSave } from './rowLogic'
 
 export interface CategoryPanelProps {
-  category: CardCategory
   title: string
-  deck: Deck
-  decks: Deck[]
-  owned: OwnedMap
-  collections: CollectionConfig
+  context: RowContext
   /** Ids of rows that were added but not saved yet. */
   draftIds: string[]
   onAddDraft: () => void
   onDiscardDraft: (draftId: string) => void
-  onSaveRow: (
-    originalKey: string | null,
-    card: DeckCard,
-    ownedEntry: OwnedEntry,
-    draftId?: string,
-  ) => Result
+  onSaveRow: (save: RowSave) => Result
   onDeleteRow: (key: string) => void
 }
 
 export function CategoryPanel({
-  category,
   title,
-  deck,
-  decks,
-  owned,
-  collections,
+  context,
   draftIds,
   onAddDraft,
   onDiscardDraft,
   onSaveRow,
   onDeleteRow,
 }: CategoryPanelProps) {
-  const shared = { category, deck, decks, owned, collections }
+  const { category, deck } = context
   return (
     <Panel role="region" aria-label={title} className="self-start">
       <CardHeader>
@@ -51,18 +38,18 @@ export function CategoryPanel({
           .map((card) => (
             <CardRow
               key={card.key}
-              {...shared}
+              context={context}
               card={card}
-              onSave={(originalKey, next, ownedEntry) => onSaveRow(originalKey, next, ownedEntry)}
+              onSave={onSaveRow}
               onDelete={() => onDeleteRow(card.key)}
             />
           ))}
         {draftIds.map((draftId) => (
           <CardRow
             key={draftId}
-            {...shared}
+            context={context}
             card={null}
-            onSave={(originalKey, next, ownedEntry) => onSaveRow(originalKey, next, ownedEntry, draftId)}
+            onSave={(save) => onSaveRow({ ...save, draftId })}
             onDelete={() => onDiscardDraft(draftId)}
           />
         ))}

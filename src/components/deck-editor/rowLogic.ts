@@ -1,11 +1,29 @@
 import type { CollectionConfig } from '@/lib/types'
 import { normalizeName, parseCard } from '@/lib/deck/cardParser'
 import type { ParsedCard } from '@/lib/deck/cardParser'
-import { addDeckCard } from '@/lib/deck/deckRules'
+import { addDeckCard, validateQuantity } from '@/lib/deck/deckRules'
 import { MAX_COPIES_PER_NAME } from '@/lib/deck/types'
-import type { CardCategory, Deck, DeckCard, OwnedMap, Result } from '@/lib/deck/types'
+import type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from '@/lib/deck/types'
 
-export const MAX_SUGGESTIONS = 8
+const MAX_SUGGESTIONS = 8
+
+/** Everything a row needs to know about the deck and the stored data around it. */
+export interface RowContext {
+  category: CardCategory
+  deck: Deck
+  decks: Deck[]
+  owned: OwnedMap
+  collections: CollectionConfig
+}
+
+/** A row save request. `originalKey` is null for a row that was never saved. */
+export interface RowSave {
+  originalKey: string | null
+  card: DeckCard
+  ownedEntry: OwnedEntry
+  /** Set when the saved row was an unsaved draft, so the editor can drop it. */
+  draftId?: string
+}
 
 export interface CardSuggestion {
   key: string
@@ -82,3 +100,29 @@ export function parseOwnedText(text: string): number {
   return text.trim() === '' ? 0 : parseIntegerText(text)
 }
 
+
+export interface RowInput {
+  /** The persisted row, or null for a new row that was not saved yet. */
+  card: DeckCard | null
+  text: string
+  quantityText: string
+  ownedText: string
+}
+
+/** Derived validity and feedback of a row (green/red, inline error and warning). */
+export function deriveRowState(context: RowContext, input: RowInput) {
+  const { category, deck, collections } = context
+  const originalKey = input.card?.key ?? null
+  const parsed = parseCard(category, input.text, collections)
+  const quantity = parseIntegerText(input.quantityText)
+  const ownedQuantity = parseOwnedText(input.ownedText)
+  // A new row has no key to exclude from the deck's other rows; '' matches none.
+  const quantityError = validateQuantity(deck, originalKey ?? '', quantity)
+  const warning =
+    parsed.ok && Number.isInteger(quantity)
+      ? copiesWarning(parsed.card, copiesAfterEdit(deck, originalKey, { parsed: parsed.card, quantity }, collections))
+      : null
+  const valid =
+    parsed.ok && !quantityError && Number.isInteger(ownedQuantity) && ownedQuantity >= quantity && !warning
+  return { parsed, quantity, ownedQuantity, quantityError, warning, valid }
+}

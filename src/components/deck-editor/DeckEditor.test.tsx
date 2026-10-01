@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -101,6 +101,32 @@ describe('DeckEditor', () => {
     expect(savedDeck()?.cards.map((card) => card.key)).toEqual(['MEG-55'])
     // The old key keeps its owned quantity, so Maintenance still lists it.
     expect(getDeckStore().getSnapshot().owned['MEG-54']?.quantity).toBe(2)
+  })
+
+  it('keeps the old key owned and reads the new key owned from the map or 0 on a text edit', async () => {
+    getDeckStore().saveDeck(
+      {
+        id: 'abc',
+        name: 'Alakazam',
+        cards: [{ category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 2 }],
+      },
+      {
+        'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon', quantity: 5 },
+        'MEG-55': { displayName: 'Kadabra MEG 55', category: 'pokemon', quantity: 3 },
+      },
+    )
+    renderEditor(deckPath('abc'))
+    const user = userEvent.setup()
+    const text = panel('Pokémon').getByLabelText('Carta')
+    await user.clear(text)
+    await user.type(text, 'Kadabra MEG 55')
+    expect((panel('Pokémon').getByLabelText('Adquirido') as HTMLInputElement).value).toBe('3')
+    await user.click(panel('Pokémon').getByRole('button', { name: 'Salvar linha' }))
+
+    const { owned } = getDeckStore().getSnapshot()
+    expect(owned['MEG-54']?.quantity).toBe(5)
+    expect(owned['MEG-55']?.quantity).toBe(3)
+    expect(savedDeck()?.cards.map((card) => card.key)).toEqual(['MEG-55'])
   })
 
   it('deletes a saved row and discards an unsaved one', async () => {
@@ -246,5 +272,45 @@ describe('DeckEditor', () => {
     await user.click(await screen.findByRole('button', { name: 'Excluir' }))
     expect(getDeckStore().getSnapshot().decks).toHaveLength(0)
     expect(await screen.findByRole('heading', { name: 'Lista' })).toBeTruthy()
+  })
+
+  it('shows a not-found state for an unknown deck id without creating a deck', () => {
+    renderEditor(deckPath('missing'))
+    expect(screen.getByRole('heading', { level: 1, name: 'Editar deck' })).toBeTruthy()
+    expect(screen.getByText('Deck não encontrado')).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Voltar/ }).getAttribute('href')).toBe(ROUTES.decks)
+    expect(screen.queryByPlaceholderText('Nome do deck')).toBeNull()
+    expect(getDeckStore().getSnapshot().decks).toHaveLength(0)
+  })
+
+  it('follows owned changes made elsewhere unless the field has an unsaved edit', async () => {
+    const card = { category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 2 } as const
+    const deck = { id: 'abc', name: 'Alakazam', cards: [card] }
+    const entry = (quantity: number) => ({ 'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon' as const, quantity } })
+    getDeckStore().saveDeck(deck, entry(1))
+    renderEditor(deckPath('abc'))
+    const owned = () => panel('Pokémon').getByLabelText('Adquirido') as HTMLInputElement
+    expect(owned().value).toBe('1')
+
+    act(() => getDeckStore().saveDeck(deck, entry(4)))
+    expect(owned().value).toBe('4')
+
+    const user = userEvent.setup()
+    await user.clear(owned())
+    await user.type(owned(), '9')
+    act(() => getDeckStore().saveDeck(deck, entry(6)))
+    expect(owned().value).toBe('9')
+  })
+
+  it('reverts an empty rename of a stored deck to the stored name and shows the error', async () => {
+    getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
+    renderEditor(deckPath('abc'))
+    const user = userEvent.setup()
+    const name = screen.getByPlaceholderText('Nome do deck') as HTMLInputElement
+    await user.clear(name)
+    await user.tab()
+    expect(screen.getByRole('alert').textContent).toBe('Informe o nome do deck')
+    expect(name.value).toBe('Alakazam')
+    expect(savedDeck()?.name).toBe('Alakazam')
   })
 })
