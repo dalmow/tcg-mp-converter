@@ -92,7 +92,7 @@ function MarketplaceResult({ title, text }: { title: string; text: string }) {
   )
 }
 
-export default function App() {
+export default function ConverterPage() {
   const [decklistInput, setDecklistInput] = useState('')
   const [condition, setCondition] = useState<Condition>('NM')
   const [language, setLanguage] = useState<Language>('PTEN')
