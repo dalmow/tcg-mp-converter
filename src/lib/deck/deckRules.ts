@@ -1,7 +1,7 @@
 import type { CollectionConfig } from '../types'
 import { parseCard } from './cardParser'
 import { DECK_SIZE, MAX_COPIES_PER_NAME } from './types'
-import type { Deck, DeckCard, OwnedMap } from './types'
+import type { Deck, DeckCard, OwnedMap, Result } from './types'
 
 export function totalQuantity(cards: DeckCard[]): number {
   return cards.reduce((sum, card) => sum + card.quantity, 0)
@@ -24,7 +24,7 @@ export function validateQuantity(deck: Deck, key: string, quantity: number): str
   return null
 }
 
-export type AddDeckCardResult = { ok: true; deck: Deck } | { ok: false; error: string }
+export type AddDeckCardResult = Result<{ deck: Deck }>
 
 export function addDeckCard(deck: Deck, card: DeckCard): AddDeckCardResult {
   if (deck.cards.some((existing) => existing.key === card.key)) {
@@ -50,7 +50,7 @@ export interface DeckValidation {
   ownedOk: boolean
   /** Sum of (quantity - owned) over rows lacking cards. */
   missingCount: number
-  /** "faltam N cartas", only when rule 4 is the only failing rule. */
+  /** "falta 1 carta" / "faltam N cartas", only when rule 4 is the only failing rule. */
   missingMessage: string | null
 }
 
@@ -59,7 +59,7 @@ export function missingForCard(card: DeckCard, owned: OwnedMap): number {
 }
 
 export function formatMissing(count: number): string {
-  return `faltam ${count} cartas`
+  return count === 1 ? 'falta 1 carta' : `faltam ${count} cartas`
 }
 
 export function validateDeck(deck: Deck, owned: OwnedMap, collections: CollectionConfig): DeckValidation {
@@ -69,6 +69,7 @@ export function validateDeck(deck: Deck, owned: OwnedMap, collections: Collectio
   let rowsOk = true
   const copiesByName = new Map<string, number>()
   for (const card of deck.cards) {
+    // Re-parse the stored text so rows are always checked against the current collection config.
     const parsed = parseCard(card.category, card.displayName, collections)
     if (!parsed.ok || parsed.card.key !== card.key) {
       rowsOk = false

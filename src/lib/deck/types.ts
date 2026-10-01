@@ -23,3 +23,6 @@ export interface OwnedEntry {
 }
 
 export type OwnedMap = Record<string, OwnedEntry>
+
+/** Success payload merged with `ok: true`, or an error message with `ok: false`. */
+export type Result<T extends object = object> = ({ ok: true } & T) | { ok: false; error: string }

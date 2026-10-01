@@ -1,5 +1,5 @@
 import type { CollectionConfig } from '../types'
-import type { CardCategory } from './types'
+import type { CardCategory, Result } from './types'
 
 export interface ParsedCard {
   category: CardCategory
@@ -10,7 +10,7 @@ export interface ParsedCard {
   basicEnergy: boolean
 }
 
-export type ParseCardResult = { ok: true; card: ParsedCard } | { ok: false; error: string }
+export type ParseCardResult = Result<{ card: ParsedCard }>
 
 export function normalizeName(name: string): string {
   return name
@@ -27,15 +27,16 @@ const basicEnergyByNormalizedType = new Map(BASIC_ENERGY_TYPES.map((type) => [no
 
 const integerPattern = /^\d+$/
 
-interface Split {
+interface CardTextParts {
   name: string
   collection?: string
   number?: number
   /** Trailing integer present without a collection token before it. */
-  strayNumber: boolean
+  hasLooseNumber: boolean
 }
 
-function split(text: string): Split {
+/** Splits `<name> [<COLLECTION> <number>]` by tokens; the collection token is not validated here. */
+function splitCardText(text: string): CardTextParts {
   const tokens = text.trim().split(/\s+/).filter(Boolean)
   const last = tokens[tokens.length - 1]
   if (tokens.length >= 3 && integerPattern.test(last)) {
@@ -43,22 +44,38 @@ function split(text: string): Split {
       name: tokens.slice(0, -2).join(' '),
       collection: tokens[tokens.length - 2],
       number: Number(last),
-      strayNumber: false,
+      hasLooseNumber: false,
     }
   }
   if (tokens.length >= 1 && integerPattern.test(last)) {
-    return { name: tokens.slice(0, -1).join(' '), number: Number(last), strayNumber: true }
+    return { name: tokens.slice(0, -1).join(' '), number: Number(last), hasLooseNumber: true }
   }
-  return { name: tokens.join(' '), strayNumber: false }
+  return { name: tokens.join(' '), hasLooseNumber: false }
+}
+
+const PRINTING_LABEL: Record<CardCategory, string> = {
+  pokemon: 'Pokémon',
+  energy: 'Energia especial',
+  trainer: 'Treinador',
+}
+
+function buildCard(
+  category: CardCategory,
+  key: string,
+  displayName: string,
+  normalizedName: string,
+  basicEnergy: boolean,
+): ParseCardResult {
+  return { ok: true, card: { category, key, displayName, normalizedName, basicEnergy } }
 }
 
 function resolvePrinting(
-  label: string,
-  parts: Split,
+  category: CardCategory,
+  parts: CardTextParts,
   collections: CollectionConfig,
-): { ok: true; key: string; displayName: string } | { ok: false; error: string } {
+): Result<{ key: string; displayName: string }> {
   if (!parts.name || parts.collection === undefined || parts.number === undefined) {
-    return { ok: false, error: `${label} exige nome, coleção e número` }
+    return { ok: false, error: `${PRINTING_LABEL[category]} exige nome, coleção e número` }
   }
   const collection = parts.collection.toUpperCase()
   const total = collections[collection]
@@ -68,11 +85,7 @@ function resolvePrinting(
   if (parts.number < 1 || parts.number > total) {
     return { ok: false, error: `Número ${parts.number} fora do total da coleção ${collection} (${total})` }
   }
-  return {
-    ok: true,
-    key: `${collection}-${parts.number}`,
-    displayName: `${parts.name} ${collection} ${parts.number}`,
-  }
+  return { ok: true, key: `${collection}-${parts.number}`, displayName: `${parts.name} ${collection} ${parts.number}` }
 }
 
 function parseBasicEnergyType(name: string): string | undefined {
@@ -81,51 +94,33 @@ function parseBasicEnergyType(name: string): string | undefined {
 }
 
 export function parseCard(category: CardCategory, text: string, collections: CollectionConfig): ParseCardResult {
-  const parts = split(text)
+  const parts = splitCardText(text)
   if (!parts.name) {
     return { ok: false, error: 'Informe o nome da carta' }
   }
-  const hasPrinting = parts.collection !== undefined || parts.strayNumber
 
   if (category === 'trainer') {
-    if (hasPrinting) {
+    // A trainer name may end in a digit; only a known collection acronym before it counts as a printing.
+    if (parts.collection !== undefined && collections[parts.collection.toUpperCase()] !== undefined) {
       return { ok: false, error: 'Treinador não aceita coleção nem número' }
     }
-    const normalizedName = normalizeName(parts.name)
-    return {
-      ok: true,
-      card: { category, key: normalizedName, displayName: parts.name, normalizedName, basicEnergy: false },
-    }
+    const name = text.trim().split(/\s+/).join(' ')
+    const normalizedName = normalizeName(name)
+    return buildCard(category, normalizedName, name, normalizedName, false)
   }
 
+  const hasPrinting = parts.collection !== undefined || parts.hasLooseNumber
   if (category === 'energy' && !hasPrinting) {
     const type = parseBasicEnergyType(parts.name)
     if (!type) {
       return { ok: false, error: 'Energia especial exige coleção e número' }
     }
     const normalizedType = normalizeName(type)
-    return {
-      ok: true,
-      card: {
-        category,
-        key: normalizedType,
-        displayName: `Energia ${type}`,
-        normalizedName: normalizedType,
-        basicEnergy: true,
-      },
-    }
+    // Prefixed so a basic energy key can never equal a trainer's normalized-name key.
+    return buildCard(category, `energy:${normalizedType}`, `Energia ${type}`, normalizedType, true)
   }
 
-  const printing = resolvePrinting(category === 'pokemon' ? 'Pokémon' : 'Energia especial', parts, collections)
+  const printing = resolvePrinting(category, parts, collections)
   if (!printing.ok) return printing
-  return {
-    ok: true,
-    card: {
-      category,
-      key: printing.key,
-      displayName: printing.displayName,
-      normalizedName: normalizeName(parts.name),
-      basicEnergy: false,
-    },
-  }
+  return buildCard(category, printing.key, printing.displayName, normalizeName(parts.name), false)
 }

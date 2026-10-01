@@ -24,10 +24,17 @@ describe('normalizeName', () => {
 
 describe('parseCard pokemon', () => {
   it('keys by collection-number', () => {
-    expect(ok('pokemon', 'Abra MEG 54')).toMatchObject({ key: 'MEG-54', displayName: 'Abra MEG 54', normalizedName: 'abra' })
+    expect(ok('pokemon', 'Abra MEG 54')).toMatchObject({
+      key: 'MEG-54',
+      displayName: 'Abra MEG 54',
+      normalizedName: 'abra',
+    })
   })
   it('is case tolerant and strips leading zeros', () => {
-    expect(ok('pokemon', 'Iron Valiant ex meg 054')).toMatchObject({ key: 'MEG-54', displayName: 'Iron Valiant ex MEG 54' })
+    expect(ok('pokemon', 'Iron Valiant ex meg 054')).toMatchObject({
+      key: 'MEG-54',
+      displayName: 'Iron Valiant ex MEG 54',
+    })
   })
   it('requires collection and number', () => {
     expect(error('pokemon', 'Abra')).toBe('Pokémon exige nome, coleção e número')
@@ -52,15 +59,28 @@ describe('parseCard trainer', () => {
   })
   it('rejects collection or number', () => {
     expect(error('trainer', 'Ordem da chefia MEG 5')).toBe('Treinador não aceita coleção nem número')
-    expect(error('trainer', 'Ordem da chefia 5')).toBe('Treinador não aceita coleção nem número')
+  })
+  it('keeps a trailing number that is not preceded by a collection as part of the name', () => {
+    expect(ok('trainer', 'Carta 2')).toMatchObject({ key: 'carta 2', displayName: 'Carta 2' })
+    expect(ok('trainer', 'Ordem da chefia 5')).toMatchObject({ key: 'ordem da chefia 5' })
+  })
+  it('detects the collection case-insensitively', () => {
+    expect(error('trainer', 'Ordem da chefia meg 5')).toBe('Treinador não aceita coleção nem número')
   })
 })
 
 describe('parseCard energy', () => {
   it('recognizes basic energy with or without prefix, any accent/case', () => {
-    expect(ok('energy', 'Energia Fogo')).toMatchObject({ key: 'fogo', displayName: 'Energia Fogo', basicEnergy: true })
-    expect(ok('energy', 'agua')).toMatchObject({ key: 'agua', displayName: 'Energia Água', basicEnergy: true })
-    expect(ok('energy', 'Energia Elétrica').key).toBe('eletrica')
+    expect(ok('energy', 'Energia Fogo')).toMatchObject({
+      key: 'energy:fogo',
+      displayName: 'Energia Fogo',
+      basicEnergy: true,
+    })
+    expect(ok('energy', 'agua')).toMatchObject({ key: 'energy:agua', displayName: 'Energia Água', basicEnergy: true })
+    expect(ok('energy', 'Energia Elétrica').key).toBe('energy:eletrica')
+  })
+  it('never collides with a trainer key of the same name', () => {
+    expect(ok('energy', 'Fogo').key).not.toBe(ok('trainer', 'Fogo').key)
   })
   it('parses special energy like a pokemon', () => {
     expect(ok('energy', 'Energia de Prisma BLK 86')).toMatchObject({

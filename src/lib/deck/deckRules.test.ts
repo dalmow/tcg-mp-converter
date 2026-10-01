@@ -5,7 +5,7 @@ import type { Deck, DeckCard, OwnedMap } from './types'
 const collections = { MEG: 132, BLK: 86, SVI: 198 }
 
 const abra: DeckCard = { category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 4 }
-const fire: DeckCard = { category: 'energy', key: 'fogo', displayName: 'Energia Fogo', quantity: 56 }
+const fire: DeckCard = { category: 'energy', key: 'energy:fogo', displayName: 'Energia Fogo', quantity: 56 }
 
 function deck(cards: DeckCard[]): Deck {
   return { id: '1', name: 'D', cards }
@@ -34,7 +34,7 @@ describe('addDeckCard / quantity', () => {
     expect(addDeckCard(d, { ...abra, quantity: 5 }).ok).toBe(false)
   })
   it('excludes the edited row from the cap', () => {
-    expect(maxQuantityFor(deck([abra, fire]), 'fogo')).toBe(56)
+    expect(maxQuantityFor(deck([abra, fire]), 'energy:fogo')).toBe(56)
   })
   it('rejects zero, negative and non-integer quantities', () => {
     for (const q of [0, -1, 1.5, NaN]) expect(validateQuantity(deck([]), 'x', q)).not.toBeNull()
@@ -90,7 +90,7 @@ describe('validateDeck', () => {
   it('rule 4: reports "faltam N cartas" when only owned fails', () => {
     const owned = ownedFor(full)
     owned['MEG-54'].quantity = 1
-    owned['fogo'].quantity = 55
+    owned['energy:fogo'].quantity = 55
     const result = validateDeck(deck(full), owned, collections)
     expect(result).toMatchObject({ valid: false, ownedOk: false, missingCount: 4, missingMessage: 'faltam 4 cartas' })
   })
@@ -105,9 +105,9 @@ describe('validateDeck', () => {
     expect(result.missingMessage).toBeNull()
   })
 
-  it('uses the same message for one missing card', () => {
+  it('uses the singular message for one missing card', () => {
     const owned = ownedFor(full)
     owned['MEG-54'].quantity = 3
-    expect(validateDeck(deck(full), owned, collections).missingMessage).toBe('faltam 1 cartas')
+    expect(validateDeck(deck(full), owned, collections).missingMessage).toBe('falta 1 carta')
   })
 })
