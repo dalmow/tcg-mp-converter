@@ -1,12 +1,6 @@
 import { NavLink } from 'react-router'
-import { ChevronDownIcon } from 'lucide-react'
-import { buttonVariants } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { BackupMenu } from '@/components/BackupMenu'
+import { navLinkClass } from '@/components/navLinkClass'
 import { ROUTES } from '@/routes'
 
 const links = [
@@ -14,9 +8,6 @@ const links = [
   { to: ROUTES.converter, label: 'Conversor', end: false },
   { to: ROUTES.maintenance, label: 'Manutenção', end: false },
 ]
-
-const navLinkClass = (isActive: boolean) =>
-  buttonVariants({ variant: isActive ? 'secondary' : 'ghost' })
 
 export function Navbar() {
   return (
@@ -32,19 +23,7 @@ export function Navbar() {
             {link.label}
           </NavLink>
         ))}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={navLinkClass(false)}
-          >
-            Dados
-            <ChevronDownIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-auto">
-            {/* Wired in a later issue (backup export/import). */}
-            <DropdownMenuItem>Exportar backup</DropdownMenuItem>
-            <DropdownMenuItem>Importar backup</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <BackupMenu />
       </div>
     </nav>
   )
