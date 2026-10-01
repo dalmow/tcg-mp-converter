@@ -4,7 +4,7 @@ Audit of the Decks, New/Edit deck, Converter and Maintenance screens (plus the
 shared navbar, "Dados" menu, dialogs and toasts). Fixes are out of scope here and
 are tracked in DAL-24.
 
-- Audited commit: DAL-19 branch (stacked), production build served by `vite preview`.
+- Audited build: DAL-19 branch (before the DAL-20 rename and DAL-21 favicon landed on `main`), production build served by `vite preview`. Findings are unaffected except the document title text in A-08.
 - Date: 2026-10-01. Theme: dark only (the app has a single theme).
 - Fixture: one saved deck ("Deck Teste", 18 cards) and a few owned entries in `localStorage`.
 
@@ -30,7 +30,7 @@ passing scans do not imply conformance.
 | Decks | 100 | none |
 | New deck | 96 | color-contrast (2 nodes) |
 | Converter | 90 | color-contrast (5 nodes), label (2 nodes) |
-| Maintenance | 100 | none in the fixture state (no unsatisfied-row Save button was contrast-flagged by Lighthouse, but axe flags the Save buttons, see A-01) |
+| Maintenance | 100 | none in the fixture state (no unsatisfied-row Save button was contrast-flagged by Lighthouse, but axe flags the Save buttons, see A-03) |
 
 Lighthouse is weaker than axe on state-dependent content; use the axe results as the reference.
 
@@ -125,7 +125,7 @@ that fix many screens at once, then per-screen refinements).
 - **Screens:** All
 - **WCAG:** 2.4.2 Page Titled (A)
 - **Severity:** Moderate
-- **Evidence:** `document.title` is "PTCG Marketplace Converter" on all routes (hash router, no per-route title). The visible/sr-only `h1` varies, but the tab/window title does not tell users (and screen readers announcing a navigation) where they are.
+- **Evidence:** `document.title` is the same static string on all routes (the audited build used "PTCG Marketplace Converter"; it is now "PTCG Tools" after DAL-20) (hash router, no per-route title). The visible/sr-only `h1` varies, but the tab/window title does not tell users (and screen readers announcing a navigation) where they are.
 - **Fix:** Set `document.title` per route (e.g. "Decks - PTCG ..." / "Editando deck X - ..." ) with a small `useDocumentTitle` hook in `PageLayout`/`DeckEditor`.
 
 ### A-09 Success/error toasts: transient, no pause, tiny close target
@@ -200,7 +200,7 @@ that fix many screens at once, then per-screen refinements).
 - **Screen:** Maintenance
 - **WCAG:** 2.5.8 Target Size (Minimum) (AA)
 - **Severity:** Minor
-- **Evidence:** the switch track is 32x18 px (height < 24). The associated `<label>` enlarges the clickable area, and spacing around is generous, so this probably meets the spacing exception; verify manually. The Lighthouse/axe `target-size` rule did not flag it.
+- **Evidence:** the switch track is 32x18 px (height < 24). The associated `<label>` and the `after:-inset-y-2` hit area in `switch.tsx` enlarge the clickable area, and spacing around is generous, so this probably meets the spacing exception; verify manually. The Lighthouse/axe `target-size` rule did not flag it.
 - **Fix:** Make the track at least 24 px tall or confirm the label is the primary target; also nothing else among buttons/links/inputs (other than the toast close button, A-09) measured under 24x24.
 
 ### A-18 Remaining small items
@@ -220,7 +220,7 @@ that fix many screens at once, then per-screen refinements).
 - Language: `<html lang="pt-BR">`; a single `main` and `nav` landmark per page; exactly one `h1` per screen (sr-only except Edit deck); not-found state has an `h1` and a link back.
 - Focus is visible on buttons, links and inputs (ring/outline present in all probed elements); no keyboard traps found in dialogs or the menu; dialog initial focus and focus return are correct.
 - Deck editor: new-row focus moves to the quantity input; the combobox is keyboard operable (ArrowDown/Enter).
-- `prefers-reduced-motion` handling is present in the stylesheet (one rule found; not exhaustively verified against every animation).
+- `prefers-reduced-motion`: no rule found in `src/index.css`; animations come from `tw-animate-css` utilities and were not checked individually.
 - Toast semantics (status vs alert) and labelled notification region.
 
 ## Not done / limitations
