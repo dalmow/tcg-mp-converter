@@ -54,18 +54,13 @@ function panel(name: string) {
   return within(screen.getByRole('region', { name }))
 }
 
-const ADD_MENU_ITEM = {
-  Pokémon: 'Adicionar Pokémon',
-  Treinadores: 'Adicionar Treinador',
-  Energias: 'Adicionar Energia',
-} as const
+type PanelName = 'Pokémon' | 'Treinadores' | 'Energias'
 
-async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: keyof typeof ADD_MENU_ITEM) {
-  await user.click(screen.getByRole('button', { name: 'Adicionar carta' }))
-  await user.click(await screen.findByRole('menuitem', { name: ADD_MENU_ITEM[panelName] }))
+async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: PanelName) {
+  await user.click(panel(panelName).getByRole('button', { name: 'Adicionar carta' }))
 }
 
-async function addRow(panelName: keyof typeof ADD_MENU_ITEM, quantity: string, text: string, owned?: string) {
+async function addRow(panelName: PanelName, quantity: string, text: string, owned?: string) {
   const user = userEvent.setup()
   const scope = panel(panelName)
   await addCard(user, panelName)
@@ -97,20 +92,27 @@ describe('DeckEditor', () => {
     }
   })
 
-  it('has one icon-only "+" button that adds a row to the chosen category', async () => {
+  it('starts a new deck with one blank row in each category', () => {
     renderEditor()
-    const user = userEvent.setup()
-    expect(screen.getAllByRole('button', { name: 'Adicionar carta' })).toHaveLength(1)
-    expect(screen.getByRole('button', { name: 'Adicionar carta' }).textContent).toBe('')
-    await addCard(user, 'Energias')
-    expect(panel('Energias').getAllByTestId('card-row')).toHaveLength(1)
-    expect(panel('Pokémon').queryAllByTestId('card-row')).toHaveLength(0)
+    for (const name of ['Pokémon', 'Treinadores', 'Energias'] as const) {
+      expect(panel(name).getAllByTestId('card-row')).toHaveLength(1)
+    }
+  })
+
+  it('has an icon-only "+" button in each panel that adds a row to that category only', async () => {
+    renderEditor()
+    expect(screen.getAllByRole('button', { name: 'Adicionar carta' })).toHaveLength(3)
+    expect(panel('Energias').getByRole('button', { name: 'Adicionar carta' }).textContent).toBe('')
+    await addCard(userEvent.setup(), 'Energias')
+    expect(panel('Energias').getAllByTestId('card-row')).toHaveLength(2)
+    expect(panel('Pokémon').getAllByTestId('card-row')).toHaveLength(1)
   })
 
   it('focuses the quantity input of the row just added', async () => {
     renderEditor()
     await addCard(userEvent.setup(), 'Energias')
-    const row = within(panel('Energias').getByTestId('card-row'))
+    const rows = panel('Energias').getAllByTestId('card-row')
+    const row = within(rows[rows.length - 1])
     expect(document.activeElement).toBe(row.getByLabelText('Quantidade'))
   })
 
@@ -130,7 +132,6 @@ describe('DeckEditor', () => {
 
   it('uses "#" as the quantity placeholder', async () => {
     renderEditor()
-    await addCard(userEvent.setup(), 'Pokémon')
     expect(panel('Pokémon').getByLabelText('Quantidade').getAttribute('placeholder')).toBe('#')
   })
 
@@ -277,7 +278,7 @@ describe('DeckEditor', () => {
     expect(getDeckStore().getSnapshot().owned).toEqual({})
   })
 
-  it.each<[keyof typeof ADD_MENU_ITEM, string, string | RegExp]>([
+  it.each<[PanelName, string, string | RegExp]>([
     ['Pokémon', 'Abra XYZ 54', 'Coleção XYZ não cadastrada'],
     ['Pokémon', 'Abra MEG 9999', /fora do total/],
     ['Treinadores', 'Ordem da chefia MEG 54', 'Treinador não aceita coleção nem número'],
@@ -356,7 +357,6 @@ describe('DeckEditor', () => {
     })
     renderEditor()
     const user = userEvent.setup()
-    await addCard(user, 'Pokémon')
     const row = within(panel('Pokémon').getByTestId('card-row'))
     await user.click(row.getByLabelText('Carta'))
 

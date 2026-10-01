@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
-import { PlusIcon, SaveIcon, Trash2Icon } from 'lucide-react'
+import { SaveIcon, Trash2Icon } from 'lucide-react'
 import { DeleteButton, SaveButton } from '@/components/ActionButtons'
 import {
   AlertDialog,
@@ -13,13 +13,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
@@ -37,12 +30,6 @@ const PANEL_TITLE: Record<CardCategory, string> = {
   energy: 'Energias',
 }
 
-const ADD_CARD_LABEL: Record<CardCategory, string> = {
-  pokemon: 'Adicionar Pokémon',
-  trainer: 'Adicionar Treinador',
-  energy: 'Adicionar Energia',
-}
-
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
   const navigate = useNavigate()
@@ -57,7 +44,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   // The draft: everything edited here stays in memory until Save deck commits it in one go.
   const [name, setName] = useState(initial?.name ?? '')
-  const [rows, setRows] = useState<DraftRow[]>(() => (initial ? rowsFromDeck(initial) : []))
+  const [rows, setRows] = useState<DraftRow[]>(() =>
+    initial ? rowsFromDeck(initial) : CARD_CATEGORIES.map(newRow),
+  )
   const [nameError, setNameError] = useState<string | null>(null)
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
   const [focusRowId, setFocusRowId] = useState<string | null>(null)
@@ -155,16 +144,16 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         <div
           role="group"
           aria-label="Ações do deck"
-          className="flex [&>button:first-child]:rounded-r-none [&>button:last-child]:rounded-l-none [&>button:last-child]:border-l [&>button:last-child]:border-l-background/40"
+          className="flex gap-px [&>button:first-child]:rounded-r-none [&>button:last-child]:rounded-l-none"
         >
-          <SaveButton onClick={saveDeck}>
+          <SaveButton aria-label="Salvar deck" onClick={saveDeck}>
             <SaveIcon />
-            Salvar deck
+            Salvar
           </SaveButton>
           <AlertDialog>
-            <AlertDialogTrigger render={<DeleteButton />}>
+            <AlertDialogTrigger render={<DeleteButton aria-label="Excluir deck" />}>
               <Trash2Icon />
-              Excluir deck
+              Excluir
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -180,20 +169,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={<Button variant="outline" size="icon" aria-label="Adicionar carta" />}
-          >
-            <PlusIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-auto" finalFocus={false}>
-            {CARD_CATEGORIES.map((category) => (
-              <DropdownMenuItem key={category} onClick={() => appendRow(category)}>
-                {ADD_CARD_LABEL[category]}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {CARD_CATEGORIES.map((category) => (
@@ -207,6 +182,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             owned={owned}
             collections={collections}
             focusRowId={focusRowId}
+            onAddRow={() => appendRow(category)}
             onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />

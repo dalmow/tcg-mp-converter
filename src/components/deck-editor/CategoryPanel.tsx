@@ -1,5 +1,7 @@
+import { PlusIcon } from 'lucide-react'
 import { Panel } from '@/components/Panel'
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { CollectionConfig } from '@/lib/types'
 import type { CardCategory, Deck, OwnedMap } from '@/lib/deck/types'
 import { CardRow } from './CardRow'
@@ -17,6 +19,7 @@ export interface CategoryPanelProps {
   collections: CollectionConfig
   /** Id of the row just added, which takes focus on mount. */
   focusRowId: string | null
+  onAddRow: () => void
   onChangeRow: (rowId: string, patch: Partial<DraftRow>) => void
   onDeleteRow: (rowId: string) => void
 }
@@ -30,6 +33,7 @@ export function CategoryPanel({
   owned,
   collections,
   focusRowId,
+  onAddRow,
   onChangeRow,
   onDeleteRow,
 }: CategoryPanelProps) {
@@ -37,6 +41,11 @@ export function CategoryPanel({
     <Panel role="region" aria-label={title} className="self-start">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
+        <CardAction>
+          <Button variant="outline" size="icon" aria-label="Adicionar carta" onClick={onAddRow}>
+            <PlusIcon />
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {rows
