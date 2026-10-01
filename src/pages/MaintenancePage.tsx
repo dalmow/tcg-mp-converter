@@ -3,9 +3,9 @@ import { MaintenanceRow } from '@/components/maintenance/MaintenanceRow'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
 import { Switch } from '@/components/ui/switch'
-import { useDeckData } from '@/lib/deck/deckStore'
-import { deriveMaintenance } from '@/lib/deck/maintenance'
-import type { CardCategory } from '@/lib/deck/types'
+import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
+import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/lib/deck/maintenance'
+import { CARD_CATEGORIES, type CardCategory } from '@/lib/deck/types'
 
 const CATEGORY_TITLES: Record<CardCategory, string> = {
   pokemon: 'Pokémon',
@@ -29,10 +29,10 @@ export default function MaintenancePage() {
           Só faltantes
         </label>
       </div>
-      {(Object.keys(CATEGORY_TITLES) as CardCategory[]).map((category) => {
+      {CARD_CATEGORIES.map((category) => {
         const visible = rows
           .filter((row) => row.category === category)
-          .filter((row) => !onlyMissing || ownedOf(row.key) < row.needed)
+          .filter((row) => !onlyMissing || !isSatisfied(row, ownedOf(row.key)))
           .sort((a, b) => a.displayName.localeCompare(b.displayName))
         return (
           <Panel key={category} className="gap-3 p-4">
@@ -42,7 +42,13 @@ export default function MaintenancePage() {
             ) : (
               <ul className="flex flex-col gap-2">
                 {visible.map((row) => (
-                  <MaintenanceRow key={`${row.key}:${ownedOf(row.key)}`} row={row} owned={ownedOf(row.key)} />
+                  <MaintenanceRow
+                    key={row.key}
+                    row={row}
+                    owned={ownedOf(row.key)}
+                    onSave={(entry, quantity) => getDeckStore().setOwned(entry.key, toOwnedEntry(entry, quantity))}
+                    onDelete={(entry) => getDeckStore().deleteOwned(entry.key)}
+                  />
                 ))}
               </ul>
             )}

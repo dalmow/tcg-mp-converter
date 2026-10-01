@@ -1,6 +1,6 @@
-import type { CardCategory, Deck, OwnedMap } from './types'
+import type { CardCategory, Deck, OwnedEntry, OwnedMap } from './types'
 
-export interface MaintenanceRow {
+export interface MaintenanceEntry {
   key: string
   displayName: string
   category: CardCategory
@@ -11,8 +11,8 @@ export interface MaintenanceRow {
 }
 
 /** Every card that is in a deck or has an owned entry (it "appears or once appeared"). */
-export function deriveMaintenance(decks: Deck[], owned: OwnedMap): MaintenanceRow[] {
-  const rows = new Map<string, MaintenanceRow>()
+export function deriveMaintenance(decks: Deck[], owned: OwnedMap): MaintenanceEntry[] {
+  const rows = new Map<string, MaintenanceEntry>()
 
   for (const [key, entry] of Object.entries(owned)) {
     rows.set(key, { key, displayName: entry.displayName, category: entry.category, needed: 0, decks: [] })
@@ -32,4 +32,22 @@ export function deriveMaintenance(decks: Deck[], owned: OwnedMap): MaintenanceRo
     }
   }
   return [...rows.values()]
+}
+
+/** A card is satisfied when the owned quantity covers what the decks need. */
+export function isSatisfied(entry: MaintenanceEntry, owned: number): boolean {
+  return owned >= entry.needed
+}
+
+/** Builds the owned entry to persist for a maintenance entry. */
+export function toOwnedEntry(entry: MaintenanceEntry, quantity: number): OwnedEntry {
+  return { displayName: entry.displayName, category: entry.category, quantity }
+}
+
+/** Parses the owned-quantity input: empty counts as 0; otherwise a non-negative integer, else null. */
+export function parseOwnedQuantity(text: string): number | null {
+  const trimmed = text.trim()
+  if (trimmed === '') return 0
+  if (!/^\d+$/.test(trimmed)) return null
+  return Number(trimmed)
 }

@@ -12,37 +12,46 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { getDeckStore } from '@/lib/deck/deckStore'
-import type { MaintenanceRow as Row } from '@/lib/deck/maintenance'
+import { isSatisfied, parseOwnedQuantity } from '@/lib/deck/maintenance'
+import type { MaintenanceEntry } from '@/lib/deck/maintenance'
+import type { Result } from '@/lib/deck/types'
 import { cn } from '@/lib/utils'
 
-function parseQuantity(text: string): number | null {
-  if (!/^\d+$/.test(text.trim())) return null
-  return Number(text)
+interface MaintenanceRowProps {
+  row: MaintenanceEntry
+  owned: number
+  onSave: (row: MaintenanceEntry, quantity: number) => void
+  onDelete: (row: MaintenanceEntry) => Result
 }
 
-export function MaintenanceRow({ row, owned }: { row: Row; owned: number }) {
-  const [draft, setDraft] = useState(String(owned))
+export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowProps) {
+  // Unsaved text typed by the user; null means the input follows the stored quantity.
+  const [unsavedDraft, setUnsavedDraft] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const satisfied = owned >= row.needed
+  const satisfied = isSatisfied(row, owned)
+  const isUnused = row.decks.length === 0
   const inputId = `owned-${row.key}`
 
   function save() {
-    const quantity = parseQuantity(draft)
+    const quantity = parseOwnedQuantity(unsavedDraft ?? String(owned))
     if (quantity === null) {
       setError('Informe um número inteiro maior ou igual a 0')
       return
     }
     setError(null)
-    getDeckStore().setOwned(row.key, { displayName: row.displayName, category: row.category, quantity })
+    setUnsavedDraft(null)
+    onSave(row, quantity)
   }
 
   function remove() {
-    const result = getDeckStore().deleteOwned(row.key)
-    if (result.ok) return
+    const result = onDelete(row)
     setDeleteOpen(false)
-    setError(result.error)
+    if (!result.ok) {
+      setError(result.error)
+      return
+    }
+    setError(null)
   }
 
   return (
@@ -57,7 +66,7 @@ export function MaintenanceRow({ row, owned }: { row: Row; owned: number }) {
         <span className="font-medium">{row.displayName}</span>
         <div className="flex flex-wrap gap-1">
           <Badge variant="secondary">
-            {row.decks.length === 0 ? 'Decks: 0' : `Decks: ${row.decks.join(', ')}`}
+            {isUnused ? 'Decks: 0' : `Decks: ${row.decks.join(', ')}`}
           </Badge>
         </div>
       </div>
@@ -71,14 +80,14 @@ export function MaintenanceRow({ row, owned }: { row: Row; owned: number }) {
         min={0}
         inputMode="numeric"
         className="w-20"
-        value={draft}
+        value={unsavedDraft ?? String(owned)}
         aria-invalid={error !== null}
-        onChange={(event) => setDraft(event.target.value)}
+        onChange={(event) => setUnsavedDraft(event.target.value)}
       />
       <SaveButton type="button" onClick={save}>
         Salvar
       </SaveButton>
-      {row.decks.length === 0 && (
+      {isUnused && (
         <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
           <AlertDialogTrigger render={<DeleteButton type="button" />}>Excluir</AlertDialogTrigger>
           <AlertDialogContent>
