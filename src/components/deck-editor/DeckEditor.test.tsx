@@ -178,7 +178,7 @@ describe('DeckEditor', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Editando deck Alakazam' })).toBeTruthy()
     cleanup()
     renderEditor()
-    expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
+    expect(screen.queryByRole('heading', { name: /Editando deck/ })).toBeNull()
   })
 
   it('does not save on Enter in the name field and an empty name does not revert', async () => {

@@ -6,7 +6,7 @@ import { DeckEditor } from '@/components/deck-editor/DeckEditor'
 export default function DeckEditorPage() {
   const { id } = useParams()
   return (
-    <PageLayout>
+    <PageLayout title={id ? undefined : 'Novo deck'}>
       <DeckEditor key={id} deckId={id} />
     </PageLayout>
   )

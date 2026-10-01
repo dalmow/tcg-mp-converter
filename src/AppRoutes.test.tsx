@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
-import { deckPath, ROUTES } from '@/routes'
+import { ROUTES } from '@/routes'
 
 afterEach(cleanup)
 
@@ -14,13 +14,15 @@ function renderAt(path: string) {
 }
 
 describe('AppRoutes', () => {
-  it.each([ROUTES.decks, ROUTES.newDeck, deckPath('abc'), ROUTES.converter, ROUTES.maintenance])(
-    'renders %s without a page title',
-    (path) => {
-      renderAt(path)
-      expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
-    },
-  )
+  it.each([
+    [ROUTES.decks, 'Decks'],
+    [ROUTES.newDeck, 'Novo deck'],
+    [ROUTES.converter, 'Conversor'],
+    [ROUTES.maintenance, 'Manutenção'],
+  ])('renders %s with sr-only heading "%s"', (path, heading) => {
+    renderAt(path)
+    expect(screen.getByRole('heading', { level: 1, name: heading }).className).toContain('sr-only')
+  })
 
   it('shows the navbar links on every route', () => {
     renderAt(ROUTES.converter)
