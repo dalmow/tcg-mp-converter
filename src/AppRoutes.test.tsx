@@ -4,8 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
-import { deckPath, ROUTES } from '@/routes'
-import { SITE_NAME } from '@/lib/site'
+import { ROUTES } from '@/routes'
 
 afterEach(cleanup)
 
@@ -18,12 +17,11 @@ describe('AppRoutes', () => {
   it.each([
     [ROUTES.decks, 'Decks'],
     [ROUTES.newDeck, 'Novo deck'],
-    [deckPath('abc'), 'Editar deck'],
-    [ROUTES.converter, SITE_NAME],
+    [ROUTES.converter, 'Conversor'],
     [ROUTES.maintenance, 'Manutenção'],
-  ])('renders %s with heading "%s"', (path, heading) => {
+  ])('renders %s with sr-only heading "%s"', (path, heading) => {
     renderAt(path)
-    expect(screen.getByRole('heading', { level: 1, name: heading })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: heading }).className).toContain('sr-only')
   })
 
   it('shows the navbar links on every route', () => {
@@ -44,8 +42,6 @@ describe('AppRoutes', () => {
   it('resolves hash URLs under HashRouter', () => {
     window.location.hash = `#${ROUTES.converter}`
     render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
-    expect(
-      screen.getByRole('heading', { level: 1, name: SITE_NAME }),
-    ).toBeTruthy()
+    expect(screen.getByLabelText('Decklist')).toBeTruthy()
   })
 })

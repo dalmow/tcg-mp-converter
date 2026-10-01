@@ -113,6 +113,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   if (deckId && !initial) {
     return (
       <div className="flex flex-col items-start gap-2">
+        <h1 className="sr-only">Editar deck</h1>
         <p>Deck não encontrado</p>
         <Link to={ROUTES.decks} className="text-primary underline">
           Voltar para os decks
@@ -123,6 +124,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   return (
     <>
+      {stored && <h1 className="mt-4 text-xl font-semibold">Editando deck {stored.name}</h1>}
       <div className="flex items-start gap-2">
         <div className="flex flex-1 flex-col gap-1">
           <Input
