@@ -1,21 +1,33 @@
 import { useSyncExternalStore } from 'react'
 import { createDeckStorage, type DeckStorage, type PersistedData } from './storage'
-import type { Deck, OwnedEntry } from './types'
+import type { Deck, OwnedEntry, OwnedMap, Result } from './types'
 
 export function createDeckStore(storage: DeckStorage) {
   let snapshot = storage.load()
   const listeners = new Set<() => void>()
   let stopListeningToStorage: (() => void) | null = null
 
-  function commit(next: PersistedData) {
-    snapshot = next
-    storage.save(next)
+  function notify() {
     listeners.forEach((listener) => listener())
   }
 
+  /** Saves first, so a failing write (quota, private mode) leaves memory and storage in sync. */
+  function commit(next: PersistedData) {
+    storage.save(next)
+    snapshot = next
+    notify()
+  }
+
+  /** Keeps the current snapshot when the stored data is unchanged, so React does not re-render. */
+  function reload(): boolean {
+    const loaded = storage.load()
+    if (JSON.stringify(loaded) === JSON.stringify(snapshot)) return false
+    snapshot = loaded
+    return true
+  }
+
   function reloadFromStorage() {
-    snapshot = storage.load()
-    listeners.forEach((listener) => listener())
+    if (reload()) notify()
   }
 
   return {
@@ -24,7 +36,7 @@ export function createDeckStore(storage: DeckStorage) {
     subscribe(listener: () => void) {
       if (listeners.size === 0) {
         // Data may have changed in another tab while nobody was subscribed.
-        snapshot = storage.load()
+        reload()
         stopListeningToStorage = storage.subscribe(reloadFromStorage)
       }
       listeners.add(listener)
@@ -37,13 +49,16 @@ export function createDeckStore(storage: DeckStorage) {
       }
     },
 
-    /** Inserts the deck, or replaces the one with the same id in place. */
-    saveDeck(deck: Deck) {
+    /**
+     * Inserts the deck, or replaces the one with the same id in place. `owned` entries are written
+     * in the same commit, because saving a deck row also persists its owned quantity.
+     */
+    saveDeck(deck: Deck, owned: OwnedMap = {}) {
       const exists = snapshot.decks.some((d) => d.id === deck.id)
       const decks = exists
         ? snapshot.decks.map((d) => (d.id === deck.id ? deck : d))
         : [...snapshot.decks, deck]
-      commit({ ...snapshot, decks })
+      commit({ decks, owned: { ...snapshot.owned, ...owned } })
     },
 
     deleteDeck(id: string) {
@@ -54,9 +69,14 @@ export function createDeckStore(storage: DeckStorage) {
       commit({ ...snapshot, owned: { ...snapshot.owned, [key]: entry } })
     },
 
-    deleteOwned(key: string) {
+    /** Removes an owned card, unless a deck still uses it. */
+    deleteOwned(key: string): Result {
+      if (snapshot.decks.some((deck) => deck.cards.some((card) => card.key === key))) {
+        return { ok: false, error: 'Carta em uso em um deck, não pode ser excluída' }
+      }
       const { [key]: _removed, ...owned } = snapshot.owned
       commit({ ...snapshot, owned })
+      return { ok: true }
     },
 
     /** Replaces everything, used by backup import. */

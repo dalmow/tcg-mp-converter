@@ -54,6 +54,38 @@ describe('createDeckStore', () => {
     expect(store.getSnapshot().decks.map((d) => d.name)).toEqual(['Renamed', 'Other'])
   })
 
+  it('saveDeck writes owned entries in the same commit', () => {
+    const { storage } = fakeStorage()
+    const store = createDeckStore(storage)
+    const listener = vi.fn()
+    store.subscribe(listener)
+    store.saveDeck(deck, { 'MEG-54': abra })
+    expect(store.getSnapshot().owned['MEG-54']).toEqual(abra)
+    expect(storage.save).toHaveBeenCalledTimes(1)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps memory unchanged when saving fails', () => {
+    const { storage } = fakeStorage()
+    storage.save = vi.fn(() => {
+      throw new Error('quota')
+    })
+    const store = createDeckStore(storage)
+    expect(() => store.saveDeck(deck)).toThrow('quota')
+    expect(store.getSnapshot()).toEqual(EMPTY_DATA)
+  })
+
+  it('keeps the snapshot and stays silent when an external change leaves data equal', () => {
+    const fake = fakeStorage({ decks: [deck], owned: {} })
+    const store = createDeckStore(fake.storage)
+    const listener = vi.fn()
+    store.subscribe(listener)
+    const before = store.getSnapshot()
+    fake.writeExternally({ decks: [deck], owned: {} })
+    expect(store.getSnapshot()).toBe(before)
+    expect(listener).not.toHaveBeenCalled()
+  })
+
   it('deleteDeck removes by id', () => {
     const { storage } = fakeStorage({ decks: [deck], owned: {} })
     const store = createDeckStore(storage)
@@ -67,8 +99,30 @@ describe('createDeckStore', () => {
     store.setOwned('MEG-54', abra)
     store.setOwned('MEG-54', { ...abra, quantity: 3 })
     expect(store.getSnapshot().owned['MEG-54'].quantity).toBe(3)
-    store.deleteOwned('MEG-54')
+    expect(store.deleteOwned('MEG-54')).toEqual({ ok: true })
     expect(store.getSnapshot().owned).toEqual({})
+  })
+
+  it('deleteOwned is refused while a deck uses the card', () => {
+    const used: Deck = {
+      ...deck,
+      cards: [{ category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 4 }],
+    }
+    const { storage } = fakeStorage({ decks: [used], owned: { 'MEG-54': abra } })
+    const store = createDeckStore(storage)
+    expect(store.deleteOwned('MEG-54').ok).toBe(false)
+    expect(store.getSnapshot().owned['MEG-54']).toEqual(abra)
+    store.deleteDeck('d1')
+    expect(store.getSnapshot().owned['MEG-54']).toEqual(abra)
+    expect(store.deleteOwned('MEG-54')).toEqual({ ok: true })
+  })
+
+  it('shares owned quantity between a deck row save and a later maintenance edit', () => {
+    const { storage } = fakeStorage()
+    const store = createDeckStore(storage)
+    store.saveDeck(deck, { 'MEG-54': abra })
+    store.setOwned('MEG-54', { ...abra, quantity: 4 })
+    expect(store.getSnapshot().owned['MEG-54'].quantity).toBe(4)
   })
 
   it('replaceAll swaps the whole data', () => {

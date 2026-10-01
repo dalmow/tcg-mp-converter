@@ -1,3 +1,4 @@
+import { CARD_CATEGORIES } from './types'
 import type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from './types'
 
 export const STORAGE_KEY = 'ptcg:v1'
@@ -22,14 +23,12 @@ export interface DeckStorage {
   subscribe(onExternalChange: () => void): () => void
 }
 
-const CATEGORIES: readonly string[] = ['pokemon', 'trainer', 'energy'] satisfies CardCategory[]
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function isCategory(value: unknown): value is CardCategory {
-  return typeof value === 'string' && CATEGORIES.includes(value)
+  return typeof value === 'string' && (CARD_CATEGORIES as readonly string[]).includes(value)
 }
 
 function isCount(value: unknown, min: number): value is number {
@@ -76,10 +75,8 @@ export function parsePersistedData(value: unknown): Result<{ data: PersistedData
   return { ok: true, data: { decks: value.decks, owned: value.owned as OwnedMap } }
 }
 
-/** Subscribes to external changes; returns the cleanup function. */
-type ExternalChangeListener = (onChange: () => void) => () => void
-
-const listenToStorageEvents: ExternalChangeListener = (onChange) => {
+/** Calls `onChange` when another tab changes the stored data; returns the cleanup function. */
+const listenToStorageEvents: DeckStorage['subscribe'] = (onChange) => {
   const handler = (event: StorageEvent) => {
     // `key` is null when the whole storage was cleared.
     if (event.key === null || event.key === STORAGE_KEY) onChange()
@@ -90,13 +87,14 @@ const listenToStorageEvents: ExternalChangeListener = (onChange) => {
 
 export function createDeckStorage(
   backend: StringStorage,
-  listen: ExternalChangeListener = listenToStorageEvents,
+  listen: DeckStorage['subscribe'] = listenToStorageEvents,
 ): DeckStorage {
   return {
     load() {
-      const raw = backend.getItem(STORAGE_KEY)
-      if (raw === null) return EMPTY_DATA
+      // Corrupt or unreadable storage falls back to empty; the next save replaces it.
       try {
+        const raw = backend.getItem(STORAGE_KEY)
+        if (raw === null) return EMPTY_DATA
         const parsed = parsePersistedData(JSON.parse(raw))
         return parsed.ok ? parsed.data : EMPTY_DATA
       } catch {

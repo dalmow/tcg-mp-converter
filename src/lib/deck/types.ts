@@ -1,4 +1,5 @@
-export type CardCategory = 'pokemon' | 'trainer' | 'energy'
+export const CARD_CATEGORIES = ['pokemon', 'trainer', 'energy'] as const
+export type CardCategory = (typeof CARD_CATEGORIES)[number]
 
 export const DECK_SIZE = 60
 export const MAX_COPIES_PER_NAME = 4
