@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-Tracked on GitHub via `gh` CLI. See `docs/agents/issue-tracker.md`.
+Tracked in Linear (team `DAL`, project `PTCG Tool`); code and PRs on GitHub via `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Domain docs
 
