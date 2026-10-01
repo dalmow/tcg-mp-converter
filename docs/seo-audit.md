@@ -1,6 +1,6 @@
 # SEO and performance audit (DAL-27)
 
-Date: 2026-10-01. Audited commit: `main` after DAL-26 plus the fixes in this change.
+Date: 2026-10-01. Audited commit: `e60d4fe` (`main` after DAL-26) plus the fixes in this change. The raw Lighthouse reports were not kept; the figures below are the values read from them.
 
 ## Method
 
@@ -29,7 +29,7 @@ Accessibility is 100 on `/` and 90 on `/converter`; those failures (`color-contr
 Checked in the built HTML: one `<title>`, one description, one `h1`, `lang="pt-BR"`, per-page canonical and
 Open Graph/Twitter tags, valid `WebApplication` JSON-LD, `robots.txt`, a sitemap with only `/` and
 `/converter`, and internal links that all resolve to existing routes. The font is Geist (self-hosted woff2
-through `@fontsource-variable/geist`) with `font-display: swap`; only the latin subset (29 kB) is downloaded.
+through `@fontsource-variable/geist`) with `font-display: swap`; on the audited pages only the latin subset (29 kB) was requested (Portuguese accents fall in it). The font has no `preload`; it is discovered through the CSS, and the lab LCP does not need it.
 
 ## Issues found and fixed
 
@@ -43,7 +43,11 @@ through `@fontsource-variable/geist`) with `font-display: swap`; only the latin 
 
 ## Not fixed, on purpose
 
-- **Bundle size:** one 580 kB JS file (190 kB gzip, 63% unused on first load per Lighthouse). The build warns
+- **Thin indexable content on the home.** After fix 1 the prerendered `/` has the navbar and a screen reader
+  `h1` only, since the page is a list of private, local decks. Search engines will index `/converter` (the
+  real public tool) much better than `/`. Giving the home real copy is a product decision, not a fix.
+
+- **Bundle size:** one 580 kB JS file (190 kB gzip; Lighthouse reports about 63% of it unused on first load). The build warns
   about it. With compression the lab LCP is 0.9 s on mobile, so splitting the deck editor into a lazy chunk is
   not needed now. Revisit if mobile LCP regresses.
 - `/maintenance` is not prerendered or in the sitemap. It shows personal data, and its shell is served with

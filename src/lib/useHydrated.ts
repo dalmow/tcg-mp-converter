@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from 'react'
 
-const subscribe = () => () => {}
+const subscribeNever = () => () => {}
 
 /** False in prerendered HTML and while hydrating, true afterwards (and always on a client-only render). */
 export function useHydrated(): boolean {
-  return useSyncExternalStore(subscribe, () => true, () => false)
+  return useSyncExternalStore(subscribeNever, () => true, () => false)
 }
