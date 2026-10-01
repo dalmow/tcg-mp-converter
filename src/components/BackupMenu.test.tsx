@@ -83,6 +83,7 @@ describe('BackupMenu', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Substituir tudo' }))
     await waitFor(() => expect(getDeckStore().getSnapshot()).toEqual(incoming))
     expect((await screen.findByText('Backup importado com sucesso')).textContent).toBeTruthy()
+    expect(screen.queryByRole('alertdialog')).toBeNull()
   })
 
   it('keeps the data when the confirmation is cancelled', async () => {
@@ -92,25 +93,20 @@ describe('BackupMenu', () => {
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
-  it('rejects an invalid file without touching the data', async () => {
+  it('rejects an invalid file with an error toast and no dialog', async () => {
     renderMenu()
     await pickFile('{"decks": 1}')
-    expect(await screen.findByText('Arquivo de backup inválido')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Substituir tudo' })).toBeNull()
+    const toast = await screen.findByText('Arquivo de backup inválido')
+    expect(toast.closest('[role="alert"]')).not.toBeNull()
+    expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
-  it('shows a specific message for an unsupported version', async () => {
+  it('shows a specific toast for an unsupported version', async () => {
     renderMenu()
     await pickFile(JSON.stringify({ ...buildBackup(incoming), version: 2 }))
     expect(await screen.findByText('Versão de backup não suportada')).toBeTruthy()
+    expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(getDeckStore().getSnapshot()).toEqual(current)
-  })
-
-  it('styles the invalid-file title with the danger token', async () => {
-    renderMenu()
-    await pickFile('{"decks": 1}')
-    const title = await screen.findByText('Não foi possível importar')
-    expect(title.className).toContain('text-danger')
   })
 })

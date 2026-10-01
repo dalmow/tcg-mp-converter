@@ -22,22 +22,17 @@ import { downloadBackup, parseBackup, type BackupSummary } from '@/lib/deck/back
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
 
-type ImportDialogState =
-  | { kind: 'confirm'; data: PersistedData; summary: BackupSummary }
-  | { kind: 'error'; message: string }
+type PendingImport = { data: PersistedData; summary: BackupSummary }
 
 export function BackupMenu() {
   const fileInput = useRef<HTMLInputElement>(null)
-  const [pending, setPending] = useState<ImportDialogState | null>(null)
+  const [pending, setPending] = useState<PendingImport | null>(null)
   const toast = useToast()
 
   async function handleFile(file: File) {
     const result = parseBackup(await file.text())
-    setPending(
-      result.ok
-        ? { kind: 'confirm', data: result.data, summary: result.summary }
-        : { kind: 'error', message: result.error },
-    )
+    if (result.ok) setPending({ data: result.data, summary: result.summary })
+    else toast.error(result.error)
   }
 
   return (
@@ -75,7 +70,7 @@ export function BackupMenu() {
       />
       <AlertDialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <AlertDialogContent>
-          {pending?.kind === 'confirm' && (
+          {pending && (
             <>
               <AlertDialogHeader>
                 <AlertDialogTitle>Importar backup</AlertDialogTitle>
@@ -89,24 +84,12 @@ export function BackupMenu() {
                 <AlertDialogAction
                   onClick={() => {
                     getDeckStore().replaceAll(pending.data)
+                    setPending(null)
                     toast.success('Backup importado com sucesso')
                   }}
                 >
                   Substituir tudo
                 </AlertDialogAction>
-              </AlertDialogFooter>
-            </>
-          )}
-          {pending?.kind === 'error' && (
-            <>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-danger">
-                  Não foi possível importar
-                </AlertDialogTitle>
-                <AlertDialogDescription>{pending.message}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Fechar</AlertDialogCancel>
               </AlertDialogFooter>
             </>
           )}
