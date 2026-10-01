@@ -63,15 +63,21 @@ describe('AppRoutes page metadata', () => {
   })
 
   it('gives the public routes unique descriptions and no noindex', () => {
-    const descriptions = [ROUTES.decks, ROUTES.converter, ROUTES.maintenance].map((path) => {
+    const descriptions = new Set<string | null>()
+    for (const path of [ROUTES.decks, ROUTES.converter, ROUTES.maintenance]) {
       renderAt(path)
       expect(metaContent('robots')).toBeNull()
-      const description = metaContent('description')
+      descriptions.add(metaContent('description'))
       cleanup()
-      return description
-    })
-    expect(descriptions.every(Boolean)).toBe(true)
-    expect(new Set(descriptions).size).toBe(3)
+    }
+    expect(descriptions.has(null)).toBe(false)
+    expect(descriptions.size).toBe(3)
+  })
+
+  it('titles and marks noindex on the not-found deck route', () => {
+    renderAt(deckPath('missing'))
+    expect(document.title).toBe('Deck não encontrado | PTCG Tools')
+    expect(metaContent('robots')).toBe('noindex')
   })
 
   it('puts the deck name in the title of the edit route and marks editing routes noindex', () => {

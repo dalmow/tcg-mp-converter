@@ -37,7 +37,10 @@ export const PAGE_META = {
   },
 } satisfies Record<string, PageMeta>
 
-export function editDeckMeta(deckName: string): PageMeta {
+/** Metadata of the deck editor: `deckId` is absent on new decks, `deckName` on unknown ids. */
+export function deckEditorMeta(deckId?: string, deckName?: string): PageMeta {
+  if (!deckId) return PAGE_META.newDeck
+  if (deckName === undefined) return PAGE_META.deckNotFound
   return {
     title: titled(`Editando deck ${deckName}`),
     description: `Edite as cartas do deck ${deckName}.`,
