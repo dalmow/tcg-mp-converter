@@ -12,7 +12,7 @@ const links = [
 export function Navbar() {
   return (
     <nav className="border-b border-panel-border bg-panel">
-      <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-1.5">
+      <div className="mx-auto flex max-w-[96rem] items-center gap-1 px-2 py-1.5">
         {links.map((link) => (
           <NavLink
             key={link.to}
