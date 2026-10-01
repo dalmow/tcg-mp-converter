@@ -1,9 +1,11 @@
 /// <reference types="vitest/config" />
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
-import { buildHeadTags, buildRobotsTxt, buildSitemapXml } from './src/lib/seo.ts'
+import { createServer, defineConfig, type Plugin } from 'vite'
+import { PUBLIC_PAGES } from './src/lib/pageMeta.ts'
+import { applyPageToShell, buildHeadTags, buildRobotsTxt, buildSitemapXml, SHELL_PAGE } from './src/lib/seo.ts'
 import { DEFAULT_SITE_URL } from './src/lib/site.ts'
 
 const siteUrl = process.env.SITE_URL || DEFAULT_SITE_URL
@@ -14,7 +16,7 @@ function seoPlugin(): Plugin {
     name: 'seo-metadata',
     transformIndexHtml: {
       order: 'pre',
-      handler: (html) => html.replace('</head>', `    ${buildHeadTags(siteUrl)}\n  </head>`),
+      handler: (html) => html.replace('</head>', `    ${buildHeadTags(siteUrl, SHELL_PAGE)}\n  </head>`),
     },
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: buildRobotsTxt(siteUrl) })
@@ -23,9 +25,39 @@ function seoPlugin(): Plugin {
   }
 }
 
+/**
+ * After the client build, renders the public pages to static HTML. The empty app shell moves to
+ * `spa.html`, which `vercel.json` serves for every route that has no prerendered file.
+ */
+function prerenderPlugin(): Plugin {
+  let outDir = ''
+  return {
+    name: 'prerender-public-pages',
+    apply: 'build',
+    configResolved: (config) => {
+      outDir = path.resolve(config.root, config.build.outDir)
+    },
+    async closeBundle() {
+      const shell = await readFile(path.join(outDir, 'index.html'), 'utf-8')
+      const vite = await createServer({ appType: 'custom', server: { middlewareMode: true }, logLevel: 'error' })
+      try {
+        const { renderApp } = await vite.ssrLoadModule('/src/entry-server.tsx')
+        await writeFile(path.join(outDir, 'spa.html'), shell)
+        for (const page of PUBLIC_PAGES) {
+          const file = path.join(outDir, page.path === '/' ? 'index.html' : `${page.path.slice(1)}.html`)
+          await mkdir(path.dirname(file), { recursive: true })
+          await writeFile(file, applyPageToShell(shell, siteUrl, page, await renderApp(page.path)))
+        }
+      } finally {
+        await vite.close()
+      }
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), seoPlugin()],
+  plugins: [react(), tailwindcss(), seoPlugin(), prerenderPlugin()],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),

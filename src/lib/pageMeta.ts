@@ -1,3 +1,4 @@
+import { ROUTES } from '../routes.ts'
 import { SITE_NAME } from './site.ts'
 
 export interface PageMeta {
@@ -47,3 +48,14 @@ export function deckEditorMeta(deckId?: string, deckName?: string): PageMeta {
     noindex: true,
   }
 }
+
+export interface PublicPage {
+  path: string
+  meta: PageMeta
+}
+
+/** Pages prerendered at build time and listed in the sitemap. */
+export const PUBLIC_PAGES: PublicPage[] = [
+  { path: ROUTES.decks, meta: PAGE_META.decks },
+  { path: ROUTES.converter, meta: PAGE_META.converter },
+]

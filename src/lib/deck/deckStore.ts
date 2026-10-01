@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { createDeckStorage, type DeckStorage, type PersistedData } from './storage'
+import { createDeckStorage, EMPTY_DATA, type DeckStorage, type PersistedData } from './storage'
 import type { Deck, OwnedEntry, OwnedMap, Result } from './types'
 
 export function createDeckStore(storage: DeckStorage) {
@@ -96,7 +96,11 @@ export function getDeckStore(): DeckStore {
   return defaultStore
 }
 
+const subscribe: DeckStore['subscribe'] = (listener) => getDeckStore().subscribe(listener)
+const getSnapshot = () => getDeckStore().getSnapshot()
+const getServerSnapshot = () => EMPTY_DATA
+
+/** The server snapshot is empty because prerendering has no `localStorage`; hydration then swaps in the stored data. */
 export function useDeckData(): PersistedData {
-  const store = getDeckStore()
-  return useSyncExternalStore(store.subscribe, store.getSnapshot)
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }
