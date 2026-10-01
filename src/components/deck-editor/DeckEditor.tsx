@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
-import { SaveIcon, Trash2Icon } from 'lucide-react'
+import { PlusIcon, SaveIcon, Trash2Icon } from 'lucide-react'
 import { DeleteButton, SaveButton } from '@/components/ActionButtons'
 import {
   AlertDialog,
@@ -13,6 +13,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
@@ -28,6 +35,12 @@ const PANEL_TITLE: Record<CardCategory, string> = {
   pokemon: 'Pokémon',
   trainer: 'Treinadores',
   energy: 'Energias',
+}
+
+const ADD_CARD_LABEL: Record<CardCategory, string> = {
+  pokemon: 'Pokémon',
+  trainer: 'Treinador',
+  energy: 'Energia',
 }
 
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
@@ -66,6 +79,10 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   function changeRow(rowId: string, patch: Partial<DraftRow>) {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)))
     setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
+  }
+
+  function addRow(category: CardCategory) {
+    setRows((current) => [...current, newRow(category)])
   }
 
   function deleteRow(rowId: string) {
@@ -160,6 +177,20 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </AlertDialogContent>
           </AlertDialog>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={<Button variant="outline" size="icon" aria-label="Adicionar carta" />}
+          >
+            <PlusIcon />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-auto">
+            {CARD_CATEGORIES.map((category) => (
+              <DropdownMenuItem key={category} onClick={() => addRow(category)}>
+                {ADD_CARD_LABEL[category]}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {CARD_CATEGORIES.map((category) => (
@@ -172,7 +203,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             decks={decks}
             owned={owned}
             collections={collections}
-            onAddRow={() => setRows((current) => [...current, newRow(category)])}
             onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />
