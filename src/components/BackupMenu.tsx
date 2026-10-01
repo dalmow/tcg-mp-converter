@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDownIcon } from 'lucide-react'
 import {
   AlertDialog,
@@ -17,33 +17,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/toast'
 import { downloadBackup, parseBackup, type BackupSummary } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
 
-type ImportDialogState =
-  | { kind: 'confirm'; data: PersistedData; summary: BackupSummary }
-  | { kind: 'error'; message: string }
+type PendingImport = { data: PersistedData; summary: BackupSummary }
 
 export function BackupMenu() {
   const fileInput = useRef<HTMLInputElement>(null)
-  const [pending, setPending] = useState<ImportDialogState | null>(null)
-
-  const [imported, setImported] = useState(false)
-
-  useEffect(() => {
-    if (!imported) return
-    const timer = setTimeout(() => setImported(false), 5000)
-    return () => clearTimeout(timer)
-  }, [imported])
+  const [pending, setPending] = useState<PendingImport | null>(null)
+  const toast = useToast()
 
   async function handleFile(file: File) {
     const result = parseBackup(await file.text())
-    setPending(
-      result.ok
-        ? { kind: 'confirm', data: result.data, summary: result.summary }
-        : { kind: 'error', message: result.error },
-    )
+    if (result.ok) setPending({ data: result.data, summary: result.summary })
+    else toast.error(result.error)
   }
 
   return (
@@ -54,7 +43,12 @@ export function BackupMenu() {
           <ChevronDownIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-auto">
-          <DropdownMenuItem onClick={() => downloadBackup(getDeckStore().getSnapshot())}>
+          <DropdownMenuItem
+            onClick={() => {
+              downloadBackup(getDeckStore().getSnapshot())
+              toast.success('Backup exportado')
+            }}
+          >
             Exportar backup
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => fileInput.current?.click()}>
@@ -74,14 +68,9 @@ export function BackupMenu() {
           if (file) void handleFile(file)
         }}
       />
-      {imported && (
-        <span role="status" className="text-sm text-success">
-          Backup importado com sucesso
-        </span>
-      )}
       <AlertDialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <AlertDialogContent>
-          {pending?.kind === 'confirm' && (
+          {pending && (
             <>
               <AlertDialogHeader>
                 <AlertDialogTitle>Importar backup</AlertDialogTitle>
@@ -95,24 +84,12 @@ export function BackupMenu() {
                 <AlertDialogAction
                   onClick={() => {
                     getDeckStore().replaceAll(pending.data)
-                    setImported(true)
+                    setPending(null)
+                    toast.success('Backup importado com sucesso')
                   }}
                 >
                   Substituir tudo
                 </AlertDialogAction>
-              </AlertDialogFooter>
-            </>
-          )}
-          {pending?.kind === 'error' && (
-            <>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-danger">
-                  Não foi possível importar
-                </AlertDialogTitle>
-                <AlertDialogDescription>{pending.message}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Fechar</AlertDialogCancel>
               </AlertDialogFooter>
             </>
           )}

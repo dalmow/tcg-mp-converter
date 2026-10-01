@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { createMemoryRouter, Link, RouterProvider } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { ToastProvider } from '@/components/ui/toast'
 import DeckEditorPage from '@/pages/DeckEditorPage'
 import { EMPTY_DATA } from '@/lib/deck/storage'
 import { getDeckStore } from '@/lib/deck/deckStore'
@@ -22,33 +23,58 @@ beforeAll(() => {
 beforeEach(() => getDeckStore().replaceAll(EMPTY_DATA))
 afterEach(cleanup)
 
-function renderEditor(path: string = ROUTES.newDeck) {
-  return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path={ROUTES.decks} element={<h1>Lista</h1>} />
-        <Route path={ROUTES.newDeck} element={<DeckEditorPage />} />
-        <Route path={ROUTES.deck} element={<DeckEditorPage />} />
-      </Routes>
-    </MemoryRouter>,
+function editorElement() {
+  return (
+    <>
+      <Link to={ROUTES.decks}>Sair</Link>
+      <DeckEditorPage />
+    </>
   )
+}
+
+// The editor blocks navigation, which needs a data router.
+function renderEditor(path: string = ROUTES.newDeck) {
+  const router = createMemoryRouter(
+    [
+      { path: ROUTES.decks, element: <h1>Lista</h1> },
+      { path: ROUTES.newDeck, element: editorElement() },
+      { path: ROUTES.deck, element: editorElement() },
+    ],
+    { initialEntries: [path] },
+  )
+  render(
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>,
+  )
+  return router
 }
 
 function panel(name: string) {
   return within(screen.getByRole('region', { name }))
 }
 
-async function addRow(panelName: string, quantity: string, text: string, owned?: string) {
+type PanelName = 'Pokémon' | 'Treinadores' | 'Energias'
+
+async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: PanelName) {
+  await user.click(panel(panelName).getByRole('button', { name: 'Adicionar carta' }))
+}
+
+async function addRow(panelName: PanelName, quantity: string, text: string, owned?: string) {
   const user = userEvent.setup()
   const scope = panel(panelName)
-  await user.click(scope.getByRole('button', { name: 'Adicionar carta' }))
+  await addCard(user, panelName)
   const rows = scope.getAllByTestId('card-row')
   const element = rows[rows.length - 1]
   const row = within(element)
-  await user.type(row.getByLabelText('Quantidade'), quantity)
+  if (quantity) await user.type(row.getByLabelText('Quantidade'), quantity)
   await user.type(row.getByLabelText('Carta'), text)
   if (owned !== undefined) await user.type(row.getByLabelText('Adquirido'), owned)
   return { user, row, element }
+}
+
+async function save(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /Salvar deck/ }))
 }
 
 function savedDeck(): Deck | undefined {
@@ -56,54 +82,114 @@ function savedDeck(): Deck | undefined {
 }
 
 describe('DeckEditor', () => {
-  it('shows the three category panels and the name input', () => {
+  it('shows the three category panels, the name input and the Save deck button', () => {
     renderEditor()
     expect(screen.getByPlaceholderText('Nome do deck')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Salvar deck/ })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Salvar linha' })).toBeNull()
     for (const title of ['Pokémon', 'Treinadores', 'Energias']) {
       expect(screen.getByRole('region', { name: title })).toBeTruthy()
     }
   })
 
-  it('requires a deck name before the first row is saved', async () => {
+  it('starts a new deck with one blank row in each category', () => {
     renderEditor()
-    const { user, row } = await addRow('Pokémon', '2', 'Abra MEG 54', '2')
-    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
+    for (const name of ['Pokémon', 'Treinadores', 'Energias'] as const) {
+      expect(panel(name).getAllByTestId('card-row')).toHaveLength(1)
+    }
+  })
+
+  it('has an icon-only "+" button in each panel that adds a row to that category only', async () => {
+    renderEditor()
+    expect(screen.getAllByRole('button', { name: 'Adicionar carta' })).toHaveLength(3)
+    expect(panel('Energias').getByRole('button', { name: 'Adicionar carta' }).textContent).toBe('')
+    await addCard(userEvent.setup(), 'Energias')
+    expect(panel('Energias').getAllByTestId('card-row')).toHaveLength(2)
+    expect(panel('Pokémon').getAllByTestId('card-row')).toHaveLength(1)
+  })
+
+  it('focuses the quantity input of the row just added', async () => {
+    renderEditor()
+    await addCard(userEvent.setup(), 'Energias')
+    const rows = panel('Energias').getAllByTestId('card-row')
+    const row = within(rows[rows.length - 1])
+    expect(document.activeElement).toBe(row.getByLabelText('Quantidade'))
+  })
+
+  it('still asks for confirmation before deleting the deck', async () => {
+    renderEditor()
+    const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
+    await userEvent.setup().click(group.getByRole('button', { name: /Excluir deck/ }))
+    expect(await screen.findByRole('alertdialog')).toBeTruthy()
+  })
+
+  it('groups Save deck and Delete deck in one button group', () => {
+    renderEditor()
+    const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
+    expect(group.getByRole('button', { name: /Salvar deck/ })).toBeTruthy()
+    expect(group.getByRole('button', { name: /Excluir deck/ })).toBeTruthy()
+  })
+
+  it('uses "#" as the quantity placeholder', async () => {
+    renderEditor()
+    expect(panel('Pokémon').getByLabelText('Quantidade').getAttribute('placeholder')).toBe('#')
+  })
+
+  it('writes nothing until Save deck, then commits name, rows and owned together', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+    await addRow('Pokémon', '2', 'abra meg 54', '3')
+    await addRow('Treinadores', '4', 'Ordem da chefia', '4')
+    expect(savedDeck()).toBeUndefined()
+
+    await save(user)
+    expect(savedDeck()?.name).toBe('Alakazam')
+    expect(savedDeck()?.cards).toEqual([
+      { category: 'pokemon', key: 'MEG-54', displayName: 'abra MEG 54', quantity: 2 },
+      { category: 'trainer', key: 'ordem da chefia', displayName: 'Ordem da chefia', quantity: 4 },
+    ])
+    expect(getDeckStore().getSnapshot().owned['MEG-54']?.quantity).toBe(3)
+    expect(getDeckStore().getSnapshot().owned['ordem da chefia']?.quantity).toBe(4)
+  })
+
+  it('shows feedback after saving and replaces /decks/new with /decks/:id', async () => {
+    const router = renderEditor()
+    const user = userEvent.setup()
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+    await save(user)
+    expect(router.state.location.pathname).toBe(deckPath(savedDeck()!.id))
+    expect(router.state.historyAction).toBe('REPLACE')
+    expect((await screen.findByRole('status')).textContent).toContain('Deck salvo')
+  })
+
+  it('requires a deck name on Save and writes nothing', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await addRow('Pokémon', '2', 'Abra MEG 54', '2')
+    await save(user)
     expect((await screen.findAllByText('Informe o nome do deck')).length).toBeGreaterThan(0)
     expect(savedDeck()).toBeUndefined()
   })
 
-  it('creates the deck when the first row is saved and persists the owned quantity', async () => {
-    renderEditor()
+  it('does not save on Enter in the name field and an empty name does not revert', async () => {
+    getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
+    renderEditor(deckPath('abc'))
     const user = userEvent.setup()
-    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
-    const { row } = await addRow('Pokémon', '2', 'abra meg 54', '3')
-    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
-
+    const name = screen.getByPlaceholderText('Nome do deck') as HTMLInputElement
+    await user.clear(name)
+    await user.type(name, 'Outro{Enter}')
     expect(savedDeck()?.name).toBe('Alakazam')
-    expect(savedDeck()?.cards).toEqual([
-      { category: 'pokemon', key: 'MEG-54', displayName: 'abra MEG 54', quantity: 2 },
-    ])
-    expect(getDeckStore().getSnapshot().owned['MEG-54']?.quantity).toBe(3)
+    await user.clear(name)
+    await user.tab()
+    expect(name.value).toBe('')
+    expect(savedDeck()?.name).toBe('Alakazam')
+    await save(user)
+    expect(screen.getByRole('alert').textContent).toBe('Informe o nome do deck')
+    expect(savedDeck()?.name).toBe('Alakazam')
   })
 
-  it('keeps the row editable after saving and changes the key when the text changes', async () => {
-    renderEditor()
-    const user = userEvent.setup()
-    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
-    const { row } = await addRow('Pokémon', '2', 'Abra MEG 54', '2')
-    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
-
-    const saved = panel('Pokémon').getByDisplayValue('Abra MEG 54')
-    await user.clear(saved)
-    await user.type(saved, 'Kadabra MEG 55')
-    await user.click(panel('Pokémon').getByRole('button', { name: 'Salvar linha' }))
-
-    expect(savedDeck()?.cards.map((card) => card.key)).toEqual(['MEG-55'])
-    // The old key keeps its owned quantity, so Maintenance still lists it.
-    expect(getDeckStore().getSnapshot().owned['MEG-54']?.quantity).toBe(2)
-  })
-
-  it('keeps the old key owned and reads the new key owned from the map or 0 on a text edit', async () => {
+  it('edits a saved row text, changing the key while the old key keeps its owned quantity', async () => {
     getDeckStore().saveDeck(
       {
         id: 'abc',
@@ -121,7 +207,7 @@ describe('DeckEditor', () => {
     await user.clear(text)
     await user.type(text, 'Kadabra MEG 55')
     expect((panel('Pokémon').getByLabelText('Adquirido') as HTMLInputElement).value).toBe('3')
-    await user.click(panel('Pokémon').getByRole('button', { name: 'Salvar linha' }))
+    await save(user)
 
     const { owned } = getDeckStore().getSnapshot()
     expect(owned['MEG-54']?.quantity).toBe(5)
@@ -129,79 +215,120 @@ describe('DeckEditor', () => {
     expect(savedDeck()?.cards.map((card) => card.key)).toEqual(['MEG-55'])
   })
 
-  it('deletes a saved row and discards an unsaved one', async () => {
+  it('writes owned only for rows edited in the draft, so other changes are not overwritten', async () => {
+    const a = { category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 1 } as const
+    const b = { category: 'pokemon', key: 'MEG-55', displayName: 'Kadabra MEG 55', quantity: 1 } as const
+    const entry = (card: typeof a | typeof b, quantity: number) => ({
+      displayName: card.displayName,
+      category: card.category,
+      quantity,
+    })
+    getDeckStore().saveDeck({ id: 'abc', name: 'D', cards: [a, b] }, { 'MEG-54': entry(a, 1), 'MEG-55': entry(b, 1) })
+    renderEditor(deckPath('abc'))
+    const user = userEvent.setup()
+    const [ownedA] = panel('Pokémon').getAllByLabelText('Adquirido')
+    await user.clear(ownedA)
+    await user.type(ownedA, '9')
+    // Maintenance (or another tab) changes the other row meanwhile.
+    act(() => getDeckStore().setOwned('MEG-55', entry(b, 7)))
+    await save(user)
+
+    const { owned } = getDeckStore().getSnapshot()
+    expect(owned['MEG-54']?.quantity).toBe(9)
+    expect(owned['MEG-55']?.quantity).toBe(7)
+  })
+
+  it('deletes a row only from the draft, without confirmation, and the deck changes on Save', async () => {
     renderEditor()
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
-    const { row } = await addRow('Treinadores', '4', 'Ordem da chefia', '4')
-    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
+    await addRow('Treinadores', '4', 'Ordem da chefia', '4')
+    await save(user)
     expect(savedDeck()?.cards).toHaveLength(1)
 
     await user.click(panel('Treinadores').getByRole('button', { name: 'Excluir linha' }))
-    expect(savedDeck()?.cards).toHaveLength(0)
-
-    await addRow('Treinadores', '1', 'Rascunho')
-    await user.click(panel('Treinadores').getByRole('button', { name: 'Excluir linha' }))
     expect(panel('Treinadores').queryAllByTestId('card-row')).toHaveLength(0)
+    expect(savedDeck()?.cards).toHaveLength(1)
+
+    await save(user)
+    expect(savedDeck()?.cards).toHaveLength(0)
+    // The card stays owned.
+    expect(getDeckStore().getSnapshot().owned['ordem da chefia']?.quantity).toBe(4)
   })
 
-  it('renames a persisted deck on blur', async () => {
+  it('silently discards fully blank rows on Save', async () => {
     renderEditor()
     const user = userEvent.setup()
-    const name = screen.getByPlaceholderText('Nome do deck')
-    await user.type(name, 'Alakazam')
-    const { row } = await addRow('Treinadores', '1', 'Ordem da chefia', '1')
-    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
-
-    await user.clear(name)
-    await user.type(name, 'Mega Absol')
-    await user.tab()
-    expect(savedDeck()?.name).toBe('Mega Absol')
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+    await addCard(user, 'Pokémon')
+    await save(user)
+    expect(savedDeck()?.cards).toEqual([])
+    expect(panel('Pokémon').queryAllByTestId('card-row')).toHaveLength(0)
   })
 
-  it.each([
+  it('blocks the whole save on a partially filled row and shows the error on that row', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+    await addRow('Treinadores', '4', 'Ordem da chefia', '4')
+    const partial = await addRow('Pokémon', '', 'Abra MEG 54', '1')
+    await save(user)
+    expect(partial.row.getByRole('alert')).toBeTruthy()
+    expect(savedDeck()).toBeUndefined()
+    expect(getDeckStore().getSnapshot().owned).toEqual({})
+  })
+
+  it.each<[PanelName, string, string | RegExp]>([
     ['Pokémon', 'Abra XYZ 54', 'Coleção XYZ não cadastrada'],
     ['Pokémon', 'Abra MEG 9999', /fora do total/],
     ['Treinadores', 'Ordem da chefia MEG 54', 'Treinador não aceita coleção nem número'],
     ['Energias', 'Fantasma', 'Energia especial exige coleção e número'],
-  ])('shows the parser error inline in %s for "%s"', async (panelName, text, message) => {
+  ])('shows the parser error inline in %s for "%s" and blocks Save', async (panelName, text, message) => {
     renderEditor()
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Deck')
     const { row } = await addRow(panelName, '1', text, '1')
-    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
+    await save(user)
     expect(await row.findByRole('alert')).toBeTruthy()
     expect(row.getByRole('alert').textContent).toMatch(message)
     expect(savedDeck()).toBeUndefined()
   })
 
-  it('rejects a duplicate row and a quantity above the 60-card cap', async () => {
+  it('blocks on a duplicate row, a quantity above the 60-card cap and a non-integer owned', async () => {
     renderEditor()
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Deck')
-    const first = await addRow('Energias', '58', 'Energia Fogo', '58')
-    await user.click(first.row.getByRole('button', { name: 'Salvar linha' }))
-
+    await addRow('Energias', '58', 'Energia Fogo', '58')
     const duplicate = await addRow('Energias', '1', 'Fogo', '1')
-    await user.click(duplicate.row.getByRole('button', { name: 'Salvar linha' }))
-    expect(duplicate.row.getByRole('alert').textContent).toBe('Carta já está no deck, edite a linha existente')
-
     const tooMany = await addRow('Treinadores', '3', 'Ordem da chefia', '3')
-    await user.click(tooMany.row.getByRole('button', { name: 'Salvar linha' }))
+    const badOwned = await addRow('Pokémon', '1', 'Abra MEG 54', '1.5')
+    await save(user)
+    expect(duplicate.row.getByRole('alert').textContent).toBe('Carta já está no deck, edite a linha existente')
     expect(tooMany.row.getByRole('alert').textContent).toBe('Quantidade máxima para esta carta: 2')
+    expect(badOwned.row.getByRole('alert').textContent).toMatch(/Adquirido/)
+    expect(savedDeck()).toBeUndefined()
   })
 
-  it('warns about more than 4 copies across printings but still saves the draft', async () => {
+  it('clears a row error when the row is edited', async () => {
     renderEditor()
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Deck')
-    const first = await addRow('Pokémon', '3', 'Abra MEG 54', '3')
-    await user.click(first.row.getByRole('button', { name: 'Salvar linha' }))
+    const { row } = await addRow('Pokémon', '1', 'Abra XYZ 54', '1')
+    await save(user)
+    expect(row.getByRole('alert')).toBeTruthy()
+    await user.type(row.getByLabelText('Quantidade'), '1')
+    expect(row.queryByRole('alert')).toBeNull()
+  })
 
-    const second = await addRow('Pokémon', '2', 'Abra MEG 53', '2')
+  it('warns about more than 4 copies across printings but still saves', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Deck')
+    await addRow('Pokémon', '3', 'Abra MEG 54', '3')
+    const second = await addRow('Pokémon', '2', 'Abra MEG 53', '0')
     expect(second.row.getByText('Mais de 4 cópias de Abra MEG 53 no deck')).toBeTruthy()
     expect(second.element.getAttribute('data-status')).toBe('invalid')
-    await user.click(second.row.getByRole('button', { name: 'Salvar linha' }))
+    await save(user)
     expect(savedDeck()?.cards).toHaveLength(2)
   })
 
@@ -230,7 +357,6 @@ describe('DeckEditor', () => {
     })
     renderEditor()
     const user = userEvent.setup()
-    await user.click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
     const row = within(panel('Pokémon').getByTestId('card-row'))
     await user.click(row.getByLabelText('Carta'))
 
@@ -263,10 +389,11 @@ describe('DeckEditor', () => {
     expect(panel('Treinadores').getByDisplayValue('Ordem da chefia')).toBeTruthy()
   })
 
-  it('deletes the deck after confirmation and returns to the list', async () => {
+  it('deletes the deck after confirmation and returns to the list without a leave prompt', async () => {
     getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
     renderEditor(deckPath('abc'))
     const user = userEvent.setup()
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'x')
     await user.click(screen.getByRole('button', { name: /Excluir deck/ }))
     expect(getDeckStore().getSnapshot().decks).toHaveLength(1)
     await user.click(await screen.findByRole('button', { name: 'Excluir' }))
@@ -302,15 +429,67 @@ describe('DeckEditor', () => {
     expect(owned().value).toBe('9')
   })
 
-  it('reverts an empty rename of a stored deck to the stored name and shows the error', async () => {
+  it('recreates the deck under the same id when it was deleted elsewhere', async () => {
     getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
     renderEditor(deckPath('abc'))
+    act(() => getDeckStore().deleteDeck('abc'))
     const user = userEvent.setup()
-    const name = screen.getByPlaceholderText('Nome do deck') as HTMLInputElement
-    await user.clear(name)
-    await user.tab()
-    expect(screen.getByRole('alert').textContent).toBe('Informe o nome do deck')
-    expect(name.value).toBe('Alakazam')
-    expect(savedDeck()?.name).toBe('Alakazam')
+    await save(user)
+    expect(savedDeck()?.id).toBe('abc')
+  })
+
+  describe('leaving with unsaved changes', () => {
+    it('does not prompt for a new deck with nothing typed', async () => {
+      const router = renderEditor()
+      const user = userEvent.setup()
+      await user.click(screen.getByRole('link', { name: 'Sair' }))
+      expect(router.state.location.pathname).toBe(ROUTES.decks)
+    })
+
+    it('asks before in-app navigation when dirty, and stays on Continue editing', async () => {
+      const router = renderEditor()
+      const user = userEvent.setup()
+      await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+      await user.click(screen.getByRole('link', { name: 'Sair' }))
+      expect(await screen.findByText('Descartar alterações?')).toBeTruthy()
+      expect(router.state.location.pathname).toBe(ROUTES.newDeck)
+
+      await user.click(screen.getByRole('button', { name: 'Continuar editando' }))
+      expect(router.state.location.pathname).toBe(ROUTES.newDeck)
+      expect((screen.getByPlaceholderText('Nome do deck') as HTMLInputElement).value).toBe('Alakazam')
+    })
+
+    it('leaves and discards on confirmation', async () => {
+      const router = renderEditor()
+      const user = userEvent.setup()
+      await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+      await user.click(screen.getByRole('link', { name: 'Sair' }))
+      await user.click(await screen.findByRole('button', { name: 'Descartar' }))
+      expect(router.state.location.pathname).toBe(ROUTES.decks)
+      expect(savedDeck()).toBeUndefined()
+    })
+
+    it('does not prompt after saving', async () => {
+      getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
+      const router = renderEditor(deckPath('abc'))
+      const user = userEvent.setup()
+      await user.type(screen.getByPlaceholderText('Nome do deck'), ' 2')
+      await save(user)
+      await user.click(screen.getByRole('link', { name: 'Sair' }))
+      expect(router.state.location.pathname).toBe(ROUTES.decks)
+    })
+
+    it('warns on close or reload only while dirty', async () => {
+      renderEditor()
+      const user = userEvent.setup()
+      const unloadPrevented = () => {
+        const event = new Event('beforeunload', { cancelable: true })
+        window.dispatchEvent(event)
+        return event.defaultPrevented
+      }
+      expect(unloadPrevented()).toBe(false)
+      await user.type(screen.getByPlaceholderText('Nome do deck'), 'A')
+      expect(unloadPrevented()).toBe(true)
+    })
   })
 })

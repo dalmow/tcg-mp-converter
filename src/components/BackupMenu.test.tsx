@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BackupMenu } from '@/components/BackupMenu'
+import { ToastProvider } from '@/components/ui/toast'
 import { buildBackup } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
@@ -36,11 +37,23 @@ async function openMenu() {
   await userEvent.click(screen.getByRole('button', { name: 'Dados' }))
 }
 
+async function expectNoDialog() {
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+}
+
 async function pickFile(content: string) {
   await openMenu()
   await userEvent.click(await screen.findByText('Importar backup'))
   const input = screen.getByLabelText('Arquivo de backup')
   await userEvent.upload(input, new File([content], 'backup.json', { type: 'application/json' }))
+}
+
+function renderMenu() {
+  return render(
+    <ToastProvider>
+      <BackupMenu />
+    </ToastProvider>,
+  )
 }
 
 describe('BackupMenu', () => {
@@ -52,10 +65,11 @@ describe('BackupMenu', () => {
     })
     URL.revokeObjectURL = vi.fn()
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
-    render(<BackupMenu />)
+    renderMenu()
     await openMenu()
     await userEvent.click(await screen.findByText('Exportar backup'))
     expect(click).toHaveBeenCalledOnce()
+    expect(await screen.findByText('Backup exportado')).toBeTruthy()
     const payload = JSON.parse(await blob!.text())
     expect(payload).toMatchObject({
       version: 1,
@@ -66,41 +80,37 @@ describe('BackupMenu', () => {
   })
 
   it('shows a summary and replaces everything only after confirming', async () => {
-    render(<BackupMenu />)
+    renderMenu()
     await pickFile(JSON.stringify(buildBackup(incoming)))
     expect(await screen.findByText(/1 deck\(s\) e 1 carta\(s\)/)).toBeTruthy()
     expect(getDeckStore().getSnapshot()).toEqual(current)
     await userEvent.click(screen.getByRole('button', { name: 'Substituir tudo' }))
     await waitFor(() => expect(getDeckStore().getSnapshot()).toEqual(incoming))
     expect((await screen.findByText('Backup importado com sucesso')).textContent).toBeTruthy()
+    await expectNoDialog()
   })
 
   it('keeps the data when the confirmation is cancelled', async () => {
-    render(<BackupMenu />)
+    renderMenu()
     await pickFile(JSON.stringify(buildBackup(incoming)))
     await userEvent.click(await screen.findByRole('button', { name: 'Cancelar' }))
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
-  it('rejects an invalid file without touching the data', async () => {
-    render(<BackupMenu />)
+  it('rejects an invalid file with an error toast and no dialog', async () => {
+    renderMenu()
     await pickFile('{"decks": 1}')
-    expect(await screen.findByText('Arquivo de backup inválido')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Substituir tudo' })).toBeNull()
+    const toast = await screen.findByText('Arquivo de backup inválido')
+    expect(toast.closest('[role="alert"]')).not.toBeNull()
+    await expectNoDialog()
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
-  it('shows a specific message for an unsupported version', async () => {
-    render(<BackupMenu />)
+  it('shows a specific toast for an unsupported version', async () => {
+    renderMenu()
     await pickFile(JSON.stringify({ ...buildBackup(incoming), version: 2 }))
     expect(await screen.findByText('Versão de backup não suportada')).toBeTruthy()
+    await expectNoDialog()
     expect(getDeckStore().getSnapshot()).toEqual(current)
-  })
-
-  it('styles the invalid-file title with the danger token', async () => {
-    render(<BackupMenu />)
-    await pickFile('{"decks": 1}')
-    const title = await screen.findByText('Não foi possível importar')
-    expect(title.className).toContain('text-danger')
   })
 })
