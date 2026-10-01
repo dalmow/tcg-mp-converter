@@ -37,6 +37,10 @@ async function openMenu() {
   await userEvent.click(screen.getByRole('button', { name: 'Dados' }))
 }
 
+async function expectNoDialog() {
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+}
+
 async function pickFile(content: string) {
   await openMenu()
   await userEvent.click(await screen.findByText('Importar backup'))
@@ -83,7 +87,7 @@ describe('BackupMenu', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Substituir tudo' }))
     await waitFor(() => expect(getDeckStore().getSnapshot()).toEqual(incoming))
     expect((await screen.findByText('Backup importado com sucesso')).textContent).toBeTruthy()
-    expect(screen.queryByRole('alertdialog')).toBeNull()
+    await expectNoDialog()
   })
 
   it('keeps the data when the confirmation is cancelled', async () => {
@@ -98,7 +102,7 @@ describe('BackupMenu', () => {
     await pickFile('{"decks": 1}')
     const toast = await screen.findByText('Arquivo de backup inválido')
     expect(toast.closest('[role="alert"]')).not.toBeNull()
-    expect(screen.queryByRole('alertdialog')).toBeNull()
+    await expectNoDialog()
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
@@ -106,7 +110,7 @@ describe('BackupMenu', () => {
     renderMenu()
     await pickFile(JSON.stringify({ ...buildBackup(incoming), version: 2 }))
     expect(await screen.findByText('Versão de backup não suportada')).toBeTruthy()
-    expect(screen.queryByRole('alertdialog')).toBeNull()
+    await expectNoDialog()
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 })
