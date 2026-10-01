@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import { SaveIcon, Trash2Icon } from 'lucide-react'
-import { DeleteButton, SaveButton } from '@/components/ActionButtons'
+import { Trash2Icon } from 'lucide-react'
+import { DeleteButton } from '@/components/ActionButtons'
 import { Input } from '@/components/ui/input'
 import { parseCard } from '@/lib/deck/cardParser'
-import type { CardCategory, DeckCard, Result } from '@/lib/deck/types'
+import type { CardCategory } from '@/lib/deck/types'
 import { cn } from '@/lib/utils'
 import { CardCombobox } from './CardCombobox'
 import { deriveRowState, suggestCards } from './rowLogic'
-import type { CardSuggestion, RowContext, RowSave } from './rowLogic'
+import type { DraftRow } from './draft'
+import type { CardSuggestion, RowContext } from './rowLogic'
 
 const TEXT_PLACEHOLDER: Record<CardCategory, string> = {
   pokemon: 'Nome COLEÇÃO número',
@@ -17,76 +17,36 @@ const TEXT_PLACEHOLDER: Record<CardCategory, string> = {
 
 interface CardRowProps {
   context: RowContext
-  /** The persisted row, or null for a new row that was not saved yet. */
-  card: DeckCard | null
-  onSave: (save: RowSave) => Result
+  row: DraftRow
+  /** Blocking error reported by the last failed save of the deck, shown on this row. */
+  error: string | null
+  onChange: (patch: Partial<DraftRow>) => void
   onDelete: () => void
 }
 
-export function CardRow({ context, card, onSave, onDelete }: CardRowProps) {
+export function CardRow({ context, row, error, onChange, onDelete }: CardRowProps) {
   const { category, decks, owned, collections } = context
-  const [quantityText, setQuantityText] = useState(card ? String(card.quantity) : '')
-  const [text, setText] = useState(card?.displayName ?? '')
-  // null = the user has no unsaved edit of the owned field, so it follows the stored owned map
-  // (kept in sync with other tabs and Maintenance). A string is an unsaved edit and is never overwritten.
-  const [editedOwnedText, setEditedOwnedText] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  const ownedText = editedOwnedText ?? (card ? String(owned[card.key]?.quantity ?? 0) : '')
-  const originalKey = card?.key ?? null
-  const { parsed, quantity, ownedQuantity, quantityError, warning, valid } = deriveRowState(context, {
-    card,
-    text,
-    quantityText,
-    ownedText,
-  })
+  const { quantityText, text } = row
+  // A null owned edit follows the stored owned map; a string is an unsaved edit of this draft.
+  const ownedText = row.ownedText ?? (row.originalKey ? String(owned[row.originalKey]?.quantity ?? 0) : '')
+  const { parsed, warning, valid } = deriveRowState(context, { text, quantityText, ownedText })
   const fieldClass = valid ? 'border-success' : 'border-danger'
 
-  /** Applies a user edit and clears any stale inline error. */
-  function applyEdit(update: () => void) {
-    update()
-    setError(null)
-  }
-
   function changeText(next: string) {
-    applyEdit(() => {
-      setText(next)
-      const nextParsed = parseCard(category, next, collections)
-      const nextKey = nextParsed.ok ? nextParsed.card.key : null
-      const previousKey = parsed.ok ? parsed.card.key : null
-      if (nextKey === previousKey) return
+    const nextParsed = parseCard(category, next, collections)
+    const nextKey = nextParsed.ok ? nextParsed.card.key : null
+    const previousKey = parsed.ok ? parsed.card.key : null
+    const patch: Partial<DraftRow> = { text: next }
+    if (nextKey !== previousKey) {
       // A text that resolves to a known key takes its owned quantity from the map.
-      if (nextKey !== null && owned[nextKey]) setEditedOwnedText(String(owned[nextKey].quantity))
-      else if (previousKey !== null) setEditedOwnedText('')
-    })
+      if (nextKey !== null && owned[nextKey]) patch.ownedText = String(owned[nextKey].quantity)
+      else if (previousKey !== null) patch.ownedText = ''
+    }
+    onChange(patch)
   }
 
   function pick(suggestion: CardSuggestion) {
-    applyEdit(() => {
-      setText(suggestion.displayName)
-      setEditedOwnedText(String(suggestion.quantity))
-    })
-  }
-
-  function save() {
-    if (!parsed.ok) return setError(parsed.error)
-    if (quantityError) return setError(quantityError)
-    if (!Number.isInteger(ownedQuantity)) {
-      return setError('Adquirido deve ser um número inteiro maior ou igual a zero')
-    }
-    const next: DeckCard = {
-      category,
-      key: parsed.card.key,
-      displayName: parsed.card.displayName,
-      quantity,
-    }
-    const result = onSave({
-      originalKey,
-      card: next,
-      ownedEntry: { displayName: next.displayName, category, quantity: ownedQuantity },
-    })
-    if (result.ok) setEditedOwnedText(null)
-    else setError(result.error)
+    onChange({ text: suggestion.displayName, ownedText: String(suggestion.quantity) })
   }
 
   return (
@@ -99,7 +59,7 @@ export function CardRow({ context, card, onSave, onDelete }: CardRowProps) {
           placeholder="Qtd"
           aria-label="Quantidade"
           value={quantityText}
-          onChange={(event) => applyEdit(() => setQuantityText(event.target.value))}
+          onChange={(event) => onChange({ quantityText: event.target.value })}
         />
         <div className="min-w-0 flex-1">
           <CardCombobox
@@ -119,11 +79,8 @@ export function CardRow({ context, card, onSave, onDelete }: CardRowProps) {
           placeholder="Adq."
           aria-label="Adquirido"
           value={ownedText}
-          onChange={(event) => applyEdit(() => setEditedOwnedText(event.target.value))}
+          onChange={(event) => onChange({ ownedText: event.target.value })}
         />
-        <SaveButton size="icon" aria-label="Salvar linha" onClick={save}>
-          <SaveIcon />
-        </SaveButton>
         <DeleteButton size="icon" aria-label="Excluir linha" onClick={onDelete}>
           <Trash2Icon />
         </DeleteButton>
