@@ -54,10 +54,16 @@ function panel(name: string) {
   return within(screen.getByRole('region', { name }))
 }
 
-async function addRow(panelName: string, quantity: string, text: string, owned?: string) {
+type PanelName = 'Pokémon' | 'Treinadores' | 'Energias'
+
+async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: PanelName) {
+  await user.click(panel(panelName).getByRole('button', { name: 'Adicionar carta' }))
+}
+
+async function addRow(panelName: PanelName, quantity: string, text: string, owned?: string) {
   const user = userEvent.setup()
   const scope = panel(panelName)
-  await user.click(scope.getByRole('button', { name: 'Adicionar carta' }))
+  await addCard(user, panelName)
   const rows = scope.getAllByTestId('card-row')
   const element = rows[rows.length - 1]
   const row = within(element)
@@ -86,9 +92,46 @@ describe('DeckEditor', () => {
     }
   })
 
+  it('starts a new deck with one blank row in each category', () => {
+    renderEditor()
+    for (const name of ['Pokémon', 'Treinadores', 'Energias'] as const) {
+      expect(panel(name).getAllByTestId('card-row')).toHaveLength(1)
+    }
+  })
+
+  it('has an icon-only "+" button in each panel that adds a row to that category only', async () => {
+    renderEditor()
+    expect(screen.getAllByRole('button', { name: 'Adicionar carta' })).toHaveLength(3)
+    expect(panel('Energias').getByRole('button', { name: 'Adicionar carta' }).textContent).toBe('')
+    await addCard(userEvent.setup(), 'Energias')
+    expect(panel('Energias').getAllByTestId('card-row')).toHaveLength(2)
+    expect(panel('Pokémon').getAllByTestId('card-row')).toHaveLength(1)
+  })
+
+  it('focuses the quantity input of the row just added', async () => {
+    renderEditor()
+    await addCard(userEvent.setup(), 'Energias')
+    const rows = panel('Energias').getAllByTestId('card-row')
+    const row = within(rows[rows.length - 1])
+    expect(document.activeElement).toBe(row.getByLabelText('Quantidade'))
+  })
+
+  it('still asks for confirmation before deleting the deck', async () => {
+    renderEditor()
+    const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
+    await userEvent.setup().click(group.getByRole('button', { name: /Excluir deck/ }))
+    expect(await screen.findByRole('alertdialog')).toBeTruthy()
+  })
+
+  it('groups Save deck and Delete deck in one button group', () => {
+    renderEditor()
+    const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
+    expect(group.getByRole('button', { name: /Salvar deck/ })).toBeTruthy()
+    expect(group.getByRole('button', { name: /Excluir deck/ })).toBeTruthy()
+  })
+
   it('uses "#" as the quantity placeholder', async () => {
     renderEditor()
-    await userEvent.setup().click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
     expect(panel('Pokémon').getByLabelText('Quantidade').getAttribute('placeholder')).toBe('#')
   })
 
@@ -217,7 +260,7 @@ describe('DeckEditor', () => {
     renderEditor()
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
-    await user.click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
+    await addCard(user, 'Pokémon')
     await save(user)
     expect(savedDeck()?.cards).toEqual([])
     expect(panel('Pokémon').queryAllByTestId('card-row')).toHaveLength(0)
@@ -235,7 +278,7 @@ describe('DeckEditor', () => {
     expect(getDeckStore().getSnapshot().owned).toEqual({})
   })
 
-  it.each([
+  it.each<[PanelName, string, string | RegExp]>([
     ['Pokémon', 'Abra XYZ 54', 'Coleção XYZ não cadastrada'],
     ['Pokémon', 'Abra MEG 9999', /fora do total/],
     ['Treinadores', 'Ordem da chefia MEG 54', 'Treinador não aceita coleção nem número'],
@@ -314,7 +357,6 @@ describe('DeckEditor', () => {
     })
     renderEditor()
     const user = userEvent.setup()
-    await user.click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
     const row = within(panel('Pokémon').getByTestId('card-row'))
     await user.click(row.getByLabelText('Carta'))
 

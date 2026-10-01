@@ -44,9 +44,12 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   // The draft: everything edited here stays in memory until Save deck commits it in one go.
   const [name, setName] = useState(initial?.name ?? '')
-  const [rows, setRows] = useState<DraftRow[]>(() => (initial ? rowsFromDeck(initial) : []))
+  const [rows, setRows] = useState<DraftRow[]>(() =>
+    initial ? rowsFromDeck(initial) : CARD_CATEGORIES.map(newRow),
+  )
   const [nameError, setNameError] = useState<string | null>(null)
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
+  const [focusRowId, setFocusRowId] = useState<string | null>(null)
 
   const dirty = isDirty(name, rows, stored)
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
@@ -66,6 +69,12 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   function changeRow(rowId: string, patch: Partial<DraftRow>) {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)))
     setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
+  }
+
+  function appendRow(category: CardCategory) {
+    const row = newRow(category)
+    setRows((current) => [...current, row])
+    setFocusRowId(row.id)
   }
 
   function deleteRow(rowId: string) {
@@ -132,28 +141,34 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </p>
           )}
         </div>
-        <SaveButton onClick={saveDeck}>
-          <SaveIcon />
-          Salvar deck
-        </SaveButton>
-        <AlertDialog>
-          <AlertDialogTrigger render={<DeleteButton />}>
-            <Trash2Icon />
-            Excluir deck
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir deck?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta ação não pode ser desfeita. A quantidade adquirida das cartas é mantida.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={deleteDeck}>Excluir</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div
+          role="group"
+          aria-label="Ações do deck"
+          className="flex shrink-0 items-stretch gap-px"
+        >
+          <SaveButton aria-label="Salvar deck" className="rounded-r-none" onClick={saveDeck}>
+            <SaveIcon />
+            Salvar
+          </SaveButton>
+          <AlertDialog>
+            <AlertDialogTrigger render={<DeleteButton aria-label="Excluir deck" className="rounded-l-none" />}>
+              <Trash2Icon />
+              Excluir
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir deck?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. A quantidade adquirida das cartas é mantida.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteDeck}>Excluir</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {CARD_CATEGORIES.map((category) => (
@@ -166,7 +181,8 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             decks={decks}
             owned={owned}
             collections={collections}
-            onAddRow={() => setRows((current) => [...current, newRow(category)])}
+            focusRowId={focusRowId}
+            onAddRow={() => appendRow(category)}
             onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />
