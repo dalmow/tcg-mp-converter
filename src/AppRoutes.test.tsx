@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { HashRouter, MemoryRouter } from 'react-router'
+import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
 import { deckPath, ROUTES } from '@/routes'
@@ -9,11 +9,8 @@ import { deckPath, ROUTES } from '@/routes'
 afterEach(cleanup)
 
 function renderAt(path: string) {
-  return render(
-    <MemoryRouter initialEntries={[path]}>
-      <AppRoutes />
-    </MemoryRouter>,
-  )
+  const router = createMemoryRouter([{ path: '*', element: <AppRoutes /> }], { initialEntries: [path] })
+  return render(<RouterProvider router={router} />)
 }
 
 describe('AppRoutes', () => {
@@ -45,11 +42,7 @@ describe('AppRoutes', () => {
 
   it('resolves hash URLs under HashRouter', () => {
     window.location.hash = `#${ROUTES.converter}`
-    render(
-      <HashRouter>
-        <AppRoutes />
-      </HashRouter>,
-    )
+    render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
     expect(
       screen.getByRole('heading', { level: 1, name: 'PTCG Marketplace Converter' }),
     ).toBeTruthy()

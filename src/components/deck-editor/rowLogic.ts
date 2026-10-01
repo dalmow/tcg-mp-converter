@@ -1,28 +1,20 @@
 import type { CollectionConfig } from '@/lib/types'
 import { normalizeName, parseCard } from '@/lib/deck/cardParser'
 import type { ParsedCard } from '@/lib/deck/cardParser'
-import { addDeckCard, validateQuantity } from '@/lib/deck/deckRules'
+import { validateQuantity } from '@/lib/deck/deckRules'
 import { MAX_COPIES_PER_NAME } from '@/lib/deck/types'
-import type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from '@/lib/deck/types'
+import type { CardCategory, Deck, OwnedMap } from '@/lib/deck/types'
 
 const MAX_SUGGESTIONS = 8
 
-/** Everything a row needs to know about the deck and the stored data around it. */
+/** Everything a row needs to know about the draft (its other rows) and the stored data around it. */
 export interface RowContext {
   category: CardCategory
-  deck: Deck
+  /** The other rows of the draft that already form a valid card. */
+  otherRows: Deck
   decks: Deck[]
   owned: OwnedMap
   collections: CollectionConfig
-}
-
-/** A row save request. `originalKey` is null for a row that was never saved. */
-export interface RowSave {
-  originalKey: string | null
-  card: DeckCard
-  ownedEntry: OwnedEntry
-  /** Set when the saved row was an unsaved draft, so the editor can drop it. */
-  draftId?: string
 }
 
 export interface CardSuggestion {
@@ -56,17 +48,16 @@ export function suggestCards(
     .slice(0, MAX_SUGGESTIONS)
 }
 
-/** Copies of a card name in the deck once `candidate` replaces the row at `originalKey`. Basic energy is exempt. */
-export function copiesAfterEdit(
-  deck: Deck,
-  originalKey: string | null,
+/** Copies of a card name in `otherRows` plus the `candidate` row. Basic energy is exempt. */
+export function copiesInDeck(
+  otherRows: Deck,
   candidate: { parsed: ParsedCard; quantity: number },
   collections: CollectionConfig,
 ): number {
   if (candidate.parsed.basicEnergy) return 0
   let copies = candidate.quantity
-  for (const card of deck.cards) {
-    if (card.key === originalKey || card.key === candidate.parsed.key) continue
+  for (const card of otherRows.cards) {
+    if (card.key === candidate.parsed.key) continue
     const parsed = parseCard(card.category, card.displayName, collections)
     if (parsed.ok && parsed.card.normalizedName === candidate.parsed.normalizedName) copies += card.quantity
   }
@@ -77,17 +68,6 @@ export function copiesWarning(parsed: ParsedCard, copies: number): string | null
   return copies > MAX_COPIES_PER_NAME
     ? `Mais de ${MAX_COPIES_PER_NAME} cópias de ${parsed.displayName} no deck`
     : null
-}
-
-/** Replaces the row at `originalKey` (or appends a new row), keeping the row position. */
-export function applyRowSave(deck: Deck, originalKey: string | null, card: DeckCard): Result<{ deck: Deck }> {
-  const index = originalKey === null ? -1 : deck.cards.findIndex((existing) => existing.key === originalKey)
-  const base: Deck = { ...deck, cards: deck.cards.filter((existing) => existing.key !== originalKey) }
-  const added = addDeckCard(base, card)
-  if (!added.ok || index === -1) return added
-  const cards = added.deck.cards.slice(0, -1)
-  cards.splice(index, 0, card)
-  return { ok: true, deck: { ...added.deck, cards } }
 }
 
 export function parseIntegerText(text: string): number {
@@ -102,8 +82,6 @@ export function parseOwnedText(text: string): number {
 
 
 export interface RowInput {
-  /** The persisted row, or null for a new row that was not saved yet. */
-  card: DeckCard | null
   text: string
   quantityText: string
   ownedText: string
@@ -111,16 +89,15 @@ export interface RowInput {
 
 /** Derived validity and feedback of a row (green/red, inline error and warning). */
 export function deriveRowState(context: RowContext, input: RowInput) {
-  const { category, deck, collections } = context
-  const originalKey = input.card?.key ?? null
+  const { category, otherRows, collections } = context
   const parsed = parseCard(category, input.text, collections)
   const quantity = parseIntegerText(input.quantityText)
   const ownedQuantity = parseOwnedText(input.ownedText)
-  // A new row has no key to exclude from the deck's other rows; '' matches none.
-  const quantityError = validateQuantity(deck, originalKey ?? '', quantity)
+  // `otherRows` excludes this row, so there is no key to exclude; '' matches none.
+  const quantityError = validateQuantity(otherRows, '', quantity)
   const warning =
     parsed.ok && Number.isInteger(quantity)
-      ? copiesWarning(parsed.card, copiesAfterEdit(deck, originalKey, { parsed: parsed.card, quantity }, collections))
+      ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
   const valid =
     parsed.ok && !quantityError && Number.isInteger(ownedQuantity) && ownedQuantity >= quantity && !warning
