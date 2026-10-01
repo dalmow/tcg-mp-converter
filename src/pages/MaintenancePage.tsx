@@ -1,5 +1,7 @@
 import { useId, useMemo, useState } from 'react'
 import { MaintenanceRow } from '@/components/maintenance/MaintenanceRow'
+import { PAGE_META } from '@/lib/pageMeta'
+import { usePageMeta } from '@/lib/usePageMeta'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
 import { Switch } from '@/components/ui/switch'
@@ -15,6 +17,7 @@ const CATEGORY_TITLES: Record<CardCategory, string> = {
 }
 
 export default function MaintenancePage() {
+  usePageMeta(PAGE_META.maintenance)
   const { decks, owned } = useDeckData()
   const [onlyMissing, setOnlyMissing] = useState(true)
   const switchId = useId()
