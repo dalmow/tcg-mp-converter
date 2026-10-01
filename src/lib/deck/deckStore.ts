@@ -96,11 +96,11 @@ export function getDeckStore(): DeckStore {
   return defaultStore
 }
 
-const subscribe: DeckStore['subscribe'] = (listener) => getDeckStore().subscribe(listener)
-const getSnapshot = () => getDeckStore().getSnapshot()
+const subscribeToDefaultStore: DeckStore['subscribe'] = (listener) => getDeckStore().subscribe(listener)
+const getDefaultSnapshot = () => getDeckStore().getSnapshot()
 const getServerSnapshot = () => EMPTY_DATA
 
 /** The server snapshot is empty because prerendering has no `localStorage`; hydration then swaps in the stored data. */
 export function useDeckData(): PersistedData {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  return useSyncExternalStore(subscribeToDefaultStore, getDefaultSnapshot, getServerSnapshot)
 }

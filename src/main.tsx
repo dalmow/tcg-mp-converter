@@ -4,6 +4,11 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
 import { AppRoutes } from './AppRoutes.tsx'
 
+// Links from the hash-router days (`/#/converter`) become clean paths.
+if (window.location.hash.startsWith('#/')) {
+  window.history.replaceState(null, '', window.location.hash.slice(1))
+}
+
 // A data router, because the deck editor blocks navigation while it has unsaved changes.
 const router = createBrowserRouter([{ path: '*', element: <AppRoutes /> }])
 

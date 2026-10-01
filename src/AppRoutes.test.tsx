@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-router'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
 import { getDeckStore } from '@/lib/deck/deckStore'
@@ -38,12 +38,6 @@ describe('AppRoutes', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Dados' }))
     expect(await screen.findByText('Exportar backup')).toBeTruthy()
     expect(screen.getByText('Importar backup')).toBeTruthy()
-  })
-
-  it('resolves hash URLs under HashRouter', () => {
-    window.location.hash = `#${ROUTES.converter}`
-    render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
-    expect(screen.getByLabelText('Decklist')).toBeTruthy()
   })
 })
 
@@ -88,6 +82,18 @@ describe('AppRoutes page metadata', () => {
     cleanup()
     renderAt(ROUTES.newDeck)
     expect(metaContent('robots')).toBe('noindex')
+  })
+
+  it('drops the prerendered canonical and og:url when navigating from a public page to an editing route', async () => {
+    document.head.insertAdjacentHTML(
+      'beforeend',
+      '<link rel="canonical" href="https://example.com/" /><meta property="og:url" content="https://example.com/" />',
+    )
+    renderAt(ROUTES.decks)
+    await userEvent.click(screen.getByRole('link', { name: 'Novo deck' }))
+    expect(metaContent('robots')).toBe('noindex')
+    expect(document.head.querySelector('link[rel="canonical"]')).toBeNull()
+    expect(document.head.querySelector('meta[property="og:url"]')).toBeNull()
   })
 
   it('lifts noindex when navigating from an editing route to a public one', async () => {

@@ -12,7 +12,7 @@ Code is in English. User-visible strings are Portuguese (listed below in quotes)
 
 ## Navigation
 
-- `HashRouter` (`react-router`), works on any static host.
+- `createBrowserRouter` (`react-router`), clean URLs; the host must rewrite unknown paths to `spa.html` (see `vercel.json`).
 - Routes: `/` (deck list, label "Decks"), `/decks/new`, `/decks/:id`, `/converter`, `/maintenance`.
 - Top navbar: "Decks", "Conversor", "Manutenção", and a "Dados" dropdown (no route) with "Exportar backup" and "Importar backup".
 

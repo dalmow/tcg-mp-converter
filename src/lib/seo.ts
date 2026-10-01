@@ -80,8 +80,9 @@ export function buildHeadTags(siteUrl: string, { path, meta }: PublicPage): stri
 /** Turns the built app shell into the static HTML of one page. */
 export function applyPageToShell(shell: string, siteUrl: string, page: PublicPage, appHtml: string): string {
   const start = shell.indexOf(HEAD_START)
-  const end = shell.indexOf(HEAD_END) + HEAD_END.length
-  if (start === -1 || end < HEAD_END.length) throw new Error('App shell has no SEO head markers')
+  const endMarker = shell.indexOf(HEAD_END)
+  if (start === -1 || endMarker === -1) throw new Error('App shell has no SEO head markers')
+  const end = endMarker + HEAD_END.length
   return (shell.slice(0, start) + buildHeadTags(siteUrl, page) + shell.slice(end)).replace(
     '<div id="root"></div>',
     () => `<div id="root">${appHtml}</div>`,

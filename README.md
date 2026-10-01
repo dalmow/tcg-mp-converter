@@ -53,4 +53,4 @@ canônica vem de `DEFAULT_SITE_URL` ou da variável de ambiente `SITE_URL`.
 A imagem de compartilhamento (`public/og-image.png`, 1200x630) é gerada a
 partir de `docs/assets/og-image.svg`.
 
-As páginas públicas (`PUBLIC_PAGES` em `src/lib/pageMeta.ts`: decks e conversor) são pré-renderizadas no build (`dist/index.html`, `dist/converter.html`) e hidratadas no navegador. O shell vazio vai para `dist/spa.html`, que o `vercel.json` serve para as demais rotas (edição de deck), com `noindex`.
+As páginas públicas (`PUBLIC_PAGES` em `src/lib/pageMeta.ts`: decks e conversor) são pré-renderizadas no build (`dist/index.html`, `dist/converter.html`) e hidratadas no navegador. O roteador é `createBrowserRouter` (URLs limpas; links antigos `/#/rota` são redirecionados). O shell vazio vai para `dist/spa.html`, que o `vercel.json` serve para as demais rotas (edição de deck), com `noindex`.
