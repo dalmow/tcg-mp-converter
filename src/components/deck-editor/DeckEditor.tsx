@@ -38,9 +38,9 @@ const PANEL_TITLE: Record<CardCategory, string> = {
 }
 
 const ADD_CARD_LABEL: Record<CardCategory, string> = {
-  pokemon: 'Pokémon',
-  trainer: 'Treinador',
-  energy: 'Energia',
+  pokemon: 'Adicionar Pokémon',
+  trainer: 'Adicionar Treinador',
+  energy: 'Adicionar Energia',
 }
 
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
@@ -60,6 +60,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   const [rows, setRows] = useState<DraftRow[]>(() => (initial ? rowsFromDeck(initial) : []))
   const [nameError, setNameError] = useState<string | null>(null)
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
+  const [focusRowId, setFocusRowId] = useState<string | null>(null)
 
   const dirty = isDirty(name, rows, stored)
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
@@ -81,8 +82,10 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
   }
 
-  function addRow(category: CardCategory) {
-    setRows((current) => [...current, newRow(category)])
+  function appendRow(category: CardCategory) {
+    const row = newRow(category)
+    setRows((current) => [...current, row])
+    setFocusRowId(row.id)
   }
 
   function deleteRow(rowId: string) {
@@ -183,9 +186,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           >
             <PlusIcon />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-auto">
+          <DropdownMenuContent align="end" className="w-auto" finalFocus={false}>
             {CARD_CATEGORIES.map((category) => (
-              <DropdownMenuItem key={category} onClick={() => addRow(category)}>
+              <DropdownMenuItem key={category} onClick={() => appendRow(category)}>
                 {ADD_CARD_LABEL[category]}
               </DropdownMenuItem>
             ))}
@@ -203,6 +206,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             decks={decks}
             owned={owned}
             collections={collections}
+            focusRowId={focusRowId}
             onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />

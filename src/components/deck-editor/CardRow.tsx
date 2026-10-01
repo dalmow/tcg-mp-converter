@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Trash2Icon } from 'lucide-react'
 import { DeleteButton } from '@/components/ActionButtons'
 import { Input } from '@/components/ui/input'
@@ -20,11 +21,19 @@ interface CardRowProps {
   row: DraftRow
   /** Blocking error reported by the last failed save of the deck, shown on this row. */
   error: string | null
+  /** Focus and scroll to this row when it mounts, used for a row the user just added. */
+  focusOnMount?: boolean
   onChange: (patch: Partial<DraftRow>) => void
   onDelete: () => void
 }
 
-export function CardRow({ context, row, error, onChange, onDelete }: CardRowProps) {
+export function CardRow({ context, row, error, focusOnMount, onChange, onDelete }: CardRowProps) {
+  const quantityInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (!focusOnMount) return
+    quantityInput.current?.focus()
+    quantityInput.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [focusOnMount])
   const { category, decks, owned, collections } = context
   const { quantityText, text } = row
   // A null owned edit follows the stored owned map; a string is an unsaved edit of this draft.
@@ -57,6 +66,7 @@ export function CardRow({ context, row, error, onChange, onDelete }: CardRowProp
     <div data-testid="card-row" data-status={valid ? 'valid' : 'invalid'} className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
         <Input
+          ref={quantityInput}
           type="number"
           min={1}
           className={cn('w-16 shrink-0', fieldClass)}

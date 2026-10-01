@@ -54,18 +54,18 @@ function panel(name: string) {
   return within(screen.getByRole('region', { name }))
 }
 
-const ADD_MENU_ITEM: Record<string, string> = {
-  Pokémon: 'Pokémon',
-  Treinadores: 'Treinador',
-  Energias: 'Energia',
-}
+const ADD_MENU_ITEM = {
+  Pokémon: 'Adicionar Pokémon',
+  Treinadores: 'Adicionar Treinador',
+  Energias: 'Adicionar Energia',
+} as const
 
-async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: string) {
+async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: keyof typeof ADD_MENU_ITEM) {
   await user.click(screen.getByRole('button', { name: 'Adicionar carta' }))
   await user.click(await screen.findByRole('menuitem', { name: ADD_MENU_ITEM[panelName] }))
 }
 
-async function addRow(panelName: string, quantity: string, text: string, owned?: string) {
+async function addRow(panelName: keyof typeof ADD_MENU_ITEM, quantity: string, text: string, owned?: string) {
   const user = userEvent.setup()
   const scope = panel(panelName)
   await addCard(user, panelName)
@@ -105,6 +105,20 @@ describe('DeckEditor', () => {
     await addCard(user, 'Energias')
     expect(panel('Energias').getAllByTestId('card-row')).toHaveLength(1)
     expect(panel('Pokémon').queryAllByTestId('card-row')).toHaveLength(0)
+  })
+
+  it('focuses the quantity input of the row just added', async () => {
+    renderEditor()
+    await addCard(userEvent.setup(), 'Energias')
+    const row = within(panel('Energias').getByTestId('card-row'))
+    expect(document.activeElement).toBe(row.getByLabelText('Quantidade'))
+  })
+
+  it('still asks for confirmation before deleting the deck', async () => {
+    renderEditor()
+    const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
+    await userEvent.setup().click(group.getByRole('button', { name: /Excluir deck/ }))
+    expect(await screen.findByRole('alertdialog')).toBeTruthy()
   })
 
   it('groups Save deck and Delete deck in one button group', () => {
@@ -263,7 +277,7 @@ describe('DeckEditor', () => {
     expect(getDeckStore().getSnapshot().owned).toEqual({})
   })
 
-  it.each([
+  it.each<[keyof typeof ADD_MENU_ITEM, string, string | RegExp]>([
     ['Pokémon', 'Abra XYZ 54', 'Coleção XYZ não cadastrada'],
     ['Pokémon', 'Abra MEG 9999', /fora do total/],
     ['Treinadores', 'Ordem da chefia MEG 54', 'Treinador não aceita coleção nem número'],

@@ -15,6 +15,8 @@ export interface CategoryPanelProps {
   decks: Deck[]
   owned: OwnedMap
   collections: CollectionConfig
+  /** Id of the row just added, which takes focus on mount. */
+  focusRowId: string | null
   onChangeRow: (rowId: string, patch: Partial<DraftRow>) => void
   onDeleteRow: (rowId: string) => void
 }
@@ -27,6 +29,7 @@ export function CategoryPanel({
   decks,
   owned,
   collections,
+  focusRowId,
   onChangeRow,
   onDeleteRow,
 }: CategoryPanelProps) {
@@ -44,6 +47,7 @@ export function CategoryPanel({
               context={{ category, otherRows: otherRowsDeck(rows, row.id, collections), decks, owned, collections }}
               row={row}
               error={rowErrors[row.id] ?? null}
+              focusOnMount={row.id === focusRowId}
               onChange={(patch) => onChangeRow(row.id, patch)}
               onDelete={() => onDeleteRow(row.id)}
             />
