@@ -132,13 +132,17 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </p>
           )}
         </div>
-        <div role="group" aria-label="Ações do deck" className="flex">
-          <SaveButton className="rounded-r-none" onClick={saveDeck}>
+        <div
+          role="group"
+          aria-label="Ações do deck"
+          className="flex [&>button:first-child]:rounded-r-none [&>button:last-child]:rounded-l-none [&>button:last-child]:border-l [&>button:last-child]:border-l-background/40"
+        >
+          <SaveButton onClick={saveDeck}>
             <SaveIcon />
             Salvar deck
           </SaveButton>
           <AlertDialog>
-            <AlertDialogTrigger render={<DeleteButton className="rounded-l-none border-l border-l-background/40" />}>
+            <AlertDialogTrigger render={<DeleteButton />}>
               <Trash2Icon />
               Excluir deck
             </AlertDialogTrigger>

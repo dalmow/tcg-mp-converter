@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react'
 import { Panel } from '@/components/Panel'
 import { Button } from '@/components/ui/button'
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { CollectionConfig } from '@/lib/types'
 import type { CardCategory, Deck, OwnedMap } from '@/lib/deck/types'
 import { CardRow } from './CardRow'
@@ -36,17 +36,13 @@ export function CategoryPanel({
 }: CategoryPanelProps) {
   return (
     <Panel role="region" aria-label={title} className="self-start">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <Button
-          variant="outline"
-          size="icon"
-          aria-label="Adicionar carta"
-          title="Adicionar carta"
-          onClick={onAddRow}
-        >
-          <PlusIcon />
-        </Button>
+        <CardAction>
+          <Button variant="outline" size="icon" aria-label="Adicionar carta" onClick={onAddRow}>
+            <PlusIcon />
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {rows

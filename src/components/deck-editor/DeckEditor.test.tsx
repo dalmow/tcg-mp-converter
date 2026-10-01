@@ -86,6 +86,14 @@ describe('DeckEditor', () => {
     }
   })
 
+  it('puts a "+" add-card button in each category panel header', () => {
+    renderEditor()
+    for (const title of ['Pokémon', 'Treinadores', 'Energias']) {
+      const panel = within(screen.getByRole('region', { name: title }))
+      expect(panel.getByRole('button', { name: 'Adicionar carta' }).textContent).toBe('')
+    }
+  })
+
   it('groups Save deck and Delete deck in one button group', () => {
     renderEditor()
     const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
