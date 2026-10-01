@@ -72,7 +72,7 @@ export function createDeckStore(storage: DeckStorage) {
     /** Removes an owned card, unless a deck still uses it. */
     deleteOwned(key: string): Result {
       if (snapshot.decks.some((deck) => deck.cards.some((card) => card.key === key))) {
-        return { ok: false, error: 'Carta em uso em um deck, n„o pode ser excluÌda' }
+        return { ok: false, error: 'Carta em uso em um deck, n√£o pode ser exclu√≠da' }
       }
       const { [key]: _removed, ...owned } = snapshot.owned
       commit({ ...snapshot, owned })
