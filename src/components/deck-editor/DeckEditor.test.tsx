@@ -81,6 +81,12 @@ describe('DeckEditor', () => {
     }
   })
 
+  it('uses "#" as the quantity placeholder', async () => {
+    renderEditor()
+    await userEvent.setup().click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
+    expect(panel('Pokémon').getByLabelText('Quantidade').getAttribute('placeholder')).toBe('#')
+  })
+
   it('writes nothing until Save deck, then commits name, rows and owned together', async () => {
     renderEditor()
     const user = userEvent.setup()

@@ -60,7 +60,7 @@ export function CardRow({ context, row, error, onChange, onDelete }: CardRowProp
           type="number"
           min={1}
           className={cn('w-16 shrink-0', fieldClass)}
-          placeholder="Qtd"
+          placeholder="#"
           aria-label="Quantidade"
           value={quantityText}
           onChange={(event) => onChange({ quantityText: event.target.value })}
