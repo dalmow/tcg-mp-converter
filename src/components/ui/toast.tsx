@@ -1,9 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { CircleAlertIcon, CircleCheckIcon, XIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export type ToastVariant = 'success' | 'error'
+type ToastVariant = 'success' | 'error'
 
 export const TOAST_DURATION_MS = 5000
 
@@ -18,19 +18,23 @@ interface ToastApi {
   error: (message: string) => void
 }
 
-// Without a provider (isolated component tests) toasts are silently dropped.
-const NOOP_API: ToastApi = { success: () => {}, error: () => {} }
-
-const ToastContext = createContext<ToastApi>(NOOP_API)
+const ToastContext = createContext<ToastApi | null>(null)
 
 export function useToast(): ToastApi {
-  return useContext(ToastContext)
+  const api = useContext(ToastContext)
+  if (!api) throw new Error('useToast must be used inside <ToastProvider>')
+  return api
 }
 
-let nextToastId = 0
+// Errors interrupt (assertive); successes wait their turn (polite).
+const VARIANT_STYLE: Record<ToastVariant, { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }> = {
+  success: { role: 'status', border: 'border-success', text: 'text-success', Icon: CircleCheckIcon },
+  error: { role: 'alert', border: 'border-danger', text: 'text-danger', Icon: CircleAlertIcon },
+}
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
+  const nextId = useRef(0)
 
   const dismiss = useCallback((id: number) => {
     setToasts((current) => current.filter((toast) => toast.id !== id))
@@ -38,7 +42,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const api = useMemo<ToastApi>(() => {
     const push = (variant: ToastVariant) => (message: string) =>
-      setToasts((current) => [...current, { id: nextToastId++, variant, message }])
+      setToasts((current) => [...current, { id: nextId.current++, variant, message }])
     return { success: push('success'), error: push('error') }
   }, [])
 
@@ -66,20 +70,18 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
     return () => clearTimeout(timer)
   }, [id, onDismiss])
 
-  const isError = variant === 'error'
-  const Icon = isError ? CircleAlertIcon : CircleCheckIcon
+  const { role, border, text, Icon } = VARIANT_STYLE[variant]
 
   return (
     <div
-      // Errors interrupt (assertive); successes wait their turn (polite).
-      role={isError ? 'alert' : 'status'}
+      role={role}
       data-variant={variant}
       className={cn(
         'flex items-start gap-2 rounded-md border bg-card p-3 text-sm text-card-foreground shadow-md',
-        isError ? 'border-danger' : 'border-success',
+        border,
       )}
     >
-      <Icon aria-hidden className={cn('mt-0.5 size-4 shrink-0', isError ? 'text-danger' : 'text-success')} />
+      <Icon aria-hidden className={cn('mt-0.5 size-4 shrink-0', text)} />
       <span className="flex-1">{message}</span>
       <button
         type="button"

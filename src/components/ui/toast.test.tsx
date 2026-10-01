@@ -64,9 +64,8 @@ describe('Toast', () => {
     expect(screen.getAllByRole('button', { name: 'Fechar notificação' })).toHaveLength(2)
   })
 
-  it('does nothing without a provider', async () => {
-    render(<Trigger />)
-    await userEvent.click(screen.getByText('ok'))
-    expect(screen.queryByRole('status')).toBeNull()
+  it('throws without a provider', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(() => render(<Trigger />)).toThrow('useToast must be used inside <ToastProvider>')
   })
 })

@@ -71,14 +71,10 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     const trimmedName = name.trim()
     if (!trimmedName) {
       setNameError(NAME_REQUIRED)
-      toast.error(NAME_REQUIRED)
       return { ok: false, error: NAME_REQUIRED }
     }
     const result = applyRowSave({ ...deck, name: trimmedName }, originalKey, card)
-    if (!result.ok) {
-      toast.error(result.error)
-      return result
-    }
+    if (!result.ok) return result
     getDeckStore().saveDeck(result.deck, { [card.key]: ownedEntry })
     toast.success('Carta salva')
     setNameError(null)
@@ -88,7 +84,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   function deleteRow(key: string) {
     getDeckStore().saveDeck({ ...deck, cards: deck.cards.filter((card) => card.key !== key) })
-    toast.success('Carta removida')
+    toast.success('Carta removida do deck')
   }
 
   function deleteDeck() {

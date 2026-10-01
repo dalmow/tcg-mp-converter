@@ -54,8 +54,8 @@ export default function MaintenancePage() {
                     }}
                     onDelete={(entry) => {
                       const result = getDeckStore().deleteOwned(entry.key)
-                      if (result.ok) toast.success('Carta removida')
-                      else toast.error(result.error)
+                      // On failure the row shows the error inline.
+                      if (result.ok) toast.success('Carta excluída')
                       return result
                     }}
                   />
