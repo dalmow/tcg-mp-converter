@@ -7,7 +7,14 @@ const data: PersistedData = {
     {
       id: 'd1',
       name: 'Alakazam',
-      cards: [{ category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 2 }],
+      cards: [
+        {
+          category: 'pokemon',
+          key: 'MEG-54',
+          displayName: 'Abra MEG 54',
+          quantity: 2,
+        },
+      ],
     },
   ],
   owned: {
@@ -47,8 +54,60 @@ describe('parseBackup', () => {
     expect(parseBackup(text).ok).toBe(false)
   })
 
-  it('rejects an unsupported version', () => {
+  it('rejects an unsupported version with a specific message', () => {
     const text = JSON.stringify({ ...buildBackup(data), version: 2 })
-    expect(parseBackup(text).ok).toBe(false)
+    expect(parseBackup(text)).toEqual({
+      ok: false,
+      error: 'Versão de backup não suportada',
+    })
+  })
+
+  it('counts only owned cards with quantity above zero in the summary', () => {
+    const withZero: PersistedData = {
+      ...data,
+      owned: {
+        ...data.owned,
+        fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 0 },
+      },
+    }
+    const result = parseBackup(JSON.stringify(buildBackup(withZero)))
+    expect(result.ok && result.summary.ownedCount).toBe(1)
+  })
+
+  it('rejects a deck with a duplicate card key', () => {
+    const card = data.decks[0].cards[0]
+    const bad: PersistedData = {
+      ...data,
+      decks: [{ ...data.decks[0], cards: [card, card] }],
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
+      ok: false,
+      error: 'Deck "Alakazam" tem cartas duplicadas',
+    })
+  })
+
+  it('rejects a deck with more than 60 cards', () => {
+    const cards = [
+      {
+        category: 'pokemon' as const,
+        key: 'MEG-1',
+        displayName: 'A',
+        quantity: 40,
+      },
+      {
+        category: 'pokemon' as const,
+        key: 'MEG-2',
+        displayName: 'B',
+        quantity: 21,
+      },
+    ]
+    const bad: PersistedData = {
+      ...data,
+      decks: [{ ...data.decks[0], cards }],
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
+      ok: false,
+      error: 'Deck "Alakazam" tem mais de 60 cartas',
+    })
   })
 })

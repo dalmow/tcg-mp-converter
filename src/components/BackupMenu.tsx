@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronDownIcon } from 'lucide-react'
 import {
   AlertDialog,
@@ -10,35 +10,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { buttonVariants } from '@/components/ui/button'
+import { navLinkClass } from '@/components/navLinkClass'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { buildBackup, parseBackup, type BackupSummary } from '@/lib/deck/backup'
+import { downloadBackup, parseBackup, type BackupSummary } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
 
-type Pending =
+type ImportDialogState =
   | { kind: 'confirm'; data: PersistedData; summary: BackupSummary }
   | { kind: 'error'; message: string }
 
-function downloadBackup() {
-  const backup = buildBackup(getDeckStore().getSnapshot())
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `ptcg-backup-${backup.exportedAt.slice(0, 10)}.json`
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
 export function BackupMenu() {
   const fileInput = useRef<HTMLInputElement>(null)
-  const [pending, setPending] = useState<Pending | null>(null)
+  const [pending, setPending] = useState<ImportDialogState | null>(null)
+
+  const [imported, setImported] = useState(false)
+
+  useEffect(() => {
+    if (!imported) return
+    const timer = setTimeout(() => setImported(false), 5000)
+    return () => clearTimeout(timer)
+  }, [imported])
 
   async function handleFile(file: File) {
     const result = parseBackup(await file.text())
@@ -52,12 +49,14 @@ export function BackupMenu() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className={buttonVariants({ variant: 'ghost' })}>
+        <DropdownMenuTrigger className={navLinkClass(false)}>
           Dados
           <ChevronDownIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-auto">
-          <DropdownMenuItem onClick={downloadBackup}>Exportar backup</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => downloadBackup(getDeckStore().getSnapshot())}>
+            Exportar backup
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => fileInput.current?.click()}>
             Importar backup
           </DropdownMenuItem>
@@ -66,6 +65,7 @@ export function BackupMenu() {
       <input
         ref={fileInput}
         type="file"
+        aria-label="Arquivo de backup"
         accept=".json,application/json"
         className="hidden"
         onChange={(event) => {
@@ -74,6 +74,11 @@ export function BackupMenu() {
           if (file) void handleFile(file)
         }}
       />
+      {imported && (
+        <span role="status" className="text-sm text-success">
+          Backup importado com sucesso
+        </span>
+      )}
       <AlertDialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <AlertDialogContent>
           {pending?.kind === 'confirm' && (
@@ -87,7 +92,12 @@ export function BackupMenu() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => getDeckStore().replaceAll(pending.data)}>
+                <AlertDialogAction
+                  onClick={() => {
+                    getDeckStore().replaceAll(pending.data)
+                    setImported(true)
+                  }}
+                >
                   Substituir tudo
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -96,7 +106,9 @@ export function BackupMenu() {
           {pending?.kind === 'error' && (
             <>
               <AlertDialogHeader>
-                <AlertDialogTitle>Não foi possível importar</AlertDialogTitle>
+                <AlertDialogTitle className="text-danger">
+                  Não foi possível importar
+                </AlertDialogTitle>
                 <AlertDialogDescription>{pending.message}</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

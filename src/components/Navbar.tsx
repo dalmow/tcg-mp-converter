@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router'
 import { BackupMenu } from '@/components/BackupMenu'
-import { buttonVariants } from '@/components/ui/button'
+import { navLinkClass } from '@/components/navLinkClass'
 import { ROUTES } from '@/routes'
 
 const links = [
@@ -8,9 +8,6 @@ const links = [
   { to: ROUTES.converter, label: 'Conversor', end: false },
   { to: ROUTES.maintenance, label: 'Manutenção', end: false },
 ]
-
-const navLinkClass = (isActive: boolean) =>
-  buttonVariants({ variant: isActive ? 'secondary' : 'ghost' })
 
 export function Navbar() {
   return (

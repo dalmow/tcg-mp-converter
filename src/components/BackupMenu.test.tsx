@@ -7,11 +7,19 @@ import { buildBackup } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
 
-const current: PersistedData = { decks: [{ id: 'old', name: 'Antigo', cards: [] }], owned: {} }
+const current: PersistedData = {
+  decks: [{ id: 'old', name: 'Antigo', cards: [] }],
+  owned: {},
+}
 const incoming: PersistedData = {
   decks: [{ id: 'n1', name: 'Novo', cards: [] }],
-  owned: { fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 4 } },
+  owned: {
+    fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 4 },
+  },
 }
+
+const originalCreateObjectURL = URL.createObjectURL
+const originalRevokeObjectURL = URL.revokeObjectURL
 
 beforeEach(() => {
   localStorage.clear()
@@ -19,6 +27,8 @@ beforeEach(() => {
 })
 afterEach(() => {
   cleanup()
+  URL.createObjectURL = originalCreateObjectURL
+  URL.revokeObjectURL = originalRevokeObjectURL
   vi.restoreAllMocks()
 })
 
@@ -29,7 +39,7 @@ async function openMenu() {
 async function pickFile(content: string) {
   await openMenu()
   await userEvent.click(await screen.findByText('Importar backup'))
-  const input = document.querySelector('input[type="file"]') as HTMLInputElement
+  const input = screen.getByLabelText('Arquivo de backup')
   await userEvent.upload(input, new File([content], 'backup.json', { type: 'application/json' }))
 }
 
@@ -47,7 +57,11 @@ describe('BackupMenu', () => {
     await userEvent.click(await screen.findByText('Exportar backup'))
     expect(click).toHaveBeenCalledOnce()
     const payload = JSON.parse(await blob!.text())
-    expect(payload).toMatchObject({ version: 1, decks: current.decks, owned: {} })
+    expect(payload).toMatchObject({
+      version: 1,
+      decks: current.decks,
+      owned: {},
+    })
     expect(typeof payload.exportedAt).toBe('string')
   })
 
@@ -58,6 +72,7 @@ describe('BackupMenu', () => {
     expect(getDeckStore().getSnapshot()).toEqual(current)
     await userEvent.click(screen.getByRole('button', { name: 'Substituir tudo' }))
     await waitFor(() => expect(getDeckStore().getSnapshot()).toEqual(incoming))
+    expect((await screen.findByText('Backup importado com sucesso')).textContent).toBeTruthy()
   })
 
   it('keeps the data when the confirmation is cancelled', async () => {
@@ -73,5 +88,19 @@ describe('BackupMenu', () => {
     expect(await screen.findByText('Arquivo de backup inválido')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Substituir tudo' })).toBeNull()
     expect(getDeckStore().getSnapshot()).toEqual(current)
+  })
+
+  it('shows a specific message for an unsupported version', async () => {
+    render(<BackupMenu />)
+    await pickFile(JSON.stringify({ ...buildBackup(incoming), version: 2 }))
+    expect(await screen.findByText('Versão de backup não suportada')).toBeTruthy()
+    expect(getDeckStore().getSnapshot()).toEqual(current)
+  })
+
+  it('styles the invalid-file title with the danger token', async () => {
+    render(<BackupMenu />)
+    await pickFile('{"decks": 1}')
+    const title = await screen.findByText('Não foi possível importar')
+    expect(title.className).toContain('text-danger')
   })
 })
