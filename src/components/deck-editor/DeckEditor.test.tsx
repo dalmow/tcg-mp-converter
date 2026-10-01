@@ -3,6 +3,7 @@ import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { ToastProvider } from '@/components/ui/toast'
 import DeckEditorPage from '@/pages/DeckEditorPage'
 import { EMPTY_DATA } from '@/lib/deck/storage'
 import { getDeckStore } from '@/lib/deck/deckStore'
@@ -25,11 +26,13 @@ afterEach(cleanup)
 function renderEditor(path: string = ROUTES.newDeck) {
   return render(
     <MemoryRouter initialEntries={[path]}>
+      <ToastProvider>
       <Routes>
         <Route path={ROUTES.decks} element={<h1>Lista</h1>} />
         <Route path={ROUTES.newDeck} element={<DeckEditorPage />} />
         <Route path={ROUTES.deck} element={<DeckEditorPage />} />
       </Routes>
+      </ToastProvider>
     </MemoryRouter>,
   )
 }
@@ -70,6 +73,13 @@ describe('DeckEditor', () => {
     await user.click(row.getByRole('button', { name: 'Salvar linha' }))
     expect((await screen.findAllByText('Informe o nome do deck')).length).toBeGreaterThan(0)
     expect(savedDeck()).toBeUndefined()
+  })
+
+  it('toasts an error when saving a row without a deck name', async () => {
+    renderEditor()
+    const { user, row } = await addRow('Pokémon', '2', 'Abra MEG 54', '2')
+    await user.click(row.getByRole('button', { name: 'Salvar linha' }))
+    expect(within(screen.getByRole('region', { name: 'Notificações' })).getByText('Informe o nome do deck')).toBeTruthy()
   })
 
   it('creates the deck when the first row is saved and persists the owned quantity', async () => {

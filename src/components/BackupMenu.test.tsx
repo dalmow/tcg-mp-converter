@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BackupMenu } from '@/components/BackupMenu'
+import { ToastProvider } from '@/components/ui/toast'
 import { buildBackup } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
@@ -52,7 +53,7 @@ describe('BackupMenu', () => {
     })
     URL.revokeObjectURL = vi.fn()
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
-    render(<BackupMenu />)
+    render(<ToastProvider><BackupMenu /></ToastProvider>)
     await openMenu()
     await userEvent.click(await screen.findByText('Exportar backup'))
     expect(click).toHaveBeenCalledOnce()
@@ -66,7 +67,7 @@ describe('BackupMenu', () => {
   })
 
   it('shows a summary and replaces everything only after confirming', async () => {
-    render(<BackupMenu />)
+    render(<ToastProvider><BackupMenu /></ToastProvider>)
     await pickFile(JSON.stringify(buildBackup(incoming)))
     expect(await screen.findByText(/1 deck\(s\) e 1 carta\(s\)/)).toBeTruthy()
     expect(getDeckStore().getSnapshot()).toEqual(current)
@@ -76,14 +77,14 @@ describe('BackupMenu', () => {
   })
 
   it('keeps the data when the confirmation is cancelled', async () => {
-    render(<BackupMenu />)
+    render(<ToastProvider><BackupMenu /></ToastProvider>)
     await pickFile(JSON.stringify(buildBackup(incoming)))
     await userEvent.click(await screen.findByRole('button', { name: 'Cancelar' }))
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
   it('rejects an invalid file without touching the data', async () => {
-    render(<BackupMenu />)
+    render(<ToastProvider><BackupMenu /></ToastProvider>)
     await pickFile('{"decks": 1}')
     expect(await screen.findByText('Arquivo de backup inválido')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Substituir tudo' })).toBeNull()
@@ -91,14 +92,14 @@ describe('BackupMenu', () => {
   })
 
   it('shows a specific message for an unsupported version', async () => {
-    render(<BackupMenu />)
+    render(<ToastProvider><BackupMenu /></ToastProvider>)
     await pickFile(JSON.stringify({ ...buildBackup(incoming), version: 2 }))
     expect(await screen.findByText('Versão de backup não suportada')).toBeTruthy()
     expect(getDeckStore().getSnapshot()).toEqual(current)
   })
 
   it('styles the invalid-file title with the danger token', async () => {
-    render(<BackupMenu />)
+    render(<ToastProvider><BackupMenu /></ToastProvider>)
     await pickFile('{"decks": 1}')
     const title = await screen.findByText('Não foi possível importar')
     expect(title.className).toContain('text-danger')

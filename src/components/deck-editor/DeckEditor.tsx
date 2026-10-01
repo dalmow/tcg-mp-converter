@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
 import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
 import { CARD_CATEGORIES } from '@/lib/deck/types'
@@ -39,6 +40,7 @@ interface Draft {
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
   const navigate = useNavigate()
+  const toast = useToast()
   const { decks, owned } = useDeckData()
   // A new deck gets its id up front but only reaches storage when its first row is saved.
   const [newDeckId] = useState(() => crypto.randomUUID())
@@ -58,6 +60,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
       return setNameError(NAME_REQUIRED)
     }
     getDeckStore().saveDeck({ ...stored, name: name.trim() })
+    toast.success('Nome do deck salvo')
   }
 
   function removeDraft(draftId: string) {
@@ -68,11 +71,16 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     const trimmedName = name.trim()
     if (!trimmedName) {
       setNameError(NAME_REQUIRED)
+      toast.error(NAME_REQUIRED)
       return { ok: false, error: NAME_REQUIRED }
     }
     const result = applyRowSave({ ...deck, name: trimmedName }, originalKey, card)
-    if (!result.ok) return result
+    if (!result.ok) {
+      toast.error(result.error)
+      return result
+    }
     getDeckStore().saveDeck(result.deck, { [card.key]: ownedEntry })
+    toast.success('Carta salva')
     setNameError(null)
     if (draftId) removeDraft(draftId)
     return { ok: true }
@@ -80,10 +88,14 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   function deleteRow(key: string) {
     getDeckStore().saveDeck({ ...deck, cards: deck.cards.filter((card) => card.key !== key) })
+    toast.success('Carta removida')
   }
 
   function deleteDeck() {
-    if (stored) getDeckStore().deleteDeck(id)
+    if (stored) {
+      getDeckStore().deleteDeck(id)
+      toast.success('Deck excluído')
+    }
     navigate(ROUTES.decks)
   }
 

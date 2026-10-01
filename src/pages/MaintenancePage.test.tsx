@@ -2,6 +2,7 @@
 import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ToastProvider } from '@/components/ui/toast'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { Deck, OwnedMap } from '@/lib/deck/types'
 import MaintenancePage from './MaintenancePage'
@@ -59,6 +60,23 @@ describe('MaintenancePage', () => {
     await userEvent.type(input, '3')
     await userEvent.click(card.getByRole('button', { name: 'Salvar' }))
     expect(getDeckStore().getSnapshot().owned['ordem da chefia']).toEqual({ displayName: 'Ordem da chefia', category: 'trainer', quantity: 3 })
+  })
+
+  it('shows toasts when saving and deleting an owned card', async () => {
+    seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'energy:fogo': { ...fire, quantity: 1 } })
+    render(
+      <ToastProvider>
+        <MaintenancePage />
+      </ToastProvider>,
+    )
+    await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
+    const bossCard = within(rowOf('Ordem da chefia'))
+    await userEvent.click(bossCard.getByRole('button', { name: 'Salvar' }))
+    expect((await screen.findByRole('status')).textContent).toContain('Quantidade salva')
+    const card = within(rowOf('Energia Fogo'))
+    await userEvent.click(card.getByRole('button', { name: 'Excluir' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
+    expect(await screen.findByText('Carta removida')).toBeTruthy()
   })
 
   it('marks rows as satisfied when owned reaches needed', async () => {
