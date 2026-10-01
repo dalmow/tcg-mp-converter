@@ -5,6 +5,7 @@ import { createHashRouter, createMemoryRouter, RouterProvider } from 'react-rout
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/AppRoutes'
 import { deckPath, ROUTES } from '@/routes'
+import { SITE_NAME } from '@/lib/site'
 
 afterEach(cleanup)
 
@@ -18,7 +19,7 @@ describe('AppRoutes', () => {
     [ROUTES.decks, 'Decks'],
     [ROUTES.newDeck, 'Novo deck'],
     [deckPath('abc'), 'Editar deck'],
-    [ROUTES.converter, 'PTCG Marketplace Converter'],
+    [ROUTES.converter, SITE_NAME],
     [ROUTES.maintenance, 'Manutenção'],
   ])('renders %s with heading "%s"', (path, heading) => {
     renderAt(path)
@@ -44,7 +45,7 @@ describe('AppRoutes', () => {
     window.location.hash = `#${ROUTES.converter}`
     render(<RouterProvider router={createHashRouter([{ path: '*', element: <AppRoutes /> }])} />)
     expect(
-      screen.getByRole('heading', { level: 1, name: 'PTCG Marketplace Converter' }),
+      screen.getByRole('heading', { level: 1, name: SITE_NAME }),
     ).toBeTruthy()
   })
 })

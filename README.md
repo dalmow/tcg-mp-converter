@@ -1,4 +1,4 @@
-# tcg-mp-converter
+# PTCG Tools
 
 Conversor de Decklist de Pokémon TCG para o formato de busca das
 marketplaces Liga Pokemon e MYPCards. Ver `CONTEXT.md` para o glossário de

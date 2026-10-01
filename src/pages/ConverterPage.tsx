@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import collections from '@/data/collections.json'
+import { SITE_NAME } from '@/lib/site'
 import { cn } from '@/lib/utils'
 import { convertDecklist } from '@/lib/convertDecklist'
 import type { Condition, ConvertDecklistResult, Language } from '@/lib/types'
@@ -104,7 +105,7 @@ export default function ConverterPage() {
   }
 
   return (
-    <PageLayout title="PTCG Marketplace Converter">
+    <PageLayout title={SITE_NAME}>
       <section className="flex flex-col gap-6 md:flex-row">
         <div className="flex flex-1 flex-col gap-2">
           <Label htmlFor="decklist">Decklist</Label>
