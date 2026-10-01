@@ -36,8 +36,17 @@ export function CategoryPanel({
 }: CategoryPanelProps) {
   return (
     <Panel role="region" aria-label={title} className="self-start">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>{title}</CardTitle>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Adicionar carta"
+          title="Adicionar carta"
+          onClick={onAddRow}
+        >
+          <PlusIcon />
+        </Button>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {rows
@@ -52,10 +61,6 @@ export function CategoryPanel({
               onDelete={() => onDeleteRow(row.id)}
             />
           ))}
-        <Button variant="outline" onClick={onAddRow}>
-          <PlusIcon />
-          Adicionar carta
-        </Button>
       </CardContent>
     </Panel>
   )

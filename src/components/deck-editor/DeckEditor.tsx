@@ -132,28 +132,30 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </p>
           )}
         </div>
-        <SaveButton onClick={saveDeck}>
-          <SaveIcon />
-          Salvar deck
-        </SaveButton>
-        <AlertDialog>
-          <AlertDialogTrigger render={<DeleteButton />}>
-            <Trash2Icon />
-            Excluir deck
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir deck?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta ação não pode ser desfeita. A quantidade adquirida das cartas é mantida.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={deleteDeck}>Excluir</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div role="group" aria-label="Ações do deck" className="flex">
+          <SaveButton className="rounded-r-none" onClick={saveDeck}>
+            <SaveIcon />
+            Salvar deck
+          </SaveButton>
+          <AlertDialog>
+            <AlertDialogTrigger render={<DeleteButton className="rounded-l-none border-l border-l-background/40" />}>
+              <Trash2Icon />
+              Excluir deck
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir deck?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. A quantidade adquirida das cartas é mantida.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteDeck}>Excluir</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {CARD_CATEGORIES.map((category) => (

@@ -86,6 +86,13 @@ describe('DeckEditor', () => {
     }
   })
 
+  it('groups Save deck and Delete deck in one button group', () => {
+    renderEditor()
+    const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
+    expect(group.getByRole('button', { name: /Salvar deck/ })).toBeTruthy()
+    expect(group.getByRole('button', { name: /Excluir deck/ })).toBeTruthy()
+  })
+
   it('uses "#" as the quantity placeholder', async () => {
     renderEditor()
     await userEvent.setup().click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
