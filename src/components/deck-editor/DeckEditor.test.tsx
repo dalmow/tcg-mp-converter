@@ -64,6 +64,12 @@ describe('DeckEditor', () => {
     }
   })
 
+  it('uses "#" as the quantity placeholder', async () => {
+    renderEditor()
+    await userEvent.setup().click(panel('Pokémon').getByRole('button', { name: 'Adicionar carta' }))
+    expect(panel('Pokémon').getByLabelText('Quantidade').getAttribute('placeholder')).toBe('#')
+  })
+
   it('requires a deck name before the first row is saved', async () => {
     renderEditor()
     const { user, row } = await addRow('Pokémon', '2', 'Abra MEG 54', '2')
