@@ -14,7 +14,7 @@ function escapeAttr(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-function absolute(siteUrl: string, path: string): string {
+function absoluteUrl(siteUrl: string, path: string): string {
   return `${siteUrl.replace(/\/+$/, '')}${path}`
 }
 
@@ -23,12 +23,12 @@ export function buildJsonLd(siteUrl: string): string {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: SITE_NAME,
-    url: absolute(siteUrl, '/'),
+    url: absoluteUrl(siteUrl, '/'),
     description: SITE_DESCRIPTION,
     inLanguage: 'pt-BR',
     applicationCategory: 'GameApplication',
     operatingSystem: 'Any',
-    image: absolute(siteUrl, SHARE_IMAGE_PATH),
+    image: absoluteUrl(siteUrl, SHARE_IMAGE_PATH),
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL' },
   }
   // Escape "<" so the payload can never close the surrounding script tag.
@@ -37,8 +37,8 @@ export function buildJsonLd(siteUrl: string): string {
 
 /** Head tags injected into index.html (favicons stay in index.html). */
 export function buildHeadTags(siteUrl: string): string {
-  const url = absolute(siteUrl, '/')
-  const image = absolute(siteUrl, SHARE_IMAGE_PATH)
+  const url = absoluteUrl(siteUrl, '/')
+  const image = absoluteUrl(siteUrl, SHARE_IMAGE_PATH)
   const description = escapeAttr(SITE_DESCRIPTION)
   const name = escapeAttr(SITE_NAME)
   return [
@@ -54,19 +54,21 @@ export function buildHeadTags(siteUrl: string): string {
     `<meta property="og:image" content="${image}" />`,
     `<meta property="og:image:width" content="${SHARE_IMAGE_WIDTH}" />`,
     `<meta property="og:image:height" content="${SHARE_IMAGE_HEIGHT}" />`,
+    `<meta property="og:image:alt" content="${name}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${name}" />`,
     `<meta name="twitter:description" content="${description}" />`,
     `<meta name="twitter:image" content="${image}" />`,
+    `<meta name="twitter:image:alt" content="${name}" />`,
     `<script type="application/ld+json">${buildJsonLd(siteUrl)}</script>`,
   ].join('\n    ')
 }
 
 export function buildRobotsTxt(siteUrl: string): string {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${absolute(siteUrl, '/sitemap.xml')}\n`
+  return `User-agent: *\nAllow: /\n\nSitemap: ${absoluteUrl(siteUrl, '/sitemap.xml')}\n`
 }
 
 export function buildSitemapXml(siteUrl: string): string {
-  const urls = SITEMAP_PATHS.map((path) => `  <url><loc>${absolute(siteUrl, path)}</loc></url>`).join('\n')
+  const urls = SITEMAP_PATHS.map((path) => `  <url><loc>${absoluteUrl(siteUrl, path)}</loc></url>`).join('\n')
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 }

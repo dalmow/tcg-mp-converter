@@ -6,7 +6,7 @@ import { defineConfig, type Plugin } from 'vite'
 import { buildHeadTags, buildRobotsTxt, buildSitemapXml } from './src/lib/seo.ts'
 import { DEFAULT_SITE_URL } from './src/lib/site.ts'
 
-const siteUrl = process.env.SITE_URL ?? DEFAULT_SITE_URL
+const siteUrl = process.env.SITE_URL || DEFAULT_SITE_URL
 
 /** Injects SEO head tags into index.html and emits robots.txt / sitemap.xml. */
 function seoPlugin(): Plugin {
