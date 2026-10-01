@@ -15,7 +15,7 @@ Baralho nomeado, montado e salvo no portal, com no máximo 60 cartas. Composto p
 _Avoid_: Decklist (a Decklist é só o texto colado no Conversor)
 
 **Carta do deck**:
-Linha de um Deck: categoria (Pokémon, Treinador ou Energia), chave da carta e quantidade. Uma linha por chave de carta por Deck. Em código: `DeckCard`.
+Linha de um Deck: categoria (Pokémon, Treinador ou Energia), chave da carta e quantidade. Uma linha por chave de carta por Deck. Em código: `DeckCard`. A chave é única no mapa global de Adquirido: Pokémon e Energia especial usam `COLEÇÃO-número` (ex.: `MEG-54`); Treinador usa o nome normalizado (sem acentos, minúsculo; um número final faz parte do nome, a menos que venha após uma sigla de Coleção cadastrada); Energia básica usa `energy:<tipo normalizado>` (ex.: `energy:fogo`), para nunca colidir com um Treinador de mesmo nome.
 
 **Adquirido**:
 Quantidade física que o usuário possui de uma carta. Mapa global, compartilhado por todos os Decks e pela Manutenção; carta sem registro vale 0. Só é gravado ao salvar a linha. Em código: `owned`.
