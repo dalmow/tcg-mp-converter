@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDownIcon } from 'lucide-react'
 import {
   AlertDialog,
@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/toast'
 import { downloadBackup, parseBackup, type BackupSummary } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
@@ -28,14 +29,7 @@ type ImportDialogState =
 export function BackupMenu() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [pending, setPending] = useState<ImportDialogState | null>(null)
-
-  const [imported, setImported] = useState(false)
-
-  useEffect(() => {
-    if (!imported) return
-    const timer = setTimeout(() => setImported(false), 5000)
-    return () => clearTimeout(timer)
-  }, [imported])
+  const toast = useToast()
 
   async function handleFile(file: File) {
     const result = parseBackup(await file.text())
@@ -54,7 +48,12 @@ export function BackupMenu() {
           <ChevronDownIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-auto">
-          <DropdownMenuItem onClick={() => downloadBackup(getDeckStore().getSnapshot())}>
+          <DropdownMenuItem
+            onClick={() => {
+              downloadBackup(getDeckStore().getSnapshot())
+              toast.success('Backup exportado')
+            }}
+          >
             Exportar backup
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => fileInput.current?.click()}>
@@ -74,11 +73,6 @@ export function BackupMenu() {
           if (file) void handleFile(file)
         }}
       />
-      {imported && (
-        <span role="status" className="text-sm text-success">
-          Backup importado com sucesso
-        </span>
-      )}
       <AlertDialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <AlertDialogContent>
           {pending?.kind === 'confirm' && (
@@ -95,7 +89,7 @@ export function BackupMenu() {
                 <AlertDialogAction
                   onClick={() => {
                     getDeckStore().replaceAll(pending.data)
-                    setImported(true)
+                    toast.success('Backup importado com sucesso')
                   }}
                 >
                   Substituir tudo

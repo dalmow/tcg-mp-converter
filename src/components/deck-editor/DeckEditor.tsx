@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useBlocker, useLocation, useNavigate } from 'react-router'
+import { Link, useBlocker, useNavigate } from 'react-router'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
 import { DeleteButton, SaveButton } from '@/components/ActionButtons'
 import {
@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
 import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
 import { CARD_CATEGORIES } from '@/lib/deck/types'
@@ -32,6 +33,7 @@ const PANEL_TITLE: Record<CardCategory, string> = {
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
   const navigate = useNavigate()
+  const toast = useToast()
   const { decks, owned } = useDeckData()
   // A new deck gets its id up front but only reaches storage on its first Save.
   const [newDeckId] = useState(() => crypto.randomUUID())
@@ -45,8 +47,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   const [rows, setRows] = useState<DraftRow[]>(() => (initial ? rowsFromDeck(initial) : []))
   const [nameError, setNameError] = useState<string | null>(null)
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
-  // A new deck is saved by navigating to its own route, which remounts the editor and hands over the flag.
-  const [saved, setSaved] = useState(useLocation().state?.saved === true)
 
   const dirty = isDirty(name, rows, stored)
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
@@ -63,20 +63,13 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
 
-  function updateDraft(update: () => void) {
-    update()
-    setSaved(false)
-  }
-
   function changeRow(rowId: string, patch: Partial<DraftRow>) {
-    updateDraft(() => {
-      setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)))
-      setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
-    })
+    setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)))
+    setRowErrors(({ [rowId]: _cleared, ...rest }) => rest)
   }
 
   function deleteRow(rowId: string) {
-    updateDraft(() => setRows((current) => current.filter((row) => row.id !== rowId)))
+    setRows((current) => current.filter((row) => row.id !== rowId))
   }
 
   function saveDeck() {
@@ -84,7 +77,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     if (!result.ok) {
       setNameError(result.nameError)
       setRowErrors(result.rowErrors)
-      setSaved(false)
       return
     }
     getDeckStore().saveDeck(result.deck, result.owned)
@@ -92,16 +84,19 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
     setRowErrors({})
     setName(result.deck.name)
     setRows(rowsFromDeck(result.deck))
-    setSaved(true)
+    toast.success('Deck salvo')
     if (!deckId) {
       leavingRef.current = true
-      navigate(deckPath(id), { replace: true, state: { saved: true } })
+      navigate(deckPath(id), { replace: true })
     }
   }
 
   function deleteDeck() {
     leavingRef.current = true
-    if (stored) getDeckStore().deleteDeck(id)
+    if (stored) {
+      getDeckStore().deleteDeck(id)
+      toast.success('Deck excluído')
+    }
     navigate(ROUTES.decks)
   }
 
@@ -126,12 +121,10 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             aria-label="Nome do deck"
             aria-invalid={nameError ? true : undefined}
             value={name}
-            onChange={(event) =>
-              updateDraft(() => {
-                setName(event.target.value)
-                setNameError(null)
-              })
-            }
+            onChange={(event) => {
+              setName(event.target.value)
+              setNameError(null)
+            }}
           />
           {nameError && (
             <p role="alert" className="text-xs text-danger">
@@ -162,11 +155,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      {saved && (
-        <p role="status" className="text-sm text-success">
-          Deck salvo
-        </p>
-      )}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel
@@ -178,7 +166,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             decks={decks}
             owned={owned}
             collections={collections}
-            onAddRow={() => updateDraft(() => setRows((current) => [...current, newRow(category)]))}
+            onAddRow={() => setRows((current) => [...current, newRow(category)])}
             onChangeRow={changeRow}
             onDeleteRow={deleteRow}
           />

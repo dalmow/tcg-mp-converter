@@ -3,6 +3,7 @@ import { MaintenanceRow } from '@/components/maintenance/MaintenanceRow'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
 import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/components/ui/toast'
 import { getDeckStore, useDeckData } from '@/lib/deck/deckStore'
 import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/lib/deck/maintenance'
 import { CARD_CATEGORIES, type CardCategory } from '@/lib/deck/types'
@@ -17,6 +18,7 @@ export default function MaintenancePage() {
   const { decks, owned } = useDeckData()
   const [onlyMissing, setOnlyMissing] = useState(true)
   const switchId = useId()
+  const toast = useToast()
 
   const rows = useMemo(() => deriveMaintenance(decks, owned), [decks, owned])
   const ownedOf = (key: string) => owned[key]?.quantity ?? 0
@@ -46,8 +48,16 @@ export default function MaintenancePage() {
                     key={row.key}
                     row={row}
                     owned={ownedOf(row.key)}
-                    onSave={(entry, quantity) => getDeckStore().setOwned(entry.key, toOwnedEntry(entry, quantity))}
-                    onDelete={(entry) => getDeckStore().deleteOwned(entry.key)}
+                    onSave={(entry, quantity) => {
+                      getDeckStore().setOwned(entry.key, toOwnedEntry(entry, quantity))
+                      toast.success('Quantidade salva')
+                    }}
+                    onDelete={(entry) => {
+                      const result = getDeckStore().deleteOwned(entry.key)
+                      // On failure the row shows the error inline.
+                      if (result.ok) toast.success('Carta excluída')
+                      return result
+                    }}
                   />
                 ))}
               </ul>

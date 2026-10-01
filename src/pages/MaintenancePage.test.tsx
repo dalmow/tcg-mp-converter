@@ -2,6 +2,7 @@
 import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ToastProvider } from '@/components/ui/toast'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { Deck, OwnedMap } from '@/lib/deck/types'
 import MaintenancePage from './MaintenancePage'
@@ -18,6 +19,14 @@ function seedStore(decks: Deck[], owned: OwnedMap = {}) {
   getDeckStore().replaceAll({ decks, owned })
 }
 
+function renderPage() {
+  return render(
+    <ToastProvider>
+      <MaintenancePage />
+    </ToastProvider>,
+  )
+}
+
 beforeEach(() => seedStore([]))
 afterEach(cleanup)
 
@@ -29,7 +38,7 @@ describe('MaintenancePage', () => {
       makeDeck('1', 'Alakazam', [{ ...abra, quantity: 2 }, { ...boss, quantity: 4 }]),
       makeDeck('2', 'Absol', [{ ...boss, quantity: 3 }]),
     ])
-    render(<MaintenancePage />)
+    renderPage()
     expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Pokémon' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Treinadores' })).toBeTruthy()
@@ -43,7 +52,7 @@ describe('MaintenancePage', () => {
       [makeDeck('1', 'Alakazam', [{ ...abra, quantity: 2 }, { ...boss, quantity: 4 }])],
       { 'MEG-54': { ...abra, quantity: 2 } },
     )
-    render(<MaintenancePage />)
+    renderPage()
     expect(screen.queryByText('Abra MEG 54')).toBeNull()
     expect(screen.getByText('Ordem da chefia')).toBeTruthy()
     await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
@@ -52,7 +61,7 @@ describe('MaintenancePage', () => {
 
   it('saves the owned quantity of a row', async () => {
     seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])])
-    render(<MaintenancePage />)
+    renderPage()
     const card = within(rowOf('Ordem da chefia'))
     const input = card.getByLabelText('Adquirido')
     await userEvent.clear(input)
@@ -61,16 +70,29 @@ describe('MaintenancePage', () => {
     expect(getDeckStore().getSnapshot().owned['ordem da chefia']).toEqual({ displayName: 'Ordem da chefia', category: 'trainer', quantity: 3 })
   })
 
+  it('shows toasts when saving and deleting an owned card', async () => {
+    seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'energy:fogo': { ...fire, quantity: 1 } })
+    renderPage()
+    await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
+    const bossCard = within(rowOf('Ordem da chefia'))
+    await userEvent.click(bossCard.getByRole('button', { name: 'Salvar' }))
+    expect((await screen.findByRole('status')).textContent).toContain('Quantidade salva')
+    const card = within(rowOf('Energia Fogo'))
+    await userEvent.click(card.getByRole('button', { name: 'Excluir' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
+    expect(await screen.findByText('Carta excluída')).toBeTruthy()
+  })
+
   it('marks rows as satisfied when owned reaches needed', async () => {
     seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'ordem da chefia': { ...boss, quantity: 4 } })
-    render(<MaintenancePage />)
+    renderPage()
     await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
     expect(rowOf('Ordem da chefia').dataset.satisfied).toBe('true')
   })
 
   it('offers delete only for cards in no deck, after confirmation', async () => {
     seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'energy:fogo': { ...fire, quantity: 1 } })
-    render(<MaintenancePage />)
+    renderPage()
     await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
     expect(within(rowOf('Ordem da chefia')).queryByRole('button', { name: 'Excluir' })).toBeNull()
     const card = within(rowOf('Energia Fogo'))
@@ -82,7 +104,7 @@ describe('MaintenancePage', () => {
 
   it('persists 0 when the owned input is saved empty', async () => {
     seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'ordem da chefia': { ...boss, quantity: 2 } })
-    render(<MaintenancePage />)
+    renderPage()
     const card = within(rowOf('Ordem da chefia'))
     await userEvent.clear(card.getByLabelText('Adquirido'))
     await userEvent.click(card.getByRole('button', { name: 'Salvar' }))
@@ -95,7 +117,7 @@ describe('MaintenancePage', () => {
       [makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }, { ...abra, quantity: 2 }])],
       { 'ordem da chefia': { ...boss, quantity: 1 }, 'MEG-54': { ...abra, quantity: 1 } },
     )
-    render(<MaintenancePage />)
+    renderPage()
     await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
     const bossInput = within(rowOf('Ordem da chefia')).getByLabelText('Adquirido') as HTMLInputElement
     const abraInput = within(rowOf('Abra MEG 54')).getByLabelText('Adquirido') as HTMLInputElement

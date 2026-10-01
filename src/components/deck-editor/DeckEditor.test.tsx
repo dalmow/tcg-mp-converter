@@ -3,6 +3,7 @@ import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { ToastProvider } from '@/components/ui/toast'
 import DeckEditorPage from '@/pages/DeckEditorPage'
 import { EMPTY_DATA } from '@/lib/deck/storage'
 import { getDeckStore } from '@/lib/deck/deckStore'
@@ -41,7 +42,11 @@ function renderEditor(path: string = ROUTES.newDeck) {
     ],
     { initialEntries: [path] },
   )
-  render(<RouterProvider router={router} />)
+  render(
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>,
+  )
   return router
 }
 
@@ -112,7 +117,7 @@ describe('DeckEditor', () => {
     await save(user)
     expect(router.state.location.pathname).toBe(deckPath(savedDeck()!.id))
     expect(router.state.historyAction).toBe('REPLACE')
-    expect(await screen.findByRole('status')).toBeTruthy()
+    expect((await screen.findByRole('status')).textContent).toContain('Deck salvo')
   })
 
   it('requires a deck name on Save and writes nothing', async () => {

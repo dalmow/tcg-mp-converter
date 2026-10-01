@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 import { Navbar } from '@/components/Navbar'
+import { ToastProvider } from '@/components/ui/toast'
 import ConverterPage from '@/pages/ConverterPage'
 import DeckEditorPage from '@/pages/DeckEditorPage'
 import DeckListPage from '@/pages/DeckListPage'
@@ -8,7 +9,7 @@ import { ROUTES } from '@/routes'
 
 export function AppRoutes() {
   return (
-    <>
+    <ToastProvider>
       <Navbar />
       <Routes>
         <Route path={ROUTES.decks} element={<DeckListPage />} />
@@ -17,6 +18,6 @@ export function AppRoutes() {
         <Route path={ROUTES.converter} element={<ConverterPage />} />
         <Route path={ROUTES.maintenance} element={<MaintenancePage />} />
       </Routes>
-    </>
+    </ToastProvider>
   )
 }
