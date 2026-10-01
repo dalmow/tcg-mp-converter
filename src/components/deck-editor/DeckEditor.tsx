@@ -144,14 +144,14 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         <div
           role="group"
           aria-label="Ações do deck"
-          className="flex gap-px [&>button:first-child]:rounded-r-none [&>button:last-child]:rounded-l-none"
+          className="flex shrink-0 items-stretch gap-px"
         >
-          <SaveButton aria-label="Salvar deck" onClick={saveDeck}>
+          <SaveButton aria-label="Salvar deck" className="rounded-r-none" onClick={saveDeck}>
             <SaveIcon />
             Salvar
           </SaveButton>
           <AlertDialog>
-            <AlertDialogTrigger render={<DeleteButton aria-label="Excluir deck" />}>
+            <AlertDialogTrigger render={<DeleteButton aria-label="Excluir deck" className="rounded-l-none" />}>
               <Trash2Icon />
               Excluir
             </AlertDialogTrigger>
