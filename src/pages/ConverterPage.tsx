@@ -15,12 +15,12 @@ const conditions: Condition[] = ['M', 'NM', 'SP', 'MP', 'HP', 'D']
 const languages: Language[] = ['PTEN', 'PT', 'EN']
 
 const conditionColorClasses: Record<Condition, string> = {
-  M: 'bg-green-600 text-white',
-  NM: 'bg-lime-600 text-white',
-  SP: 'bg-yellow-500 text-black',
-  MP: 'bg-amber-600 text-white',
-  HP: 'bg-orange-600 text-white',
-  D: 'bg-red-600 text-white',
+  M: 'bg-green-700 text-white',
+  NM: 'bg-lime-700 text-white',
+  SP: 'bg-yellow-700 text-white',
+  MP: 'bg-amber-700 text-white',
+  HP: 'bg-orange-700 text-white',
+  D: 'bg-red-700 text-white',
 }
 
 const languageFlags: Record<Language, string> = {
@@ -88,8 +88,10 @@ function BadgeGroup<T extends string>({
               }
               className={cn(
                 'cursor-pointer border focus-visible:ring-ring',
-                selected ? 'border-primary/40' : 'border-transparent opacity-60',
-                classNameFor ? classNameFor(option, selected) : 'bg-muted text-foreground',
+                // Unselected is signalled by a neutral fill, never by opacity (which would cut text contrast).
+                selected
+                  ? cn('border-foreground', classNameFor ? classNameFor(option, selected) : 'bg-primary text-primary-foreground')
+                  : 'border-control bg-muted text-foreground',
               )}
               onClick={() => onChange(option)}
               onKeyDown={(event) => handleKeyDown(event, index)}

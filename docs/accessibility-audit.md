@@ -91,6 +91,7 @@ that fix many screens at once, then per-screen refinements).
 ## Group 2 — Shared styles / components that fail on several screens
 
 ### A-03 Contrast: primary (blue) buttons are 3.54:1
+- **Status:** Fixed (DAL-29). `--primary` is now `oklch(0.55 0.19 255)`: white text 4.71:1 (was 3.54:1); `--primary-hover` `oklch(0.5 0.19 255)` 5.79:1. Blue used as text/link colour moved to a new `--primary-text` token (`oklch(0.72 0.15 255)`, >= 4.5:1 on background/card/panel).
 - **Screens:** New/Edit deck (Salvar), Maintenance (Salvar per row), Converter (Converter button), dialogs
 - **WCAG:** 1.4.3 Contrast (Minimum) (AA)
 - **Severity:** Serious
@@ -98,6 +99,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Darken `--primary` (roughly `oklch(0.55 0.19 255)` or lower reaches ~4.5:1 with near-white text; verify) and adjust `--primary-hover` accordingly, or use dark foreground text. Also used for the "Deck válido" icon and the link colour (`text-primary` on dark, that direction is fine).
 
 ### A-04 Contrast: danger (red) buttons are 3.42:1
+- **Status:** Fixed (DAL-29). `--danger` fill is now `oklch(0.55 0.22 25)`: white text 5.21:1 (was 3.44:1); `--danger-hover` `oklch(0.5 0.2 25)` 6.39:1. Error text/icons/toast border use the new `--danger-text` token (the former light red, 4.99:1 on card).
 - **Screens:** New/Edit deck (Excluir), Maintenance (Excluir / Confirmar exclusão), delete dialogs
 - **WCAG:** 1.4.3 (AA)
 - **Severity:** Serious
@@ -105,6 +107,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Darken `--danger` (e.g. about `oklch(0.55 0.22 25)`, verify), keep `--danger-hover` darker still. Check `text-danger` used as text on `--panel` (error messages): it passes today because it is the light variant of the same token, so changing the token for the fill requires a separate text token (e.g. `--danger-text`).
 
 ### A-05 Contrast: Qualidade condition badges (lime, yellow, amber, unselected state)
+- **Status:** Fixed (DAL-29). Condition badges use `*-700` backgrounds with white text (green 4.94, lime 4.96, yellow 4.92, amber 5.05, orange 5.23, red 6.42; all >= 4.5:1). Unselected badges (Qualidade and Idioma) no longer use `opacity-60`: they get a neutral fill (`bg-muted text-foreground`) and a `--control-border` border, while the selected one keeps its colour and a `border-foreground` outline.
 - **Screen:** Converter
 - **WCAG:** 1.4.3 (AA)
 - **Severity:** Serious
@@ -112,6 +115,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Do not signal "unselected" with `opacity-60` (it halves contrast of the text). Use a distinct, sufficiently contrasting treatment, and darker backgrounds (e.g. `*-700`/`*-800` with white text) for every condition. Resolve together with A-01.
 
 ### A-06 Form control boundaries have low non-text contrast
+- **Status:** Fixed (DAL-29). New `--control-border` token (`oklch(0.55 0 0)`): 4.08:1 on background, 3.73:1 on panel, 3.69:1 on card (was ~1.6:1). Used by `Input`, `Textarea`, `InputGroup`, the outline `Button` and the combobox search field.
 - **Screens:** New/Edit deck (name, quantity, card, owned inputs), Converter (textareas), Maintenance (owned input)
 - **WCAG:** 1.4.11 Non-text Contrast (AA)
 - **Severity:** Serious
@@ -119,6 +123,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Raise the input border to at least 3:1 against the adjacent background (about `oklch(0.55 0 0)` on the dark panel; verify), keep the focus ring at 3:1 too (`--ring: oklch(0.556 0 0)` is about 3.8:1, OK).
 
 ### A-07 Page reflows poorly at 320 px: horizontal scroll on every screen
+- **Status:** Fixed (DAL-29). The navbar row now wraps (`flex-wrap`). Verified in Chrome at 320 px: `scrollWidth` 320 on Decks, New deck, Edit deck, Converter and Maintenance (was 361).
 - **Screens:** All
 - **WCAG:** 1.4.10 Reflow (AA)
 - **Severity:** Serious
@@ -133,6 +138,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Set `document.title` per route (e.g. "Decks - PTCG ..." / "Editando deck X - ..." ) with a small `useDocumentTitle` hook in `PageLayout`/`DeckEditor`.
 
 ### A-09 Success/error toasts: transient, no pause, tiny close target
+- **Status:** Fixed (DAL-29). Error toasts no longer auto-dismiss (they stay until closed); success toasts still dismiss after 5 s but the timer is paused while the toast is hovered or has focus inside and restarts when it leaves. The close button hit area is now 24x24 px (`size-6`). Regression tests in `src/components/ui/toast.test.tsx`. Screen-reader announcement is still untested.
 - **Screens:** All (toast region mounted globally)
 - **WCAG:** 2.2.1 Timing Adjustable (A), 4.1.3 Status Messages (AA), 2.5.8 Target Size (Minimum) (AA)
 - **Severity:** Moderate

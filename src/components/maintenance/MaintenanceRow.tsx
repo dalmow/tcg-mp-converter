@@ -107,7 +107,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
         </AlertDialog>
       )}
       {error && (
-        <p role="alert" className="w-full text-sm text-danger">
+        <p role="alert" className="w-full text-sm text-danger-text">
           {error}
         </p>
       )}

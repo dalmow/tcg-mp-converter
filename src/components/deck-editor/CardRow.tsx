@@ -100,7 +100,7 @@ export function CardRow({ context, row, error, focusOnMount, onChange, onDelete 
         </DeleteButton>
       </div>
       {(error ?? warning) && (
-        <p role={error ? 'alert' : undefined} className="text-xs text-danger">
+        <p role={error ? 'alert' : undefined} className="text-xs text-danger-text">
           {error ?? warning}
         </p>
       )}

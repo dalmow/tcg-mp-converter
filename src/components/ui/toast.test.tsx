@@ -50,6 +50,54 @@ describe('Toast', () => {
     expect(screen.queryByRole('status')).toBeNull()
   })
 
+  it('does not auto-dismiss error toasts', async () => {
+    setup()
+    await userEvent.click(screen.getByText('erro'))
+    act(() => {
+      vi.advanceTimersByTime(TOAST_DURATION_MS * 10)
+    })
+    expect(screen.getByRole('alert').textContent).toContain('Falhou')
+  })
+
+  it('pauses the timer while hovered and resumes on leave', async () => {
+    setup()
+    await userEvent.click(screen.getByText('ok'))
+    const toast = screen.getByRole('status')
+    await userEvent.hover(toast)
+    act(() => {
+      vi.advanceTimersByTime(TOAST_DURATION_MS * 3)
+    })
+    expect(screen.getByRole('status')).toBeTruthy()
+    await userEvent.unhover(toast)
+    act(() => {
+      vi.advanceTimersByTime(TOAST_DURATION_MS + 1)
+    })
+    expect(screen.queryByRole('status')).toBeNull()
+  })
+
+  it('pauses the timer while focus is inside and resumes on blur', async () => {
+    setup()
+    await userEvent.click(screen.getByText('ok'))
+    const close = screen.getByRole('button', { name: 'Fechar notificação' })
+    act(() => close.focus())
+    act(() => {
+      vi.advanceTimersByTime(TOAST_DURATION_MS * 3)
+    })
+    expect(screen.getByRole('status')).toBeTruthy()
+    act(() => close.blur())
+    act(() => {
+      vi.advanceTimersByTime(TOAST_DURATION_MS + 1)
+    })
+    expect(screen.queryByRole('status')).toBeNull()
+  })
+
+  it('gives the close button a hit area of at least 24x24px', async () => {
+    setup()
+    await userEvent.click(screen.getByText('ok'))
+    const close = screen.getByRole('button', { name: 'Fechar notificação' })
+    expect(close.className).toContain('size-6')
+  })
+
   it('dismisses on close button', async () => {
     setup()
     await userEvent.click(screen.getByText('ok'))
