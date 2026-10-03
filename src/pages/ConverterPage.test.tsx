@@ -1,17 +1,23 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import ConverterPage from '@/pages/ConverterPage'
+import { ToastProvider } from '@/components/ui/toast'
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 function renderPage() {
   return render(
-    <MemoryRouter>
-      <ConverterPage />
-    </MemoryRouter>,
+    <ToastProvider>
+      <MemoryRouter>
+        <ConverterPage />
+      </MemoryRouter>
+    </ToastProvider>,
   )
 }
 
@@ -149,5 +155,41 @@ describe('ConverterPage results', () => {
 
     expect(screen.getByRole('textbox', { name: 'Liga Pokemon' })).toBeTruthy()
     expect(screen.getByRole('textbox', { name: 'MYPCards' })).toBeTruthy()
+  })
+})
+
+describe('ConverterPage target size', () => {
+  it('keeps every option radio at least 24px tall (WCAG 2.5.8)', () => {
+    renderPage()
+
+    for (const item of screen.getAllByRole('radio')) {
+      expect(item.className).toContain('h-6')
+    }
+  })
+})
+
+describe('ConverterPage copy feedback', () => {
+  async function convertAndCopy(writeText: (text: string) => Promise<void>) {
+    const user = userEvent.setup()
+    vi.stubGlobal('navigator', { clipboard: { writeText } })
+    renderPage()
+    await user.type(screen.getByRole('textbox', { name: 'Decklist' }), '3 Abra MEG 53')
+    await user.click(screen.getByRole('button', { name: 'Converter' }))
+    await user.click(screen.getAllByRole('button', { name: 'Copiar' })[0])
+  }
+
+  it('announces success after copying', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+
+    await convertAndCopy(writeText)
+
+    expect(writeText).toHaveBeenCalledOnce()
+    expect((await screen.findByRole('status')).textContent).toContain('Copiado')
+  })
+
+  it('announces an error when the clipboard write is rejected', async () => {
+    await convertAndCopy(vi.fn().mockRejectedValue(new Error('denied')))
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Não foi possível copiar')
   })
 })

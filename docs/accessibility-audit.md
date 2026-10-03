@@ -219,6 +219,7 @@ that fix many screens at once, then per-screen refinements).
 - **Severity:** Minor
 - **Evidence:** the switch track is 32x18 px (height < 24). The associated `<label>` and the `after:-inset-y-2` hit area in `switch.tsx` enlarge the clickable area, and spacing around is generous, so this probably meets the spacing exception; verify manually. The Lighthouse/axe `target-size` rule did not flag it.
 - **Fix:** Make the track at least 24 px tall or confirm the label is the primary target; also nothing else among buttons/links/inputs (other than the toast close button, A-09) measured under 24x24.
+- **Status:** Fixed (DAL-32). Switch track is now 24 px tall (`h-6`) in both sizes (track widths adjusted to keep the thumb flush). The Converter option badges (radios) were 20 px tall and are now `h-6`; other buttons, links and inputs measured at least 24x24.
 
 ### A-18 Remaining small items
 - **Screens:** various
@@ -229,6 +230,7 @@ that fix many screens at once, then per-screen refinements).
   - Converter language buttons relied on flag emoji + `title`. Fixed in DAL-28: the flag is `aria-hidden`, the `title` is removed and the visible code (`PTEN`/`PT`/`EN`) is the accessible name.
   - The "Copiar" button gives no feedback (no toast/status) that the clipboard write succeeded or failed: announce via the existing toast (`toast.success('Copiado')`, `toast.error` on rejection), which also covers 4.1.3.
   - Deck-list "Deck válido/inválido" icons already have `role="img"` + names (good). The tile's missing-cards message is red text; it carries text, so no colour-only issue.
+- **Status:** Fixed (DAL-32). Dialog close labels read "Fechar"; "Copiar" announces "Copiado" (toast status) or "Não foi possível copiar" (toast alert).
 
 ---
 
