@@ -29,7 +29,7 @@ export function useToast(): ToastApi {
 // Errors interrupt (assertive); successes wait their turn (polite).
 const VARIANT_STYLE: Record<ToastVariant, { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }> = {
   success: { role: 'status', border: 'border-success', text: 'text-success', Icon: CircleCheckIcon },
-  error: { role: 'alert', border: 'border-danger', text: 'text-danger', Icon: CircleAlertIcon },
+  error: { role: 'alert', border: 'border-danger-text', text: 'text-danger-text', Icon: CircleAlertIcon },
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -65,10 +65,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number) => void }) {
   const { id, variant, message } = toast
 
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const paused = hovered || focused
+  // Errors stay until dismissed (WCAG 2.2.1); successes auto-dismiss, paused on hover/focus.
+  const autoDismiss = variant === 'success' && !paused
+
   useEffect(() => {
+    if (!autoDismiss) return
     const timer = setTimeout(() => onDismiss(id), TOAST_DURATION_MS)
     return () => clearTimeout(timer)
-  }, [id, onDismiss])
+  }, [autoDismiss, id, onDismiss])
 
   const { role, border, text, Icon } = VARIANT_STYLE[variant]
 
@@ -76,6 +83,10 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
     <div
       role={role}
       data-variant={variant}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       className={cn(
         'flex items-start gap-2 rounded-md border bg-card p-3 text-sm text-card-foreground shadow-md',
         border,
@@ -86,7 +97,7 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
       <button
         type="button"
         aria-label="Fechar notificação"
-        className="shrink-0 text-muted-foreground hover:text-foreground"
+        className="-m-1 flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
         onClick={() => onDismiss(id)}
       >
         <XIcon aria-hidden className="size-4" />

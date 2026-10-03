@@ -123,12 +123,12 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
           <Trash2Icon />
         </DeleteButton>
       </div>
-      <p className={cn('flex items-center gap-1 text-xs', valid ? 'text-success' : 'text-danger')}>
+      <p className={cn('flex items-center gap-1 text-xs', valid ? 'text-success' : 'text-danger-text')}>
         {valid ? <CheckIcon className="size-3" aria-hidden="true" /> : <CircleAlertIcon className="size-3" aria-hidden="true" />}
         {valid ? 'Linha válida' : 'Linha com pendências'}
       </p>
       {message && (
-        <p id={messageId} role={error ? 'alert' : 'status'} className="text-xs text-danger">
+        <p id={messageId} role={error ? 'alert' : 'status'} className="text-xs text-danger-text">
           {message}
         </p>
       )}
