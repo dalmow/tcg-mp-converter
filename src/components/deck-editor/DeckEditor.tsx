@@ -118,7 +118,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
       <div className="flex flex-col items-start gap-2">
         <h1 className="sr-only">Editar deck</h1>
         <p>Deck não encontrado</p>
-        <Link to={ROUTES.decks} className="text-primary underline">
+        <Link to={ROUTES.decks} className="text-primary-text underline">
           Voltar para os decks
         </Link>
       </div>
@@ -141,7 +141,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             }}
           />
           {nameError && (
-            <p role="alert" className="text-xs text-danger">
+            <p role="alert" className="text-xs text-danger-text">
               {nameError}
             </p>
           )}

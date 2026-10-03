@@ -41,13 +41,13 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
         <div className="flex items-start justify-between gap-2 px-4">
           <span className="font-semibold uppercase break-words">{deck.name}</span>
           {validation.valid ? (
-            <CircleCheck role="img" aria-label="Deck válido" className="size-5 shrink-0 text-primary" />
+            <CircleCheck role="img" aria-label="Deck válido" className="size-5 shrink-0 text-primary-text" />
           ) : (
-            <CircleAlert role="img" aria-label="Deck inválido" className="size-5 shrink-0 text-danger" />
+            <CircleAlert role="img" aria-label="Deck inválido" className="size-5 shrink-0 text-danger-text" />
           )}
         </div>
         <div className="flex items-end justify-between gap-2 px-4 text-sm">
-          <span className="text-danger">{validation.missingMessage}</span>
+          <span className="text-danger-text">{validation.missingMessage}</span>
           <span className="text-muted-foreground">
             {validation.total}/{DECK_SIZE}
           </span>
