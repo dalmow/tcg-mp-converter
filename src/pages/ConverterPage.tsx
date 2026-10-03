@@ -6,6 +6,7 @@ import { PageLayout } from '@/components/PageLayout'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
 import { cn } from '@/lib/utils'
 import { convertDecklist } from '@/lib/convertDecklist'
@@ -27,10 +28,6 @@ const languageFlags: Record<Language, string> = {
   PT: '🇧🇷',
   EN: '🇺🇸',
   PTEN: '🇧🇷🇺🇸',
-}
-
-async function copyToClipboard(text: string) {
-  await navigator.clipboard.writeText(text)
 }
 
 function BadgeGroup<T extends string>({
@@ -107,6 +104,16 @@ function BadgeGroup<T extends string>({
 
 function MarketplaceResult({ title, text }: { title: string; text: string }) {
   const headingId = useId()
+  const toast = useToast()
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('Copiado')
+    } catch {
+      toast.error('Não foi possível copiar')
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-2">
@@ -118,7 +125,7 @@ function MarketplaceResult({ title, text }: { title: string; text: string }) {
           variant="outline"
           size="sm"
           className="cursor-pointer"
-          onClick={() => copyToClipboard(text)}
+          onClick={handleCopy}
           disabled={!text}
         >
           Copiar
