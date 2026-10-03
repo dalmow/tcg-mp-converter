@@ -63,7 +63,9 @@ function BadgeGroup<T extends string>({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label id={labelId}>{label}</Label>
+      <span id={labelId} className="text-sm leading-none font-medium select-none">
+        {label}
+      </span>
       <div role="radiogroup" aria-labelledby={labelId} className="flex flex-wrap gap-2">
         {options.map((option, index) => {
           const selected = option === value
@@ -84,7 +86,7 @@ function BadgeGroup<T extends string>({
                 />
               }
               className={cn(
-                'cursor-pointer border',
+                'cursor-pointer border focus-visible:ring-ring',
                 selected ? 'border-primary/40' : 'border-transparent opacity-60',
                 classNameFor ? classNameFor(option, selected) : 'bg-muted text-foreground',
               )}
@@ -168,9 +170,9 @@ export default function ConverterPage() {
             value={language}
             onChange={setLanguage}
             renderContent={(option) => (
-              <span title={option}>
-                {languageFlags[option]} {option}
-              </span>
+              <>
+                <span aria-hidden="true">{languageFlags[option]}</span> {option}
+              </>
             )}
           />
         </div>
