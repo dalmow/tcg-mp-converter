@@ -43,14 +43,19 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
   const { quantityText, text } = row
   // A null owned edit follows the stored owned map; a string is an unsaved edit of this draft.
   const ownedText = row.ownedText ?? (row.originalKey ? String(owned[row.originalKey]?.quantity ?? 0) : '')
-  const { parsed, warning, valid } = deriveRowState(context, { text, quantityText, ownedText })
+  const { parsed, quantity, ownedQuantity, warning, valid } = deriveRowState(context, { text, quantityText, ownedText })
   const fieldClass = valid ? 'border-success' : 'border-danger'
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
-  const fieldA11y = {
-    'aria-invalid': message ? true : undefined,
-    'aria-describedby': message ? messageId : undefined,
-  } as const
+  // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
+  const ownedInvalid = !Number.isInteger(ownedQuantity) || ownedQuantity < quantity
+  function fieldA11y(invalid: boolean, described: boolean) {
+    return {
+      'aria-invalid': invalid ? true : undefined,
+      'aria-describedby': described && message ? messageId : undefined,
+    } as const
+  }
+  const copiesRelated = fieldA11y(Boolean(message), true)
 
   function changeText(next: string) {
     const nextParsed = parseCard(category, next, collections)
@@ -88,7 +93,7 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
           className={cn('w-16 shrink-0', fieldClass)}
           placeholder="#"
           aria-label={`Quantidade ${where}`}
-          {...fieldA11y}
+          {...copiesRelated}
           value={quantityText}
           onChange={(event) => onChange({ quantityText: event.target.value })}
         />
@@ -97,7 +102,7 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
             className={fieldClass}
             placeholder={TEXT_PLACEHOLDER[category]}
             aria-label={`Carta ${where}`}
-            {...fieldA11y}
+            {...copiesRelated}
             value={text}
             suggestions={suggestCards(category, text, decks, owned)}
             onValueChange={changeText}
@@ -110,7 +115,7 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
           className={cn('w-16 shrink-0', fieldClass)}
           placeholder="Adq."
           aria-label={`Adquirido ${where}`}
-          {...fieldA11y}
+          {...fieldA11y(ownedInvalid || Boolean(error), Boolean(error))}
           value={ownedText}
           onChange={(event) => onChange({ ownedText: event.target.value })}
         />

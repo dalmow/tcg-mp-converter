@@ -569,7 +569,7 @@ describe('DeckEditor accessibility', () => {
     })
     renderEditor()
     await userEvent.setup().click(panel('Pokémon').getByRole('combobox'))
-    expect(screen.getByRole('status').textContent).toBe('1 sugestão')
+    expect(screen.getByText('1 sugestão').getAttribute('role')).toBe('status')
   })
 
   it('ties a row error to its inputs and shows a non-colour cue', async () => {
@@ -599,7 +599,7 @@ describe('DeckEditor accessibility', () => {
   it('announces a row warning with role status and links it to the card input', async () => {
     renderEditor()
     const { row } = await addRow('Treinadores', '5', 'Ordem da chefia', '5')
-    const status = row.getByRole('status')
+    const status = row.getAllByRole('status').find((el) => el.id) as HTMLElement
     expect(status.textContent).not.toBe('')
     expect(row.getByLabelText(/^Carta/).getAttribute('aria-describedby')).toBe(status.id)
   })
