@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router'
@@ -15,6 +15,14 @@ function renderPage() {
   )
 }
 
+function radio(name: string) {
+  return screen.getByRole('radio', { name })
+}
+
+function isChecked(name: string) {
+  return radio(name).getAttribute('aria-checked') === 'true'
+}
+
 describe('ConverterPage selectors', () => {
   it.each([
     ['Qualidade', ['M', 'NM', 'SP', 'MP', 'HP', 'D'], 'NM'],
@@ -22,77 +30,116 @@ describe('ConverterPage selectors', () => {
   ])('exposes %s as a labelled radiogroup', (name, options, selected) => {
     renderPage()
 
-    const group = screen.getByRole('radiogroup', { name })
-    const radios = screen.getAllByRole('radio', { hidden: false }).filter((radio) => group.contains(radio))
+    const group = within(screen.getByRole('radiogroup', { name }))
 
-    expect(radios).toHaveLength(options.length)
-    const checked = radios.filter((radio) => radio.getAttribute('aria-checked') === 'true')
-    expect(checked).toHaveLength(1)
-    expect(checked[0].textContent).toContain(selected)
+    expect(group.getAllByRole('radio')).toHaveLength(options.length)
+    for (const option of options) {
+      expect(group.getByRole('radio', { name: option }).getAttribute('aria-checked')).toBe(
+        String(option === selected),
+      )
+    }
+  })
+
+  it('uses roving tabindex: only the checked radio is a tab stop', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    const radios = within(screen.getByRole('radiogroup', { name: 'Qualidade' })).getAllByRole('radio')
+    for (const item of radios) {
+      expect(item.tabIndex).toBe(item.getAttribute('aria-checked') === 'true' ? 0 : -1)
+    }
+
+    await user.click(radio('HP'))
+
+    expect(radio('HP').tabIndex).toBe(0)
+    expect(radio('NM').tabIndex).toBe(-1)
   })
 
   it('selects an option on click', async () => {
     renderPage()
     const group = screen.getByRole('radiogroup', { name: 'Qualidade' })
 
-    await userEvent.click(screen.getByRole('radio', { name: 'HP' }))
+    await userEvent.click(radio('HP'))
 
-    expect(screen.getByRole('radio', { name: 'HP' }).getAttribute('aria-checked')).toBe('true')
+    expect(isChecked('HP')).toBe(true)
     expect(group.querySelectorAll('[aria-checked="true"]')).toHaveLength(1)
   })
 
-  it('is reachable by keyboard with roving tabindex and arrow keys', async () => {
+  it('reaches the checked radio of each group with Tab and leaves the group with one Tab', async () => {
     const user = userEvent.setup()
     renderPage()
 
-    screen.getByRole('textbox', { name: 'Decklist' }).focus()
-    await user.tab() // next tab stop is the checked Qualidade radio (NM)
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'NM' }))
+    for (let presses = 0; document.activeElement !== radio('NM') && presses < 10; presses++) {
+      await user.tab()
+    }
+    expect(document.activeElement).toBe(radio('NM'))
 
-    await user.keyboard('{ArrowRight}')
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'SP' }))
-    expect(screen.getByRole('radio', { name: 'SP' }).getAttribute('aria-checked')).toBe('true')
-
-    await user.keyboard('{ArrowLeft}{ArrowLeft}')
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'M' }))
-
-    await user.keyboard('{ArrowLeft}')
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'D' }))
-
-    await user.tab() // leaves group to next group
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PTEN' }))
+    await user.tab()
+    expect(document.activeElement).toBe(radio('PTEN'))
   })
 
-  it('navigates Idioma with ArrowUp/ArrowDown and selects with Enter and Space', async () => {
+  it('moves focus and selection with arrow keys, wrapping around', async () => {
     const user = userEvent.setup()
     renderPage()
+    radio('NM').focus()
 
-    screen.getByRole('radio', { name: 'PTEN' }).focus()
+    await user.keyboard('{ArrowRight}')
+    expect(document.activeElement).toBe(radio('SP'))
+    expect(isChecked('SP')).toBe(true)
 
-    await user.keyboard('{ArrowDown}')
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PT' }))
-    expect(screen.getByRole('radio', { name: 'PT' }).getAttribute('aria-checked')).toBe('true')
+    await user.keyboard('{ArrowLeft}{ArrowLeft}')
+    expect(document.activeElement).toBe(radio('M'))
 
-    await user.keyboard('{ArrowDown}')
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'EN' }))
+    await user.keyboard('{ArrowLeft}')
+    expect(document.activeElement).toBe(radio('D'))
+  })
 
-    await user.keyboard('{ArrowDown}') // wraps around
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PTEN' }))
+  describe('Idioma', () => {
+    it('moves with ArrowDown and ArrowUp', async () => {
+      const user = userEvent.setup()
+      renderPage()
+      radio('PTEN').focus()
 
-    await user.keyboard('{ArrowUp}') // wraps backwards
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'EN' }))
+      await user.keyboard('{ArrowDown}')
+      expect(document.activeElement).toBe(radio('PT'))
+      expect(isChecked('PT')).toBe(true)
 
-    await user.keyboard('{ArrowUp}')
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PT' }))
+      await user.keyboard('{ArrowUp}')
+      expect(document.activeElement).toBe(radio('PTEN'))
+      expect(isChecked('PTEN')).toBe(true)
+    })
 
-    await user.keyboard('{Enter}')
-    expect(screen.getByRole('radio', { name: 'PT' }).getAttribute('aria-checked')).toBe('true')
+    it('wraps around in both directions', async () => {
+      const user = userEvent.setup()
+      renderPage()
+      radio('PTEN').focus()
 
-    await user.keyboard('{ArrowDown}')
-    expect(screen.getByRole('radio', { name: 'EN' }).getAttribute('aria-checked')).toBe('true')
-    screen.getByRole('radio', { name: 'PTEN' }).focus()
-    await user.keyboard(' ')
-    expect(screen.getByRole('radio', { name: 'PTEN' }).getAttribute('aria-checked')).toBe('true')
+      await user.keyboard('{ArrowUp}')
+      expect(document.activeElement).toBe(radio('EN'))
+
+      await user.keyboard('{ArrowDown}')
+      expect(document.activeElement).toBe(radio('PTEN'))
+    })
+
+    it('selects the focused option with Enter', async () => {
+      const user = userEvent.setup()
+      renderPage()
+      radio('PT').focus()
+
+      await user.keyboard('{Enter}')
+
+      expect(isChecked('PT')).toBe(true)
+    })
+
+    it('selects the focused option with Space', async () => {
+      const user = userEvent.setup()
+      renderPage()
+      radio('EN').focus()
+
+      await user.keyboard(' ')
+
+      expect(isChecked('EN')).toBe(true)
+    })
   })
 })
 
