@@ -70,6 +70,7 @@ that fix many screens at once, then per-screen refinements).
 
 ### A-01 Converter: Qualidade and Idioma selectors are not operable by keyboard or screen reader
 - **Status:** Fixed. Qualidade and Idioma options are now `role="radio"` buttons inside labelled `role="radiogroup"`s, with roving tabindex and arrow-key navigation (DAL-28).
+  Verification (DAL-28, `/converter`, axe-core 4.10.2 with wcag2a/aa/21aa/22aa + best-practice): no violation on the radiogroups or their names; the only violations are `color-contrast` on the badges and primary button (A-05, A-03). Focus: real Tab key lands on the checked radio with `:focus-visible` and a 3px full-opacity `--ring` (`oklch(0.556 0 0)`, ~4.2:1 on the page background, >= 3:1 per 1.4.11); the former `ring-ring/50` was dropped. Idioma accessible names are exactly `PTEN`/`PT`/`EN` (flag emoji is `aria-hidden`, redundant `title` removed). A-05 (`opacity-60`, badge colours) remains open and is out of scope here.
 - **Screen:** Converter
 - **WCAG:** 2.1.1 Keyboard (A), 4.1.2 Name, Role, Value (A), 1.3.1 Info and Relationships (A)
 - **Severity:** Critical
@@ -78,6 +79,7 @@ that fix many screens at once, then per-screen refinements).
 
 ### A-02 Converter: result textareas have no accessible name
 - **Status:** Fixed. Each result textarea is named via `aria-labelledby` pointing at its `h2` (DAL-28).
+  Verification (DAL-28): axe on `/converter` reports no `label`/name violations for the result textareas.
 - **Screen:** Converter
 - **WCAG:** 1.3.1 (A), 3.3.2 Labels or Instructions (A), 4.1.2 (A)
 - **Severity:** Critical (axe: critical; Lighthouse `label` failure)
@@ -211,7 +213,7 @@ that fix many screens at once, then per-screen refinements).
 - **Severity:** Minor
 - **Evidence and fix:**
   - `ui/dialog.tsx` contains an English sr-only "Close" label (unused by current screens, but would be an English string in a pt-BR page): translate to "Fechar".
-  - Converter language buttons rely on flag emoji + `title`: expose the language in text (the code `PT`/`EN` is already visible, so this is OK once A-01 makes them real controls); `title` tooltips are not reliable for keyboard/touch.
+  - Converter language buttons relied on flag emoji + `title`. Fixed in DAL-28: the flag is `aria-hidden`, the `title` is removed and the visible code (`PTEN`/`PT`/`EN`) is the accessible name.
   - The "Copiar" button gives no feedback (no toast/status) that the clipboard write succeeded or failed: announce via the existing toast (`toast.success('Copiado')`, `toast.error` on rejection), which also covers 4.1.3.
   - Deck-list "Deck válido/inválido" icons already have `role="img"` + names (good). The tile's missing-cards message is red text; it carries text, so no colour-only issue.
 
