@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { PAGE_META } from '@/lib/pageMeta'
 import { usePageMeta } from '@/lib/usePageMeta'
@@ -48,23 +48,48 @@ function BadgeGroup<T extends string>({
   renderContent?: (option: T) => ReactNode
   classNameFor?: (option: T, selected: boolean) => string
 }) {
+  const labelId = useId()
+  const optionRefs = useRef<(HTMLElement | null)[]>([])
+
+  function handleKeyDown(event: KeyboardEvent, index: number) {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key]
+    if (!step) return
+
+    event.preventDefault()
+    const next = (index + step + options.length) % options.length
+    onChange(options[next])
+    optionRefs.current[next]?.focus()
+  }
+
   return (
     <div className="flex flex-col gap-2">
-      <Label>{label}</Label>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => {
+      <Label id={labelId}>{label}</Label>
+      <div role="radiogroup" aria-labelledby={labelId} className="flex flex-wrap gap-2">
+        {options.map((option, index) => {
           const selected = option === value
 
           return (
             <Badge
               key={option}
               variant="ghost"
+              render={
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  tabIndex={selected ? 0 : -1}
+                  ref={(element) => {
+                    optionRefs.current[index] = element
+                  }}
+                />
+              }
               className={cn(
                 'cursor-pointer border',
                 selected ? 'border-primary/40' : 'border-transparent opacity-60',
                 classNameFor ? classNameFor(option, selected) : 'bg-muted text-foreground',
               )}
               onClick={() => onChange(option)}
+              onKeyDown={(event) => handleKeyDown(event, index)}
             >
               {renderContent ? renderContent(option) : option}
             </Badge>
@@ -76,10 +101,14 @@ function BadgeGroup<T extends string>({
 }
 
 function MarketplaceResult({ title, text }: { title: string; text: string }) {
+  const headingId = useId()
+
   return (
     <div className="flex flex-1 flex-col gap-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium">{title}</h2>
+        <h2 id={headingId} className="text-sm font-medium">
+          {title}
+        </h2>
         <Button
           variant="outline"
           size="sm"
@@ -90,7 +119,12 @@ function MarketplaceResult({ title, text }: { title: string; text: string }) {
           Copiar
         </Button>
       </div>
-      <Textarea value={text} readOnly className="h-48 resize-none overflow-y-auto" />
+      <Textarea
+        aria-labelledby={headingId}
+        value={text}
+        readOnly
+        className="h-48 resize-none overflow-y-auto"
+      />
     </div>
   )
 }
