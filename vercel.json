@@ -1,4 +1,8 @@
 {
   "cleanUrls": true,
-  "rewrites": [{ "source": "/(.*)", "destination": "/spa.html" }]
+  "rewrites": [
+    { "source": "/decks/new", "destination": "/spa.html" },
+    { "source": "/decks/:id", "destination": "/spa.html" },
+    { "source": "/maintenance", "destination": "/spa.html" }
+  ]
 }
