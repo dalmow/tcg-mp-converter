@@ -191,6 +191,7 @@ that fix many screens at once, then per-screen refinements).
 - **Severity:** Moderate
 - **Evidence:** the `AlertDialog` for the blocked navigation is controlled by `blocker.state === 'blocked'` without `onOpenChange`; pressing Escape leaves it open (probe: dialog still present). Focus handling is otherwise good (focus lands on "Continuar editando", returns to the trigger after the delete-deck dialog closes, `role="alertdialog"` with `aria-labelledby`/`aria-describedby`).
 - **Fix:** Wire `onOpenChange={(open) => !open && blocker.reset?.()}` so Escape means "Continuar editando".
+- **Status:** Fixed (DAL-31). `onOpenChange` resets the blocker; regression test in `DeckEditor.test.tsx`.
 
 ### A-15 "Dados" menu content is outside landmarks; menu trigger lacks context
 - **Screen:** All (navbar)
@@ -198,6 +199,7 @@ that fix many screens at once, then per-screen refinements).
 - **Severity:** Minor
 - **Evidence:** axe `region` (moderate) while the menu is open: the Base UI portal sits outside `main`/`nav`. The menu itself behaves well (focus moves to the menu, `role="menu"`, Escape closes). Also, `aria-valid-attr-value` is "needs review" on the trigger (Base UI id reference while closed).
 - **Fix:** Usually acceptable for portalled popups; confirm the trigger's `aria-controls` target exists when open, and consider labelling `nav` with `aria-label="Principal"`.
+- **Status:** Fixed (DAL-31). The menu portals into the `nav` landmark, `nav` is labelled "Principal", and a test confirms the trigger's `aria-controls` target exists when open.
 
 ### A-16 Skip link and navigation landmark labelling
 - **Screens:** All
@@ -205,6 +207,7 @@ that fix many screens at once, then per-screen refinements).
 - **Severity:** Minor
 - **Evidence:** there is no "skip to content" link; the navbar has 4 tab stops before the page content, which is low. `<nav>` is unlabelled but there is only one.
 - **Fix:** Optional: add a visually-hidden-until-focused skip link targeting `main`, label the `nav` ("Principal"). Low priority for a 4-item nav.
+- **Status:** Fixed (DAL-31). Skip link is the first tab stop, visible on focus, targets `main#conteudo` (`tabIndex=-1`); `nav` labelled "Principal".
 
 ---
 

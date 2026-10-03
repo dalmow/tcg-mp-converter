@@ -195,7 +195,12 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           />
         ))}
       </div>
-      <AlertDialog open={blocker.state === 'blocked'}>
+      <AlertDialog
+        open={blocker.state === 'blocked'}
+        onOpenChange={(open) => {
+          if (!open) blocker.reset?.()
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Descartar alterações?</AlertDialogTitle>
@@ -204,7 +209,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => blocker.reset?.()}>Continuar editando</AlertDialogCancel>
+            <AlertDialogCancel>Continuar editando</AlertDialogCancel>
             <AlertDialogAction onClick={() => blocker.proceed?.()}>Descartar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
