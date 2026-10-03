@@ -69,6 +69,7 @@ that fix many screens at once, then per-screen refinements).
 ## Group 1 — Blockers (keyboard and screen reader cannot complete the task)
 
 ### A-01 Converter: Qualidade and Idioma selectors are not operable by keyboard or screen reader
+- **Status:** Fixed. Qualidade and Idioma options are now `role="radio"` buttons inside labelled `role="radiogroup"`s, with roving tabindex and arrow-key navigation (DAL-28).
 - **Screen:** Converter
 - **WCAG:** 2.1.1 Keyboard (A), 4.1.2 Name, Role, Value (A), 1.3.1 Info and Relationships (A)
 - **Severity:** Critical
@@ -76,6 +77,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Render each option as a real control: a `role="radiogroup"` (labelled by the "Qualidade"/"Idioma" label via `aria-labelledby`) containing `<button role="radio" aria-checked>` or visually-styled native `<input type="radio">` + `<label>`, with roving tabindex/arrow keys. Keep a visible focus ring.
 
 ### A-02 Converter: result textareas have no accessible name
+- **Status:** Fixed. Each result textarea is named via `aria-labelledby` pointing at its `h2` (DAL-28).
 - **Screen:** Converter
 - **WCAG:** 1.3.1 (A), 3.3.2 Labels or Instructions (A), 4.1.2 (A)
 - **Severity:** Critical (axe: critical; Lighthouse `label` failure)
