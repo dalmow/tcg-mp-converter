@@ -604,6 +604,30 @@ describe('DeckEditor accessibility', () => {
     expect(row.getByLabelText(/^Carta/).getAttribute('aria-describedby')).toBe(status.id)
   })
 
+  it('ties a copies warning to the card and quantity inputs only', async () => {
+    renderEditor()
+    const { row } = await addRow('Treinadores', '5', 'Ordem da chefia', '5')
+    const id = row.getAllByRole('status').find((el) => el.id)?.id
+    for (const name of [/^Quantidade/, /^Carta/]) {
+      expect(row.getByLabelText(name).getAttribute('aria-invalid')).toBe('true')
+      expect(row.getByLabelText(name).getAttribute('aria-describedby')).toBe(id)
+    }
+    const owned = row.getByLabelText(/^Adquirido/)
+    expect(owned.getAttribute('aria-invalid')).toBeNull()
+    expect(owned.getAttribute('aria-describedby')).toBeNull()
+  })
+
+  it('flags only the owned input when it is below the quantity', async () => {
+    renderEditor()
+    const { row } = await addRow('Treinadores', '2', 'Ordem da chefia', '1')
+    const owned = row.getByLabelText(/^Adquirido/)
+    expect(owned.getAttribute('aria-invalid')).toBe('true')
+    expect(owned.getAttribute('aria-describedby')).toBeNull()
+    for (const name of [/^Quantidade/, /^Carta/]) {
+      expect(row.getByLabelText(name).getAttribute('aria-invalid')).toBeNull()
+    }
+  })
+
   it('ties the deck name error to the name input', async () => {
     renderEditor()
     const user = userEvent.setup()
