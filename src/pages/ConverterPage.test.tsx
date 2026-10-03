@@ -45,8 +45,8 @@ describe('ConverterPage selectors', () => {
     const user = userEvent.setup()
     renderPage()
 
-    await user.tab() // decklist textarea
-    await user.tab() // checked Qualidade radio (NM)
+    screen.getByRole('textbox', { name: 'Decklist' }).focus()
+    await user.tab() // next tab stop is the checked Qualidade radio (NM)
     expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'NM' }))
 
     await user.keyboard('{ArrowRight}')
@@ -60,7 +60,39 @@ describe('ConverterPage selectors', () => {
     expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'D' }))
 
     await user.tab() // leaves group to next group
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: /PTEN/ }))
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PTEN' }))
+  })
+
+  it('navigates Idioma with ArrowUp/ArrowDown and selects with Enter and Space', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    screen.getByRole('radio', { name: 'PTEN' }).focus()
+
+    await user.keyboard('{ArrowDown}')
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PT' }))
+    expect(screen.getByRole('radio', { name: 'PT' }).getAttribute('aria-checked')).toBe('true')
+
+    await user.keyboard('{ArrowDown}')
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'EN' }))
+
+    await user.keyboard('{ArrowDown}') // wraps around
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PTEN' }))
+
+    await user.keyboard('{ArrowUp}') // wraps backwards
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'EN' }))
+
+    await user.keyboard('{ArrowUp}')
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'PT' }))
+
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('radio', { name: 'PT' }).getAttribute('aria-checked')).toBe('true')
+
+    await user.keyboard('{ArrowDown}')
+    expect(screen.getByRole('radio', { name: 'EN' }).getAttribute('aria-checked')).toBe('true')
+    screen.getByRole('radio', { name: 'PTEN' }).focus()
+    await user.keyboard(' ')
+    expect(screen.getByRole('radio', { name: 'PTEN' }).getAttribute('aria-checked')).toBe('true')
   })
 })
 
