@@ -24,7 +24,7 @@ import type { PersistedData } from '@/lib/deck/storage'
 
 type PendingImport = { data: PersistedData; summary: BackupSummary }
 
-export function BackupMenu() {
+export function BackupMenu({ menuContainer }: { menuContainer?: HTMLElement | null }) {
   const fileInput = useRef<HTMLInputElement>(null)
   const [pending, setPending] = useState<PendingImport | null>(null)
   const toast = useToast()
@@ -42,7 +42,7 @@ export function BackupMenu() {
           Dados
           <ChevronDownIcon />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-auto">
+        <DropdownMenuContent className="w-auto" container={menuContainer}>
           <DropdownMenuItem
             onClick={() => {
               downloadBackup(getDeckStore().getSnapshot())

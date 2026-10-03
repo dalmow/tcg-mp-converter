@@ -45,6 +45,24 @@ describe('AppRoutes', () => {
     expect(document.activeElement).toBe(skip)
     const target = document.getElementById(skip.getAttribute('href')!.slice(1))
     expect(target?.tagName).toBe('MAIN')
+    expect(target?.getAttribute('tabindex')).toBe('-1')
+  })
+
+  it('renders the Dados menu inside the navigation landmark', async () => {
+    renderAt(ROUTES.decks)
+    await userEvent.click(screen.getByRole('button', { name: 'Dados' }))
+    const menu = await screen.findByRole('menu')
+    expect(screen.getByRole('navigation', { name: 'Principal' }).contains(menu)).toBe(true)
+  })
+
+  it('points the Dados trigger at an existing menu when open', async () => {
+    renderAt(ROUTES.decks)
+    const trigger = screen.getByRole('button', { name: 'Dados' })
+    await userEvent.click(trigger)
+    await screen.findByRole('menu')
+    const controlled = trigger.getAttribute('aria-controls')
+    expect(controlled).toBeTruthy()
+    expect(document.getElementById(controlled!)).toBeTruthy()
   })
 
   it('offers the backup items in the Dados dropdown', async () => {
