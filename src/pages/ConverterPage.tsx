@@ -53,7 +53,7 @@ function BadgeGroup<T extends string>({
 
   function handleKeyDown(event: KeyboardEvent, index: number) {
     const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key]
-    if (!step) return
+    if (step === undefined) return
 
     event.preventDefault()
     const next = (index + step + options.length) % options.length
@@ -63,6 +63,7 @@ function BadgeGroup<T extends string>({
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Not <Label>: it renders a <label>, which is wrong for a radiogroup caption */}
       <span id={labelId} className="text-sm leading-none font-medium select-none">
         {label}
       </span>
