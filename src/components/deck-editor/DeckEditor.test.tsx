@@ -57,7 +57,7 @@ function panel(name: string) {
 type PanelName = 'Pokémon' | 'Treinadores' | 'Energias'
 
 async function addCard(user: ReturnType<typeof userEvent.setup>, panelName: PanelName) {
-  await user.click(panel(panelName).getByRole('button', { name: 'Adicionar carta' }))
+  await user.click(panel(panelName).getByRole('button', { name: /^Adicionar carta/ }))
 }
 
 async function addRow(panelName: PanelName, quantity: string, text: string, owned?: string) {
@@ -67,9 +67,9 @@ async function addRow(panelName: PanelName, quantity: string, text: string, owne
   const rows = scope.getAllByTestId('card-row')
   const element = rows[rows.length - 1]
   const row = within(element)
-  if (quantity) await user.type(row.getByLabelText('Quantidade'), quantity)
-  await user.type(row.getByLabelText('Carta'), text)
-  if (owned !== undefined) await user.type(row.getByLabelText('Adquirido'), owned)
+  if (quantity) await user.type(row.getByLabelText(/^Quantidade/), quantity)
+  await user.type(row.getByLabelText(/^Carta/), text)
+  if (owned !== undefined) await user.type(row.getByLabelText(/^Adquirido/), owned)
   return { user, row, element }
 }
 
@@ -101,8 +101,8 @@ describe('DeckEditor', () => {
 
   it('has an icon-only "+" button in each panel that adds a row to that category only', async () => {
     renderEditor()
-    expect(screen.getAllByRole('button', { name: 'Adicionar carta' })).toHaveLength(3)
-    expect(panel('Energias').getByRole('button', { name: 'Adicionar carta' }).textContent).toBe('')
+    expect(screen.getAllByRole('button', { name: /^Adicionar carta/ })).toHaveLength(3)
+    expect(panel('Energias').getByRole('button', { name: /^Adicionar carta/ }).textContent).toBe('')
     await addCard(userEvent.setup(), 'Energias')
     expect(panel('Energias').getAllByTestId('card-row')).toHaveLength(2)
     expect(panel('Pokémon').getAllByTestId('card-row')).toHaveLength(1)
@@ -113,7 +113,7 @@ describe('DeckEditor', () => {
     await addCard(userEvent.setup(), 'Energias')
     const rows = panel('Energias').getAllByTestId('card-row')
     const row = within(rows[rows.length - 1])
-    expect(document.activeElement).toBe(row.getByLabelText('Quantidade'))
+    expect(document.activeElement).toBe(row.getByLabelText(/^Quantidade/))
   })
 
   it('still asks for confirmation before deleting the deck', async () => {
@@ -132,7 +132,7 @@ describe('DeckEditor', () => {
 
   it('uses "#" as the quantity placeholder', async () => {
     renderEditor()
-    expect(panel('Pokémon').getByLabelText('Quantidade').getAttribute('placeholder')).toBe('#')
+    expect(panel('Pokémon').getByLabelText(/^Quantidade/).getAttribute('placeholder')).toBe('#')
   })
 
   it('writes nothing until Save deck, then commits name, rows and owned together', async () => {
@@ -212,10 +212,10 @@ describe('DeckEditor', () => {
     )
     renderEditor(deckPath('abc'))
     const user = userEvent.setup()
-    const text = panel('Pokémon').getByLabelText('Carta')
+    const text = panel('Pokémon').getByLabelText(/^Carta/)
     await user.clear(text)
     await user.type(text, 'Kadabra MEG 55')
-    expect((panel('Pokémon').getByLabelText('Adquirido') as HTMLInputElement).value).toBe('3')
+    expect((panel('Pokémon').getByLabelText(/^Adquirido/) as HTMLInputElement).value).toBe('3')
     await save(user)
 
     const { owned } = getDeckStore().getSnapshot()
@@ -235,7 +235,7 @@ describe('DeckEditor', () => {
     getDeckStore().saveDeck({ id: 'abc', name: 'D', cards: [a, b] }, { 'MEG-54': entry(a, 1), 'MEG-55': entry(b, 1) })
     renderEditor(deckPath('abc'))
     const user = userEvent.setup()
-    const [ownedA] = panel('Pokémon').getAllByLabelText('Adquirido')
+    const [ownedA] = panel('Pokémon').getAllByLabelText(/^Adquirido/)
     await user.clear(ownedA)
     await user.type(ownedA, '9')
     // Maintenance (or another tab) changes the other row meanwhile.
@@ -255,7 +255,7 @@ describe('DeckEditor', () => {
     await save(user)
     expect(savedDeck()?.cards).toHaveLength(1)
 
-    await user.click(panel('Treinadores').getByRole('button', { name: 'Excluir linha' }))
+    await user.click(panel('Treinadores').getByRole('button', { name: /^Excluir linha/ }))
     expect(panel('Treinadores').queryAllByTestId('card-row')).toHaveLength(0)
     expect(savedDeck()?.cards).toHaveLength(1)
 
@@ -325,7 +325,7 @@ describe('DeckEditor', () => {
     const { row } = await addRow('Pokémon', '1', 'Abra XYZ 54', '1')
     await save(user)
     expect(row.getByRole('alert')).toBeTruthy()
-    await user.type(row.getByLabelText('Quantidade'), '1')
+    await user.type(row.getByLabelText(/^Quantidade/), '1')
     expect(row.queryByRole('alert')).toBeNull()
   })
 
@@ -347,12 +347,12 @@ describe('DeckEditor', () => {
     const { row, element } = await addRow('Pokémon', '2', 'Abra MEG 54', '1')
     expect(element.getAttribute('data-status')).toBe('invalid')
 
-    await user.clear(row.getByLabelText('Adquirido'))
-    await user.type(row.getByLabelText('Adquirido'), '2')
+    await user.clear(row.getByLabelText(/^Adquirido/))
+    await user.type(row.getByLabelText(/^Adquirido/), '2')
     expect(element.getAttribute('data-status')).toBe('valid')
 
-    await user.clear(row.getByLabelText('Carta'))
-    await user.type(row.getByLabelText('Carta'), 'Abra XYZ 54')
+    await user.clear(row.getByLabelText(/^Carta/))
+    await user.type(row.getByLabelText(/^Carta/), 'Abra XYZ 54')
     expect(element.getAttribute('data-status')).toBe('invalid')
   })
 
@@ -367,14 +367,14 @@ describe('DeckEditor', () => {
     renderEditor()
     const user = userEvent.setup()
     const row = within(panel('Pokémon').getByTestId('card-row'))
-    await user.click(row.getByLabelText('Carta'))
+    await user.click(row.getByLabelText(/^Carta/))
 
     expect(screen.getByRole('option', { name: 'Abra MEG 54' })).toBeTruthy()
     expect(screen.queryByRole('option', { name: 'Ordem da chefia' })).toBeNull()
 
     await user.click(screen.getByRole('option', { name: 'Abra MEG 54' }))
-    expect((row.getByLabelText('Carta') as HTMLInputElement).value).toBe('Abra MEG 54')
-    expect((row.getByLabelText('Adquirido') as HTMLInputElement).value).toBe('3')
+    expect((row.getByLabelText(/^Carta/) as HTMLInputElement).value).toBe('Abra MEG 54')
+    expect((row.getByLabelText(/^Adquirido/) as HTMLInputElement).value).toBe('3')
   })
 
   it('pre-fills owned when the typed text resolves to a known key', async () => {
@@ -384,7 +384,7 @@ describe('DeckEditor', () => {
     })
     renderEditor()
     const { row } = await addRow('Pokémon', '1', 'Abra MEG 54')
-    expect((row.getByLabelText('Adquirido') as HTMLInputElement).value).toBe('3')
+    expect((row.getByLabelText(/^Adquirido/) as HTMLInputElement).value).toBe('3')
   })
 
   it('loads an existing deck on /decks/:id', () => {
@@ -425,7 +425,7 @@ describe('DeckEditor', () => {
     const entry = (quantity: number) => ({ 'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon' as const, quantity } })
     getDeckStore().saveDeck(deck, entry(1))
     renderEditor(deckPath('abc'))
-    const owned = () => panel('Pokémon').getByLabelText('Adquirido') as HTMLInputElement
+    const owned = () => panel('Pokémon').getByLabelText(/^Adquirido/) as HTMLInputElement
     expect(owned().value).toBe('1')
 
     act(() => getDeckStore().saveDeck(deck, entry(4)))
@@ -500,5 +500,140 @@ describe('DeckEditor', () => {
       await user.type(screen.getByPlaceholderText('Nome do deck'), 'A')
       expect(unloadPrevented()).toBe(true)
     })
+  })
+})
+
+describe('DeckEditor accessibility', () => {
+  it('renders each panel title as an h2', () => {
+    renderEditor()
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
+    expect(headings).toEqual(['Pokémon', 'Treinadores', 'Energias'])
+  })
+
+  it('gives row controls unique names with row position and category', async () => {
+    renderEditor()
+    await addCard(userEvent.setup(), 'Pokémon')
+    const scope = panel('Pokémon')
+    expect(scope.getByRole('spinbutton', { name: 'Quantidade da linha 2 de Pokémon' })).toBeTruthy()
+    expect(scope.getByRole('combobox', { name: 'Carta da linha 2 de Pokémon' })).toBeTruthy()
+    expect(scope.getByRole('spinbutton', { name: 'Adquirido da linha 2 de Pokémon' })).toBeTruthy()
+    expect(scope.getByRole('button', { name: 'Excluir linha 2 de Pokémon' })).toBeTruthy()
+    expect(scope.getByRole('button', { name: 'Adicionar carta de Pokémon' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Adicionar carta de Treinadores' })).toBeTruthy()
+  })
+
+  it('moves focus to the next row after deleting a row, else the previous, else the add button', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await addCard(user, 'Pokémon')
+    await addCard(user, 'Pokémon')
+    const scope = panel('Pokémon')
+    await user.click(scope.getByRole('button', { name: 'Excluir linha 2 de Pokémon' }))
+    expect(document.activeElement).toBe(scope.getByLabelText('Quantidade da linha 2 de Pokémon'))
+    await user.click(scope.getByRole('button', { name: 'Excluir linha 2 de Pokémon' }))
+    expect(document.activeElement).toBe(scope.getByLabelText('Quantidade da linha 1 de Pokémon'))
+    await user.click(scope.getByRole('button', { name: 'Excluir linha 1 de Pokémon' }))
+    expect(document.activeElement).toBe(scope.getByRole('button', { name: 'Adicionar carta de Pokémon' }))
+  })
+
+  it('links the card combobox to its listbox and the highlighted option', async () => {
+    getDeckStore().replaceAll({
+      decks: [],
+      owned: {
+        'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon', quantity: 3 },
+        'MEG-55': { displayName: 'Kadabra MEG 55', category: 'pokemon', quantity: 3 },
+      },
+    })
+    renderEditor()
+    const user = userEvent.setup()
+    const input = panel('Pokémon').getByRole('combobox')
+    expect(input.getAttribute('aria-controls')).toBeNull()
+    await user.click(input)
+    const listbox = screen.getByRole('listbox')
+    expect(input.getAttribute('aria-controls')).toBe(listbox.id)
+    expect(listbox.id).not.toBe('')
+    const active = () => document.getElementById(input.getAttribute('aria-activedescendant') ?? '')
+    expect(active()?.getAttribute('role')).toBe('option')
+    const first = active()?.textContent
+    await user.keyboard('{ArrowDown}')
+    expect(active()?.textContent).not.toBe(first)
+    expect(active()?.getAttribute('aria-selected')).toBe('true')
+    await user.keyboard('{Escape}')
+    expect(input.getAttribute('aria-activedescendant')).toBeNull()
+  })
+
+  it('announces the number of suggestions in a polite live region', async () => {
+    getDeckStore().replaceAll({
+      decks: [],
+      owned: { 'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon', quantity: 3 } },
+    })
+    renderEditor()
+    await userEvent.setup().click(panel('Pokémon').getByRole('combobox'))
+    expect(screen.getByText('1 sugestão').getAttribute('role')).toBe('status')
+  })
+
+  it('ties a row error to its inputs and shows a non-colour cue', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+    const { row, element } = await addRow('Pokémon', '1', 'lixo')
+    await save(user)
+    const alert = row.getByRole('alert')
+    for (const name of [/^Quantidade/, /^Carta/, /^Adquirido/]) {
+      expect(row.getByLabelText(name).getAttribute('aria-describedby')).toBe(alert.id)
+    }
+    expect(alert.id).not.toBe('')
+    expect(row.getByLabelText(/^Carta/).getAttribute('aria-invalid')).toBe('true')
+    expect(within(element).getByText('Linha com pendências')).toBeTruthy()
+  })
+
+  it('marks a valid row with text, not only colour, and without aria-invalid', async () => {
+    const { row } = await (async () => {
+      renderEditor()
+      return addRow('Treinadores', '1', 'Ordem da chefia', '1')
+    })()
+    expect(row.getByText('Linha válida')).toBeTruthy()
+    expect(row.getByLabelText(/^Carta/).getAttribute('aria-invalid')).toBeNull()
+  })
+
+  it('announces a row warning with role status and links it to the card input', async () => {
+    renderEditor()
+    const { row } = await addRow('Treinadores', '5', 'Ordem da chefia', '5')
+    const status = row.getAllByRole('status').find((el) => el.id) as HTMLElement
+    expect(status.textContent).not.toBe('')
+    expect(row.getByLabelText(/^Carta/).getAttribute('aria-describedby')).toBe(status.id)
+  })
+
+  it('ties a copies warning to the card and quantity inputs only', async () => {
+    renderEditor()
+    const { row } = await addRow('Treinadores', '5', 'Ordem da chefia', '5')
+    const id = row.getAllByRole('status').find((el) => el.id)?.id
+    for (const name of [/^Quantidade/, /^Carta/]) {
+      expect(row.getByLabelText(name).getAttribute('aria-invalid')).toBe('true')
+      expect(row.getByLabelText(name).getAttribute('aria-describedby')).toBe(id)
+    }
+    const owned = row.getByLabelText(/^Adquirido/)
+    expect(owned.getAttribute('aria-invalid')).toBeNull()
+    expect(owned.getAttribute('aria-describedby')).toBeNull()
+  })
+
+  it('flags only the owned input when it is below the quantity', async () => {
+    renderEditor()
+    const { row } = await addRow('Treinadores', '2', 'Ordem da chefia', '1')
+    const owned = row.getByLabelText(/^Adquirido/)
+    expect(owned.getAttribute('aria-invalid')).toBe('true')
+    expect(owned.getAttribute('aria-describedby')).toBeNull()
+    for (const name of [/^Quantidade/, /^Carta/]) {
+      expect(row.getByLabelText(name).getAttribute('aria-invalid')).toBeNull()
+    }
+  })
+
+  it('ties the deck name error to the name input', async () => {
+    renderEditor()
+    const user = userEvent.setup()
+    await save(user)
+    const input = screen.getByPlaceholderText('Nome do deck')
+    const alert = screen.getAllByRole('alert').find((el) => el.id === input.getAttribute('aria-describedby'))
+    expect(alert).toBeTruthy()
   })
 })

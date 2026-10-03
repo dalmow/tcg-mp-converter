@@ -150,6 +150,7 @@ that fix many screens at once, then per-screen refinements).
 ## Group 3 — Deck editor (New / Edit deck)
 
 ### A-10 Card combobox does not expose its list correctly
+- **Status:** Fixed (DAL-30)
 - **Screen:** New / Edit deck
 - **WCAG:** 4.1.2 Name, Role, Value (A)
 - **Severity:** Moderate (axe: critical `aria-required-attr`)
@@ -157,6 +158,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Link the input to the listbox id with `aria-controls` and surface the highlighted `cmdk` item through `aria-activedescendant` (or switch to the Base UI Combobox/Autocomplete primitive which wires this up). Announce the suggestion count (polite live region) if possible.
 
 ### A-11 Row validity is conveyed by border colour only; errors are not tied to their fields
+- **Status:** Fixed (DAL-30)
 - **Screen:** New / Edit deck
 - **WCAG:** 1.4.1 Use of Color (A), 3.3.1 Error Identification (A), 1.3.1 (A), 3.3.3 (AA)
 - **Severity:** Serious
@@ -164,6 +166,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Add `aria-invalid` and `aria-describedby` (pointing at the message id) to the affected inputs; add a non-colour cue (icon plus text) to invalid/warning rows; keep `role="alert"` for blocking errors and `role="status"` for warnings.
 
 ### A-12 Repeated, non-unique accessible names for row controls
+- **Status:** Fixed (DAL-30)
 - **Screens:** New / Edit deck, Maintenance
 - **WCAG:** 2.4.6 Headings and Labels (AA), 2.5.3 Label in Name (A), 1.3.1 (A)
 - **Severity:** Moderate
@@ -171,6 +174,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Make names specific: "Adquirido de {card}", "Salvar {card}", "Excluir {card}"; for "Adicionar carta" use "Adicionar carta de Pokémon/Treinador/Energia"; for deck-editor rows use `aria-label` including the row position or the typed card name (e.g. "Excluir linha 3 de Pokémon").
 
 ### A-13 Focus is lost when a row is deleted; no heading structure in the editor
+- **Status:** Fixed (DAL-30)
 - **Screen:** New / Edit deck
 - **WCAG:** 2.4.3 Focus Order (A), 1.3.1 Info and Relationships (A), 2.4.6 (AA)
 - **Severity:** Moderate

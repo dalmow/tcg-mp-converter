@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
 import { DeleteButton, SaveButton } from '@/components/ActionButtons'
@@ -35,6 +35,7 @@ const PANEL_TITLE: Record<CardCategory, string> = {
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
   const navigate = useNavigate()
+  const nameErrorId = useId()
   const toast = useToast()
   const { decks, owned } = useDeckData()
   // A new deck gets its id up front but only reaches storage on its first Save.
@@ -134,6 +135,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             placeholder="Nome do deck"
             aria-label="Nome do deck"
             aria-invalid={nameError ? true : undefined}
+            aria-describedby={nameError ? nameErrorId : undefined}
             value={name}
             onChange={(event) => {
               setName(event.target.value)
@@ -141,7 +143,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             }}
           />
           {nameError && (
-            <p role="alert" className="text-xs text-danger-text">
+            <p id={nameErrorId} role="alert" className="text-xs text-danger-text">
               {nameError}
             </p>
           )}
