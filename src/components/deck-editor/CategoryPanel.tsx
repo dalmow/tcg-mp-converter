@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { PlusIcon } from 'lucide-react'
 import { Panel } from '@/components/Panel'
 import { Button } from '@/components/ui/button'
@@ -37,28 +38,51 @@ export function CategoryPanel({
   onChangeRow,
   onDeleteRow,
 }: CategoryPanelProps) {
+  const content = useRef<HTMLDivElement>(null)
+  const addButton = useRef<HTMLButtonElement>(null)
+  const categoryRows = rows.filter((row) => row.category === category)
+
+  // The focused delete button disappears with its row: hand focus to the next row, the previous one or "Adicionar carta".
+  function deleteRow(rowId: string) {
+    const index = categoryRows.findIndex((row) => row.id === rowId)
+    const neighbour = categoryRows[index + 1] ?? categoryRows[index - 1]
+    const target = neighbour
+      ? content.current?.querySelector<HTMLElement>(`[data-row-id="${neighbour.id}"] input`)
+      : addButton.current
+    target?.focus()
+    onDeleteRow(rowId)
+  }
+
   return (
     <Panel role="region" aria-label={title} className="self-start overflow-visible">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle role="heading" aria-level={2}>
+          {title}
+        </CardTitle>
         <CardAction>
-          <Button variant="outline" size="icon" aria-label="Adicionar carta" onClick={onAddRow}>
+          <Button
+            ref={addButton}
+            variant="outline"
+            size="icon"
+            aria-label={`Adicionar carta de ${title}`}
+            onClick={onAddRow}
+          >
             <PlusIcon />
           </Button>
         </CardAction>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        {rows
-          .filter((row) => row.category === category)
-          .map((row) => (
+      <CardContent ref={content} className="flex flex-col gap-3">
+        {categoryRows.map((row, index) => (
             <CardRow
               key={row.id}
               context={{ category, otherRows: otherRowsDeck(rows, row.id, collections), decks, owned, collections }}
               row={row}
+              position={index + 1}
+              categoryTitle={title}
               error={rowErrors[row.id] ?? null}
               focusOnMount={row.id === focusRowId}
               onChange={(patch) => onChangeRow(row.id, patch)}
-              onDelete={() => onDeleteRow(row.id)}
+              onDelete={() => deleteRow(row.id)}
             />
           ))}
       </CardContent>

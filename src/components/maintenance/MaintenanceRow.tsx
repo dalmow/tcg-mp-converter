@@ -72,7 +72,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
       </div>
       <span className="text-sm">Precisa: {row.needed}</span>
       <label htmlFor={inputId} className="sr-only">
-        Adquirido
+        Adquirido de {row.displayName}
       </label>
       <Input
         id={inputId}
@@ -84,12 +84,12 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
         aria-invalid={error !== null}
         onChange={(event) => setUnsavedDraft(event.target.value)}
       />
-      <SaveButton type="button" onClick={save}>
+      <SaveButton type="button" aria-label={`Salvar ${row.displayName}`} onClick={save}>
         Salvar
       </SaveButton>
       {isUnused && (
         <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-          <AlertDialogTrigger render={<DeleteButton type="button" />}>Excluir</AlertDialogTrigger>
+          <AlertDialogTrigger render={<DeleteButton type="button" aria-label={`Excluir ${row.displayName}`} />}>Excluir</AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Excluir carta?</AlertDialogTitle>
