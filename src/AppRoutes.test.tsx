@@ -33,6 +33,20 @@ describe('AppRoutes', () => {
     expect(nav.querySelector(`a[href="${ROUTES.maintenance}"]`)?.textContent).toBe('Manutenção')
   })
 
+  it('labels the navigation landmark', () => {
+    renderAt(ROUTES.decks)
+    expect(screen.getByRole('navigation', { name: 'Principal' })).toBeTruthy()
+  })
+
+  it('offers a skip link to the main content as the first tab stop', async () => {
+    renderAt(ROUTES.decks)
+    await userEvent.tab()
+    const skip = screen.getByRole('link', { name: 'Pular para o conteúdo' })
+    expect(document.activeElement).toBe(skip)
+    const target = document.getElementById(skip.getAttribute('href')!.slice(1))
+    expect(target?.tagName).toBe('MAIN')
+  })
+
   it('offers the backup items in the Dados dropdown', async () => {
     renderAt(ROUTES.decks)
     await userEvent.click(screen.getByRole('button', { name: 'Dados' }))

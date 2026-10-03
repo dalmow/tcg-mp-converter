@@ -193,7 +193,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           />
         ))}
       </div>
-      <AlertDialog open={blocker.state === 'blocked'}>
+      <AlertDialog open={blocker.state === 'blocked'} onOpenChange={(open) => !open && blocker.reset?.()}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Descartar alterações?</AlertDialogTitle>

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -466,6 +466,18 @@ describe('DeckEditor', () => {
       await user.click(screen.getByRole('button', { name: 'Continuar editando' }))
       expect(router.state.location.pathname).toBe(ROUTES.newDeck)
       expect((screen.getByPlaceholderText('Nome do deck') as HTMLInputElement).value).toBe('Alakazam')
+    })
+
+    it('treats Escape as Continue editing', async () => {
+      const router = renderEditor()
+      const user = userEvent.setup()
+      await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
+      await user.click(screen.getByRole('link', { name: 'Sair' }))
+      expect(await screen.findByText('Descartar alterações?')).toBeTruthy()
+
+      await user.keyboard('{Escape}')
+      await waitFor(() => expect(screen.queryByText('Descartar alterações?')).toBeNull())
+      expect(router.state.location.pathname).toBe(ROUTES.newDeck)
     })
 
     it('leaves and discards on confirmation', async () => {

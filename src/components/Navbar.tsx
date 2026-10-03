@@ -11,7 +11,13 @@ const links = [
 
 export function Navbar() {
   return (
-    <nav className="border-b border-panel-border bg-panel">
+    <nav aria-label="Principal" className="border-b border-panel-border bg-panel">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-panel focus:px-3 focus:py-1.5"
+      >
+        Pular para o conteúdo
+      </a>
       <div className="mx-auto flex max-w-[96rem] items-center gap-1 px-2 py-1.5">
         {links.map((link) => (
           <NavLink
