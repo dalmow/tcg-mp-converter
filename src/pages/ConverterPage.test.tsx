@@ -6,7 +6,10 @@ import { MemoryRouter } from 'react-router'
 import ConverterPage from '@/pages/ConverterPage'
 import { ToastProvider } from '@/components/ui/toast'
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 function renderPage() {
   return render(
@@ -155,10 +158,20 @@ describe('ConverterPage results', () => {
   })
 })
 
+describe('ConverterPage target size', () => {
+  it('keeps every option radio at least 24px tall (WCAG 2.5.8)', () => {
+    renderPage()
+
+    for (const item of screen.getAllByRole('radio')) {
+      expect(item.className).toContain('h-6')
+    }
+  })
+})
+
 describe('ConverterPage copy feedback', () => {
   async function convertAndCopy(writeText: (text: string) => Promise<void>) {
     const user = userEvent.setup()
-    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    vi.stubGlobal('navigator', { clipboard: { writeText } })
     renderPage()
     await user.type(screen.getByRole('textbox', { name: 'Decklist' }), '3 Abra MEG 53')
     await user.click(screen.getByRole('button', { name: 'Converter' }))

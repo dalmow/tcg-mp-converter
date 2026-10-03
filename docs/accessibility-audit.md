@@ -219,7 +219,7 @@ that fix many screens at once, then per-screen refinements).
 - **Severity:** Minor
 - **Evidence:** the switch track is 32x18 px (height < 24). The associated `<label>` and the `after:-inset-y-2` hit area in `switch.tsx` enlarge the clickable area, and spacing around is generous, so this probably meets the spacing exception; verify manually. The Lighthouse/axe `target-size` rule did not flag it.
 - **Fix:** Make the track at least 24 px tall or confirm the label is the primary target; also nothing else among buttons/links/inputs (other than the toast close button, A-09) measured under 24x24.
-- **Status:** Fixed (DAL-32). Switch track is now 24 px tall (`h-6`) in both sizes.
+- **Status:** Fixed (DAL-32). Switch track is now 24 px tall (`h-6`) in both sizes (track widths adjusted to keep the thumb flush). The Converter option badges (radios) were 20 px tall and are now `h-6`; other buttons, links and inputs measured at least 24x24.
 
 ### A-18 Remaining small items
 - **Screens:** various

@@ -84,7 +84,8 @@ function BadgeGroup<T extends string>({
                 />
               }
               className={cn(
-                'cursor-pointer border focus-visible:ring-ring',
+                // h-6: 24px minimum target size (WCAG 2.5.8); the badge default is 20px.
+                'h-6 cursor-pointer border focus-visible:ring-ring',
                 // Unselected is signalled by a neutral fill, never by opacity (which would cut text contrast).
                 selected
                   ? cn('border-foreground', classNameFor ? classNameFor(option, selected) : 'bg-primary text-primary-foreground')
