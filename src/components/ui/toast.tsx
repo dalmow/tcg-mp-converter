@@ -28,8 +28,8 @@ export function useToast(): ToastApi {
 
 // Errors interrupt (assertive); successes wait their turn (polite).
 const VARIANT_STYLE: Record<ToastVariant, { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }> = {
-  success: { role: 'status', border: 'border-success', text: 'text-success', Icon: CircleCheckIcon },
-  error: { role: 'alert', border: 'border-danger-text', text: 'text-danger-text', Icon: CircleAlertIcon },
+  success: { role: 'status', border: 'border-secondary', text: 'text-secondary', Icon: CircleCheckIcon },
+  error: { role: 'alert', border: 'border-danger', text: 'text-danger', Icon: CircleAlertIcon },
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -52,7 +52,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         role="region"
         aria-label="Notificações"
-        className="fixed right-4 bottom-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
+        className="fixed right-space-7 bottom-space-7 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-space-3"
       >
         {toasts.map((toast) => (
           <Toast key={toast.id} toast={toast} onDismiss={dismiss} />
@@ -88,7 +88,7 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       className={cn(
-        'flex items-start gap-2 rounded-md border bg-card p-3 text-sm text-card-foreground shadow-md',
+        'flex items-start gap-space-3 rounded-md status-border bg-surface-200 p-space-5 text-caption text-ink shadow-toast',
         border,
       )}
     >
@@ -97,7 +97,7 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
       <button
         type="button"
         aria-label="Fechar notificação"
-        className="-m-1 flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+        className="-m-1 flex size-6 shrink-0 items-center justify-center rounded-xs text-ink-faint hover:text-ink"
         onClick={() => onDismiss(id)}
       >
         <XIcon aria-hidden className="size-4" />

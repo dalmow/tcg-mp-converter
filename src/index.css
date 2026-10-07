@@ -212,6 +212,11 @@
   --color-background: var(--background);
 }
 
+/* 1.5px status border (primary button, toast, RowState). No numeric border-width utility exists for it. */
+@utility status-border {
+  border-width: 1.5px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
