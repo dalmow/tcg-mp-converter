@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -28,7 +28,8 @@ describe('AppRoutes', () => {
   it('shows the navbar links on every route', () => {
     renderAt(ROUTES.converter)
     const nav = screen.getByRole('navigation')
-    expect(nav.querySelector(`a[href="${ROUTES.decks}"]`)?.textContent).toBe('Decks')
+    // the logomark link also targets the home route, so match by accessible name
+    expect(within(nav).getByRole('link', { name: 'Decks' }).getAttribute('href')).toBe(ROUTES.decks)
     expect(nav.querySelector(`a[href="${ROUTES.converter}"]`)?.textContent).toBe('Conversor')
     expect(nav.querySelector(`a[href="${ROUTES.maintenance}"]`)?.textContent).toBe('Manutenção')
   })

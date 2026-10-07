@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BackupMenu } from '@/components/BackupMenu'
 import { ToastProvider } from '@/components/ui/toast'
+import { useBackup } from '@/components/useBackup'
 import { buildBackup } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
@@ -48,10 +49,20 @@ async function pickFile(content: string) {
   await userEvent.upload(input, new File([content], 'backup.json', { type: 'application/json' }))
 }
 
+function Host() {
+  const backup = useBackup()
+  return (
+    <>
+      <BackupMenu backup={backup} />
+      {backup.dialog}
+    </>
+  )
+}
+
 function renderMenu() {
   return render(
     <ToastProvider>
-      <BackupMenu />
+      <Host />
     </ToastProvider>,
   )
 }
