@@ -1,21 +1,29 @@
-## Navegação de código (codebase-memory-mcp)
+## Navegação de código (codebase-memory-mcp): OBRIGATÓRIO
 
-Este projeto está indexado no `codebase-memory-mcp`, um grafo de conhecimento do código (funções, classes, chamadas e dependências). Use-o como primeira opção para entender a estrutura do código.
+Este projeto está indexado no `codebase-memory-mcp`. Toda busca e análise de código DEVE passar pelas tools desse MCP. Não use Grep, Glob, `find`, `grep`, `rg` ou `cat` para explorar código.
 
-### Use o MCP primeiro para
-- Localizar funções, classes, métodos e símbolos
-- Descobrir quem chama o quê (call graph) e quais são as dependências de um módulo
-- Analisar o impacto de uma mudança antes de editar
-- Entender a arquitetura e a relação entre módulos
+### Obrigatório via MCP
+- Localizar funções, classes, métodos, variáveis e símbolos
+- Descobrir quem chama o quê e quais são as dependências
+- Analisar impacto antes de qualquer alteração
+- Entender arquitetura e relação entre módulos
 - Encontrar código morto ou não utilizado
+- Listar arquivos e estrutura do código
 
-### Use Grep/Glob/Read quando
-- Buscar texto literal, strings, mensagens de erro, TODOs ou comentários
-- Trabalhar com arquivos que não são código (configs, docs, JSON, YAML, .env.example)
-- O MCP não retornar resultado ou o índice parecer desatualizado
+### Fluxo padrão
+1. Consulte o MCP para localizar o que precisa.
+2. Use Read apenas nos trechos ou arquivos que o MCP indicou, quando precisar do conteúdo exato para editar.
+3. Antes de editar uma função ou módulo, consulte o MCP para ver o que depende dele.
 
-### Regras
-1. Antes de alterar uma função ou módulo, consulte o MCP para ver o que depende dele.
-2. Depois de mudanças grandes (novos módulos, refactors, troca de branch), reindexe o projeto antes de confiar nos resultados.
-3. Use o MCP para localizar e só então leia os arquivos necessários; evite ler arquivos inteiros só para achar um símbolo.
-4. Se o MCP e a leitura direta divergirem, o código-fonte atual é a verdade.
+### Proibido
+- Usar Grep, Glob ou comandos de shell de busca (`grep`, `rg`, `find`) para procurar código
+- Ler arquivos inteiros "para ver o que tem" sem consultar o MCP antes
+- Começar uma tarefa sem consultar o MCP
+
+### Únicas exceções
+- Busca de texto literal em arquivos que não são código (docs, configs, .env.example, logs)
+- O MCP falhou, retornou vazio ou o índice está desatualizado. Nesse caso: (1) tente reindexar o projeto, (2) se persistir, avise o usuário que está usando busca direta e por quê.
+
+### Manutenção do índice
+- Reindexe após mudanças grandes (novos módulos, refactors, troca de branch).
+- Se o MCP e o código-fonte divergirem, o código-fonte atual é a verdade.

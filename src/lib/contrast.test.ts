@@ -6,7 +6,6 @@ import { contrastRatio, parseColor, parseOklch } from './contrast'
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf-8')
 const css = read('../index.css')
 const converterSource = read('../pages/ConverterPage.tsx')
-const tailwindTheme = read('../../node_modules/tailwindcss/theme.css')
 
 const resolve = (value: string): string => {
   const ref = value.match(/^var\(--([a-z0-9-]+)\)$/)
@@ -19,11 +18,6 @@ const token = (name: string, over = '#0a090e') => {
   const m = css.match(new RegExp(String.raw`(?:^|[\s{;])--color-${name}:\s*([^;]+);`))
   if (!m) throw new Error(`token --color-${name} not found`)
   return parseColor(resolve(m[1].trim()), parseColor(over))
-}
-const palette = (name: string) => {
-  const m = tailwindTheme.match(new RegExp(String.raw`--color-${name}:\s*(oklch\([^)]*\))`))
-  if (!m) throw new Error(`palette ${name} not found`)
-  return parseOklch(m[1])
 }
 
 describe('contrast helper', () => {
@@ -74,11 +68,12 @@ describe('design token contrast (WCAG 2.2 AA)', () => {
     expect(contrastRatio(token('surface-000'), token('secondary'))).toBeGreaterThanOrEqual(text)
   })
 
-  it.each(['M', 'NM', 'SP', 'MP', 'HP', 'D'])('condition badge %s text is >= 4.5:1', (condition) => {
-    const m = converterSource.match(new RegExp(String.raw`\s${condition}: 'bg-([a-z]+-\d+) text-white'`))
-    if (!m) throw new Error(`badge class for ${condition} not found`)
-    expect(contrastRatio(parseOklch('oklch(1 0 0)'), palette(m[1]))).toBeGreaterThanOrEqual(text)
-  })
+  it.each(['mint', 'near-mint', 'slightly-played', 'moderately-played', 'heavily-played', 'damaged'])(
+    'selected condition pill %s: dark text on its fill is >= 4.5:1',
+    (quality) => {
+      expect(contrastRatio(token('surface-000'), token(`quality-${quality}`))).toBeGreaterThanOrEqual(text)
+    },
+  )
 
   it('unselected badges do not rely on opacity', () => {
     expect(converterSource).not.toMatch(/opacity-\d+/)

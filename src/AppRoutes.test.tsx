@@ -25,9 +25,13 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Conversor' }).className).not.toContain('sr-only')
   })
 
+  it('renders /maintenance with the visible title block heading "Manutenção"', () => {
+    renderAt(ROUTES.maintenance)
+    expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' }).className).not.toContain('sr-only')
+  })
+
   it.each([
     [ROUTES.newDeck, 'Novo deck'],
-    [ROUTES.maintenance, 'Manutenção'],
   ])('renders %s with sr-only heading "%s"', (path, heading) => {
     renderAt(path)
     expect(screen.getByRole('heading', { level: 1, name: heading }).className).toContain('sr-only')

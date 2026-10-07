@@ -36,7 +36,7 @@ A button and a control are always less rounded than the panel they live in: pane
 
 ### Badges
 
-A "Decks:" caption in `ink-subtle` introduces a row of `chip-accent` badges, one badge per deck using that card — never fold multiple decks into one badge's text. `chip-accent` is `secondary-tint-strong` background, a `secondary-border-soft` border, `ink` is NOT used here — the badge text is `secondary` itself, `radius-pill`, `caption` type. A card used by no deck gets no badge at all: just the word "nenhum" in `ink-subtle`.
+A "Decks:" caption in `ink-subtle` introduces a row of `chip-accent` badges, one badge per deck using that card — never fold multiple decks into one badge's text. `chip-accent` is `secondary-tint-strong` background, a `secondary-border-soft` border, `ink` is NOT used here — the badge text is `secondary` itself, `radius-pill`, `micro-label` type. A card used by no deck gets no badge at all: just the word "nenhum" in `ink-subtle`.
 
 ### Progress
 
