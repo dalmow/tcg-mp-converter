@@ -165,8 +165,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Excluir deck?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta ação não pode ser desfeita. A quantidade adquirida das cartas é mantida.
+                <AlertDialogDescription render={<div />} className="flex flex-col gap-space-2">
+                  <p className="text-secondary">A quantidade adquirida das cartas é mantida.</p>
+                  <p className="font-semibold text-danger-soft">Esta ação não pode ser desfeita.</p>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -204,8 +205,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Descartar alterações?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Há alterações não salvas neste deck. Se sair agora, elas serão perdidas.
+            <AlertDialogDescription render={<div />} className="flex flex-col gap-space-2">
+              <p className="text-secondary">Há alterações não salvas neste deck.</p>
+              <p className="font-semibold text-danger-soft">Se sair agora, elas serão perdidas.</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

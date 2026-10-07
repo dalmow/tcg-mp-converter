@@ -119,7 +119,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Excluir carta?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogDescription className="font-semibold text-danger-soft">
                       {row.displayName} será removida da manutenção.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
