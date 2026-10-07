@@ -1,5 +1,5 @@
 const focusRing =
-  'rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000'
+  'rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-ink-faint focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000'
 
 /** Inline header link: resting `#cfc9de`, `secondary` on hover and when current. */
 export const navLinkClass = `inline-flex items-center gap-space-2 text-nav-link text-[#cfc9de] transition-colors hover:text-secondary aria-[current=page]:text-secondary ${focusRing}`

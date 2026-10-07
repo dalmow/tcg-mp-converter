@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 export function Panel({ className, ...props }: ComponentProps<typeof Card>) {
   return (
     <Card
-      className={cn('bg-panel text-panel-foreground ring-0 border border-panel-border', className)}
+      className={cn('bg-surface-100 text-ink ring-0 border border-border-faint', className)}
       {...props}
     />
   )

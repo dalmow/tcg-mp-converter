@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf-8')
@@ -79,25 +79,27 @@ describe('fonts', () => {
   })
 })
 
-describe('shadcn token aliases still resolve', () => {
+describe('shadcn token aliases are gone', () => {
   it.each([
-    ['background', 'var(--color-surface-000)'],
-    ['foreground', 'var(--color-ink)'],
-    ['card', 'var(--color-surface-100)'],
-    ['popover', 'var(--color-surface-200)'],
-    ['primary', 'var(--color-primary)'],
-    ['secondary', 'var(--color-secondary)'],
-    ['muted-foreground', 'var(--color-ink-muted)'],
-    ['destructive', 'var(--color-danger)'],
-    ['border', 'var(--color-border)'],
-  ])('--%s', (name, target) => {
-    expect(declaration(name)).toBe(target)
+    'background', 'foreground', 'card', 'card-foreground', 'popover', 'popover-foreground', 'primary-foreground',
+    'secondary-foreground', 'muted', 'muted-foreground', 'accent', 'accent-foreground', 'destructive', 'input',
+    'ring', 'success', 'success-foreground', 'danger-text', 'danger-foreground', 'primary-text', 'control',
+    'panel', 'panel-foreground', 'panel-border', 'chart-1', 'sidebar', 'sidebar-primary', 'radius',
+  ])('--%s and --color-%s are not declared', (name) => {
+    expect(declaration(name)).toBeUndefined()
+    expect(declaration(`color-${name}`)).toBeUndefined()
   })
 
-  it.each(['success', 'danger-text', 'primary-text', 'control', 'panel', 'panel-border', 'accent', 'ring', 'input', 'muted'])(
-    '--color-%s utility resolves through a variable',
-    (name) => {
-      expect(declaration(`color-${name}`)).toMatch(/^var\(--[a-z-]+\)$/)
-    },
-  )
+  it('--primary, --secondary and --border are not shadowed by an alias', () => {
+    for (const name of ['primary', 'secondary', 'border']) expect(declaration(name)).toBeUndefined()
+  })
+
+  it('no source file uses an alias-only color utility', () => {
+    const aliasUtility = /(?:bg|text|border|ring|fill|stroke|outline|divide)-(?:background|foreground|card|popover|muted|accent|destructive|input|ring|success|panel|control|sidebar|chart)(?:-[a-z]+)?/
+    const dir = new URL('..', import.meta.url)
+    const offenders = (readdirSync(dir, { recursive: true }) as string[])
+      .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
+      .filter((f) => aliasUtility.test(readFileSync(new URL(f, dir), 'utf-8')))
+    expect(offenders).toEqual([])
+  })
 })

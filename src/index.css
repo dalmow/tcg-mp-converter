@@ -45,6 +45,7 @@
 
   --font-display: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body);
 
   --text-h1: 24px;
   --text-h1--line-height: 1.2;
@@ -121,95 +122,8 @@
   --breakpoint-nav: 860px;
 }
 
-/*
- * Temporary shadcn aliases pointing at the design system tokens, so existing
- * screens keep working. Removed in the redesign cleanup issue.
- */
 :root {
   color-scheme: dark;
-  --radius: var(--radius-md);
-  --background: var(--color-surface-000);
-  --foreground: var(--color-ink);
-  --card: var(--color-surface-100);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-surface-200);
-  --popover-foreground: var(--color-ink);
-  --primary: var(--color-primary);
-  --primary-foreground: var(--color-ink);
-  --secondary: var(--color-secondary);
-  --secondary-foreground: var(--color-surface-000);
-  --muted: var(--color-surface-100);
-  --muted-foreground: var(--color-ink-muted);
-  --accent: var(--color-surface-200);
-  --accent-foreground: var(--color-ink);
-  --destructive: var(--color-danger);
-  --border: var(--color-border);
-  --input: var(--color-border);
-  --ring: var(--color-ink-faint);
-  --chart-1: var(--color-ink);
-  --chart-2: var(--color-ink-muted);
-  --chart-3: var(--color-ink-faint);
-  --chart-4: var(--color-ink-subtle);
-  --chart-5: var(--color-surface-200);
-  --sidebar: var(--color-surface-100);
-  --sidebar-foreground: var(--color-ink);
-  --sidebar-primary: var(--color-primary);
-  --sidebar-primary-foreground: var(--color-ink);
-  --sidebar-accent: var(--color-surface-200);
-  --sidebar-accent-foreground: var(--color-ink);
-  --sidebar-border: var(--color-border);
-  --sidebar-ring: var(--color-ink-faint);
-  --success: var(--color-secondary);
-  --success-foreground: var(--color-surface-000);
-  --danger-text: var(--color-danger);
-  --primary-text: var(--color-secondary);
-  --control-border: var(--color-border);
-  --danger-foreground: var(--color-ink);
-  --panel: var(--color-surface-100);
-  --panel-foreground: var(--color-ink);
-  --panel-border: var(--color-border-faint);
-}
-
-@theme inline {
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-danger-foreground: var(--danger-foreground);
-  --color-primary-text: var(--primary-text);
-  --color-danger-text: var(--danger-text);
-  --color-control: var(--control-border);
-  --color-panel: var(--panel);
-  --color-panel-foreground: var(--panel-foreground);
-  --color-panel-border: var(--panel-border);
-  --font-heading: var(--font-display);
-  --font-sans: var(--font-body);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
 }
 
 /* 1.5px status border (primary button, toast, RowState). No numeric border-width utility exists for it. */
@@ -219,10 +133,10 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ink-faint/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-surface-000 text-ink;
   }
   html {
     @apply font-sans;

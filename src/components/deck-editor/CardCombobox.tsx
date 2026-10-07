@@ -68,7 +68,7 @@ export function CardCombobox({ value, suggestions, onValueChange, onPick, ...inp
       {showList && (
         // Keeps focus on the input so the blur handler does not close the list before the pick.
         <CommandList
-          className="absolute top-full z-20 mt-1 w-full rounded-lg border border-panel-border bg-popover shadow-md"
+          className="absolute top-full z-20 mt-1 w-full rounded-lg border border-border-faint bg-surface-200 shadow-md"
           onMouseDown={(event) => event.preventDefault()}
         >
           {suggestions.map((suggestion) => (

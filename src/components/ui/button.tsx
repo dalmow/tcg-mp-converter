@@ -12,7 +12,7 @@ const ghostStyle =
 // Design system: three variants (primary, danger, ghost). `default`, `destructive`,
 // `outline` and `secondary` are legacy aliases kept so existing screens keep compiling.
 const buttonVariants = cva(
-  "group/button inline-flex cursor-pointer shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-ui whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring active:not-aria-[haspopup]:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex cursor-pointer shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-ui whitespace-nowrap transition-all outline-none select-none focus-visible:border-ink-faint focus-visible:ring-1 focus-visible:ring-ink-faint active:not-aria-[haspopup]:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-danger aria-invalid:ring-1 aria-invalid:ring-danger/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -23,7 +23,7 @@ const buttonVariants = cva(
         destructive: dangerStyle,
         outline: ghostStyle,
         secondary: ghostStyle,
-        link: "text-primary-text underline-offset-4 hover:underline",
+        link: "text-secondary underline-offset-4 hover:underline",
       },
       size: {
         default:
