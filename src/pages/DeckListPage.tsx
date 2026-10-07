@@ -6,6 +6,7 @@ import { useHydrated } from '@/lib/useHydrated'
 import { usePageMeta } from '@/lib/usePageMeta'
 import { PageLayout } from '@/components/PageLayout'
 import { Panel } from '@/components/Panel'
+import { ProgressBar } from '@/components/ui/progress-bar'
 import collections from '@/data/collections.json'
 import { validateDeck } from '@/lib/deck/deckRules'
 import { useDeckData } from '@/lib/deck/deckStore'
@@ -17,7 +18,7 @@ const DECKS_SUBTITLE =
   'Organize suas 60 cartas por Pokémon, Treinador e Energia — e veja de cara o que ainda falta fechar.'
 
 const DECK_TILE_CLASS =
-  'min-h-32 gap-space-10 px-(--card-spacing) [--card-spacing:22px] transition-colors hover:border-secondary-border-soft'
+  'min-h-32 gap-space-10 px-(--card-spacing) [--card-spacing:22px] transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary'
 
 function DeckTile({
   to,
@@ -31,7 +32,7 @@ function DeckTile({
   children: ReactNode
 }) {
   return (
-    <Link to={to} aria-label={label} className="block rounded-2xl focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none">
+    <Link to={to} aria-label={label} className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-secondary">
       <Panel className={cn('h-full', DECK_TILE_CLASS, className)}>{children}</Panel>
     </Link>
   )
@@ -39,7 +40,6 @@ function DeckTile({
 
 function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
   const validation = validateDeck(deck, owned, collections)
-  const percent = Math.min(100, (validation.total / DECK_SIZE) * 100)
 
   return (
     <DeckTile to={deckPath(deck.id)} className="justify-between">
@@ -53,14 +53,7 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
       </div>
       <div className="flex flex-col gap-space-3">
         {validation.missingMessage && <span className="text-caption text-danger-soft">{validation.missingMessage}</span>}
-        <div className="flex items-center gap-space-4">
-          <div aria-hidden className="h-1.5 flex-1 overflow-hidden rounded-pill bg-border-faint">
-            <div className="h-full rounded-pill bg-linear-to-r from-danger to-primary" style={{ width: `${percent}%` }} />
-          </div>
-          <span className="shrink-0 text-caption font-bold text-ink-muted">
-            {validation.total}/{DECK_SIZE}
-          </span>
-        </div>
+        <ProgressBar compact label="Cartas no deck" value={validation.total} max={DECK_SIZE} />
       </div>
     </DeckTile>
   )

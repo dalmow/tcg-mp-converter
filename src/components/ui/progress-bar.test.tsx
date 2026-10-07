@@ -58,4 +58,12 @@ describe('ProgressBar', () => {
     expect((bar.firstElementChild as HTMLElement).className).toContain('bg-linear-to-r from-danger to-primary')
     expect(bar.parentElement?.className).not.toMatch(/\b(bg-surface|border)\b/)
   })
+
+  it('compact renders the bar with the count beside it and keeps the accessible name', () => {
+    render(<ProgressBar compact label="Progresso do deck" value={45} max={60} />)
+
+    expect(screen.getByRole('progressbar', { name: 'Progresso do deck' }).getAttribute('aria-valuenow')).toBe('45')
+    expect(screen.getByText('45/60')).toBeTruthy()
+    expect(screen.queryByText('Progresso do deck')).toBeNull()
+  })
 })
