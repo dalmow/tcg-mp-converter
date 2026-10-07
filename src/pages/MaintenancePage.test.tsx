@@ -46,8 +46,8 @@ describe('MaintenancePage', () => {
     expect(screen.getByRole('heading', { name: 'Treinadores' })).toBeTruthy()
     const card = within(rowOf('Ordem da chefia'))
     expect(card.getByText('Decks:')).toBeTruthy()
-    expect(card.getByText('Alakazam').closest('[data-slot="badge"]')).not.toBeNull()
-    expect(card.getByText('Absol').closest('[data-slot="badge"]')).not.toBeNull()
+    expect(card.getByText('Alakazam').dataset.slot).toBe('badge')
+    expect(card.getByText('Absol').dataset.slot).toBe('badge')
     expect(card.getByText('Precisa: 4')).toBeTruthy()
   })
 
