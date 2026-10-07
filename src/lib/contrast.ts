@@ -24,6 +24,9 @@ export function parseOklch(value: string): Rgb {
   return oklchToRgb(l, Number(m[3]), Number(m[4]))
 }
 
+/** Linear sRGB (0-1) to gamma-encoded sRGB on a 0-255 scale. */
+const linearToSrgb255 = (v: number) => (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055) * 255
+
 const toLinear = (channel: number) => {
   const c = channel / 255
   return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
@@ -44,11 +47,9 @@ export function parseColor(value: string, over: Rgb = [0, 0, 0]): Rgb {
   } else {
     throw new Error(`Not a hex or rgba color: ${value}`)
   }
-  const background = over.map((v) => linearToSrgb(v))
+  const background = over.map((v) => linearToSrgb255(v))
   return channels.map((c, i) => toLinear(alpha * c + (1 - alpha) * background[i])) as Rgb
 }
-
-const linearToSrgb = (v: number) => (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055) * 255
 
 export function luminance([r, g, b]: Rgb): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b

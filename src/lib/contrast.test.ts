@@ -11,12 +11,12 @@ const tailwindTheme = read('../../node_modules/tailwindcss/theme.css')
 const resolve = (value: string): string => {
   const ref = value.match(/^var\(--([a-z0-9-]+)\)$/)
   if (!ref) return value
-  const m = css.match(new RegExp(String.raw`--${ref[1]}:\s*([^;]+);`))
+  const m = css.match(new RegExp(String.raw`(?:^|[\s{;])--${ref[1]}:\s*([^;]+);`))
   if (!m) throw new Error(`var --${ref[1]} not found`)
   return resolve(m[1].trim())
 }
 const token = (name: string, over = '#0a090e') => {
-  const m = css.match(new RegExp(String.raw`--color-${name}:\s*([^;]+);`))
+  const m = css.match(new RegExp(String.raw`(?:^|[\s{;])--color-${name}:\s*([^;]+);`))
   if (!m) throw new Error(`token --color-${name} not found`)
   return parseColor(resolve(m[1].trim()), parseColor(over))
 }

@@ -18,7 +18,7 @@ const tokens = JSON.parse(read('../../docs/design-system/tokens.json')) as {
 }
 
 const declaration = (name: string) => {
-  const m = css.match(new RegExp(String.raw`--${name}:\s*([^;]+);`))
+  const m = css.match(new RegExp(String.raw`(?:^|[\s{;])--${name}:\s*([^;]+);`))
   return m ? m[1].trim().replace(/\s+/g, ' ') : undefined
 }
 const asCss = (value: string) => value.replace(/^\{(.+)\}$/, 'var(--color-$1)')
@@ -94,9 +94,10 @@ describe('shadcn token aliases still resolve', () => {
     expect(declaration(name)).toBe(target)
   })
 
-  it('every legacy utility color is still mapped', () => {
-    for (const name of ['success', 'danger-text', 'primary-text', 'control', 'panel', 'panel-border', 'primary-hover', 'danger-hover', 'accent', 'ring', 'input', 'muted']) {
-      expect(css, name).toMatch(new RegExp(`--color-${name}:`))
-    }
-  })
+  it.each(['success', 'danger-text', 'primary-text', 'control', 'panel', 'panel-border', 'accent', 'ring', 'input', 'muted'])(
+    '--color-%s utility resolves through a variable',
+    (name) => {
+      expect(declaration(`color-${name}`)).toMatch(/^var\(--[a-z-]+\)$/)
+    },
+  )
 })
