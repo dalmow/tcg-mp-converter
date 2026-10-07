@@ -101,6 +101,15 @@ describe('BackupMenu', () => {
     await expectNoDialog()
   })
 
+  it('styles the import dialog with the DS danger-soft warning and a danger confirm', async () => {
+    renderMenu()
+    await pickFile(JSON.stringify(buildBackup(incoming)))
+    const warning = await screen.findByText('Todos os dados atuais serão substituídos.')
+    expect(warning.className).toContain('text-danger-soft')
+    expect(screen.getByRole('button', { name: 'Substituir tudo' }).className).toContain('bg-danger')
+    expect(screen.getByRole('button', { name: 'Cancelar' }).className).toContain('bg-transparent')
+  })
+
   it('keeps the data when the confirmation is cancelled', async () => {
     renderMenu()
     await pickFile(JSON.stringify(buildBackup(incoming)))

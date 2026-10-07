@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
-import { DeleteButton, SaveButton } from '@/components/ActionButtons'
+import { SaveButton } from '@/components/ActionButtons'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Input } from '@/components/ui/input'
 import { RowState, type RowStateName } from '@/components/ui/row-state'
@@ -104,7 +105,8 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
               <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                 <AlertDialogTrigger
                   render={
-                    <DeleteButton
+                    <Button
+                      variant="danger"
                       type="button"
                       size="icon-lg"
                       title="Excluir"
@@ -117,15 +119,15 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Excluir carta?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogDescription className="font-semibold text-danger-soft">
                       {row.displayName} será removida da manutenção.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <DeleteButton type="button" onClick={remove}>
+                    <Button variant="danger" type="button" onClick={remove}>
                       Confirmar exclusão
-                    </DeleteButton>
+                    </Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

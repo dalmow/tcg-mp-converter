@@ -52,7 +52,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         role="region"
         aria-label="Notificações"
-        className="fixed right-space-7 bottom-space-7 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-space-3"
+        className="fixed right-space-7 bottom-space-7 z-50 flex max-w-[calc(100vw-2.5rem)] flex-col items-end gap-space-3"
       >
         {toasts.map((toast) => (
           <Toast key={toast.id} toast={toast} onDismiss={dismiss} />
@@ -88,19 +88,19 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       className={cn(
-        'flex items-start gap-space-3 rounded-md status-border bg-surface-200 p-space-5 text-caption text-ink shadow-toast',
+        'flex items-center gap-space-4 rounded-md status-border bg-surface-200 px-space-6 py-space-5 text-ui text-ink shadow-toast',
         border,
       )}
     >
-      <Icon aria-hidden className={cn('mt-0.5 size-4 shrink-0', text)} />
+      <Icon aria-hidden className={cn('size-4 shrink-0', text)} />
       <span className="flex-1">{message}</span>
       <button
         type="button"
         aria-label="Fechar notificação"
-        className="-m-1 flex size-6 shrink-0 items-center justify-center rounded-xs text-ink-faint hover:text-ink"
+        className="-m-0.5 flex size-6 shrink-0 items-center justify-center rounded-xs text-ink-faint hover:text-ink"
         onClick={() => onDismiss(id)}
       >
-        <XIcon aria-hidden className="size-4" />
+        <XIcon aria-hidden className="size-[13px]" />
       </button>
     </div>
   )

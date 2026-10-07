@@ -12,8 +12,3 @@ function solidButton(colorClasses: string) {
 export const SaveButton = solidButton(
   'bg-primary text-primary-foreground hover:bg-primary-hover',
 )
-
-/** Red delete button. */
-export const DeleteButton = solidButton(
-  'bg-danger text-danger-foreground hover:bg-danger-hover',
-)
