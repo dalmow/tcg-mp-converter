@@ -70,8 +70,9 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
               <span className="text-caption text-ink-faint">nenhum</span>
             ) : (
               row.decks.map((deck) => (
-                <Badge key={deck} className="text-[10px] font-semibold">
-                  {deck}
+                // micro-label goes on an inner span: through className, tailwind-merge reads it as a color and drops the badge's text-secondary.
+                <Badge key={deck}>
+                  <span className="text-micro-label">{deck}</span>
                 </Badge>
               ))
             )}
