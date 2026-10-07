@@ -163,8 +163,66 @@ describe('ConverterPage target size', () => {
     renderPage()
 
     for (const item of screen.getAllByRole('radio')) {
-      expect(item.className).toContain('h-6')
+      // Tailwind spacing unit is 4px, so h-6 is 24px; the DS pill is h-9.5 (38px).
+      const units = Number(/(?:^|\s)h-(\d+(?:\.\d+)?)(?:\s|$)/.exec(item.className)?.[1])
+      expect(units * 4).toBeGreaterThanOrEqual(24)
     }
+  })
+})
+
+describe('ConverterPage design system copy', () => {
+  it('shows the page title with its supporting sentence', () => {
+    renderPage()
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Conversor' })).toBeTruthy()
+    expect(
+      screen.getByText('Cole sua decklist e converta pro formato aceito pelas lojas parceiras.'),
+    ).toBeTruthy()
+  })
+
+  it('uses the DS placeholders for the input and result textareas', () => {
+    renderPage()
+
+    expect(screen.getByRole('textbox', { name: 'Decklist' }).getAttribute('placeholder')).toBe(
+      'Cole sua decklist aqui…',
+    )
+    for (const name of ['Liga Pokemon', 'MYPCards']) {
+      expect(screen.getByRole('textbox', { name }).getAttribute('placeholder')).toBe(
+        'O resultado aparecerá aqui…',
+      )
+    }
+  })
+
+  it('titles each Quality pill with its full name', () => {
+    renderPage()
+
+    expect(radio('M').title).toBe('Mint')
+    expect(radio('NM').title).toBe('Near Mint')
+    expect(radio('D').title).toBe('Damaged')
+  })
+
+  it('disables Copiar until there is something to copy', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    const copyButtons = screen.getAllByRole('button', { name: 'Copiar' })
+
+    expect(copyButtons.every((button) => button.hasAttribute('disabled'))).toBe(true)
+
+    await user.type(screen.getByRole('textbox', { name: 'Decklist' }), '3 Abra MEG 53')
+    await user.click(screen.getByRole('button', { name: 'Converter' }))
+
+    expect(copyButtons.some((button) => !button.hasAttribute('disabled'))).toBe(true)
+  })
+
+  it('lists unresolved cards in a labelled panel', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.type(screen.getByRole('textbox', { name: 'Decklist' }), 'not a card line')
+    await user.click(screen.getByRole('button', { name: 'Converter' }))
+
+    const panel = screen.getByRole('region', { name: 'Cartas não resolvidas' })
+    expect(within(panel).getByText('not a card line')).toBeTruthy()
   })
 })
 

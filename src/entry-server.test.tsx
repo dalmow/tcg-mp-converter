@@ -16,7 +16,8 @@ afterEach(() => {
 describe('prerendered public pages', () => {
   it.each(PUBLIC_PAGES)('renders the h1 and main content of $path without JavaScript', async ({ path }) => {
     const html = await renderApp(path)
-    expect(html).toContain('<h1 class="sr-only">')
+    // the converter page shows the visible title block instead of an sr-only title
+    expect(html).toMatch(path === '/converter' ? /<h1[^>]*>Conversor<\/h1>/ : /<h1 class="sr-only">/)
     expect(html).toContain('<main')
   })
 
