@@ -16,7 +16,7 @@ afterEach(() => {
 describe('prerendered public pages', () => {
   it.each(PUBLIC_PAGES)('renders the h1 and main content of $path without JavaScript', async ({ path }) => {
     const html = await renderApp(path)
-    expect(html).toContain('<h1 class="sr-only">')
+    expect(html).toMatch(/<h1[ >]/)
     expect(html).toContain('<main')
   })
 

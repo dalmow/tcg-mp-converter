@@ -15,8 +15,12 @@ function renderAt(path: string) {
 }
 
 describe('AppRoutes', () => {
+  it('renders / with the visible title block heading "Meus decks"', () => {
+    renderAt(ROUTES.decks)
+    expect(screen.getByRole('heading', { level: 1, name: 'Meus decks' }).className).not.toContain('sr-only')
+  })
+
   it.each([
-    [ROUTES.decks, 'Decks'],
     [ROUTES.newDeck, 'Novo deck'],
     [ROUTES.converter, 'Conversor'],
     [ROUTES.maintenance, 'Manutenção'],
