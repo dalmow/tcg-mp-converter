@@ -141,7 +141,8 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
           <Trash2Icon />
         </Button>
       </div>
-      <p className={cn('flex items-center gap-space-2 pl-0.5 text-caption', valid ? 'text-secondary' : 'text-danger-soft')}>
+      {/* Plain template, not cn(): tailwind-merge does not know the text-caption token and would drop it next to a text color. */}
+      <p className={`flex items-center gap-space-2 pl-0.5 text-caption ${valid ? 'text-secondary' : 'text-danger-soft'}`}>
         {valid ? <CheckIcon className="size-3" aria-hidden="true" /> : <CircleAlertIcon className="size-3" aria-hidden="true" />}
         {valid ? 'Linha válida' : 'Linha com pendências'}
       </p>

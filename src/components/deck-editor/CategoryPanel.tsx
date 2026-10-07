@@ -3,7 +3,6 @@ import { PlusIcon } from 'lucide-react'
 import { Panel } from '@/components/Panel'
 import { Button } from '@/components/ui/button'
 import { CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import type { CollectionConfig } from '@/lib/types'
 import type { CardCategory, Deck, OwnedMap } from '@/lib/deck/types'
 import { CardRow, ROW_GRID_CLASS } from './CardRow'
@@ -75,7 +74,7 @@ export function CategoryPanel({
       </CardHeader>
       <CardContent ref={content} className="flex flex-col gap-space-4">
         {/* Names come from each input's own label; the header only aligns the columns visually. */}
-        <div aria-hidden="true" className={cn(ROW_GRID_CLASS, 'text-eyebrow text-ink-faint')}>
+        <div aria-hidden="true" className={`${ROW_GRID_CLASS} text-eyebrow text-ink-faint uppercase`}>
           <span className="text-center">#</span>
           <span>Carta</span>
           <span className="text-center">Adq.</span>
