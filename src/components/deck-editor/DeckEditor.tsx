@@ -1,7 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
-import { DeleteButton, SaveButton } from '@/components/ActionButtons'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast'
 import collections from '@/data/collections.json'
@@ -119,7 +120,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
       <div className="flex flex-col items-start gap-2">
         <h1 className="sr-only">Editar deck</h1>
         <p>Deck não encontrado</p>
-        <Link to={ROUTES.decks} className="text-primary-text underline">
+        <Link to={ROUTES.decks} className="text-secondary underline">
           Voltar para os decks
         </Link>
       </div>
@@ -128,10 +129,13 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   return (
     <>
-      {stored && <h1 className="mt-4 text-xl font-semibold">Editando deck {stored.name}</h1>}
-      <div className="flex items-start gap-2">
-        <div className="flex flex-1 flex-col gap-1">
+      {stored && (
+        <h1 className="font-display text-h1 text-[length:clamp(20px,2.4vw,24px)]">Editando deck {stored.name}</h1>
+      )}
+      <div className="flex flex-wrap items-start gap-space-6">
+        <div className="flex min-w-[220px] flex-1 flex-col gap-space-2">
           <Input
+            className="h-11 px-4 text-body-strong"
             placeholder="Nome do deck"
             aria-label="Nome do deck"
             aria-invalid={nameError ? true : undefined}
@@ -143,24 +147,20 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             }}
           />
           {nameError && (
-            <p id={nameErrorId} role="alert" className="text-xs text-danger-text">
+            <p id={nameErrorId} role="alert" className="text-caption text-danger-soft">
               {nameError}
             </p>
           )}
         </div>
-        <div
-          role="group"
-          aria-label="Ações do deck"
-          className="flex shrink-0 items-stretch gap-px"
-        >
-          <SaveButton aria-label="Salvar deck" className="rounded-r-none" onClick={saveDeck}>
-            <SaveIcon />
-            Salvar
-          </SaveButton>
+        <ButtonGroup aria-label="Ações do deck" className="h-11 shrink-0">
+          <Button size="icon" title="Salvar deck" aria-label="Salvar deck" className="w-11" onClick={saveDeck}>
+            <SaveIcon className="size-[18px]" />
+          </Button>
           <AlertDialog>
-            <AlertDialogTrigger render={<DeleteButton aria-label="Excluir deck" className="rounded-l-none" />}>
-              <Trash2Icon />
-              Excluir
+            <AlertDialogTrigger
+              render={<Button variant="danger" size="icon" title="Excluir deck" aria-label="Excluir deck" className="w-11" />}
+            >
+              <Trash2Icon className="size-[18px]" />
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -171,13 +171,13 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={deleteDeck}>Excluir</AlertDialogAction>
+                <AlertDialogAction variant="danger" onClick={deleteDeck}>Excluir</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
+        </ButtonGroup>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] items-start gap-space-8">
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel
             key={category}
@@ -210,7 +210,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Continuar editando</AlertDialogCancel>
-            <AlertDialogAction onClick={() => blocker.proceed?.()}>Descartar</AlertDialogAction>
+            <AlertDialogAction variant="danger" onClick={() => blocker.proceed?.()}>Descartar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
