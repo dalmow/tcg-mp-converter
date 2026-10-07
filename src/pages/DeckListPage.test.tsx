@@ -39,7 +39,7 @@ describe('DeckListPage', () => {
     const links = screen.getAllByRole('link')
     expect(links).toHaveLength(1)
     expect(links[0].getAttribute('href')).toBe('/decks/new')
-    expect(screen.getByRole('heading', { level: 1, name: 'Decks' }).className).toContain('sr-only')
+    expect(screen.getByRole('heading', { level: 1, name: 'Meus decks' })).toBeTruthy()
   })
 
   it('shows a valid deck with a check, count and link to the editor', () => {

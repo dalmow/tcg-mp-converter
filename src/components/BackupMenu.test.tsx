@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BackupMenu } from '@/components/BackupMenu'
 import { ToastProvider } from '@/components/ui/toast'
+import { useBackup } from '@/components/useBackup'
 import { buildBackup } from '@/lib/deck/backup'
 import { getDeckStore } from '@/lib/deck/deckStore'
 import type { PersistedData } from '@/lib/deck/storage'
@@ -48,10 +49,20 @@ async function pickFile(content: string) {
   await userEvent.upload(input, new File([content], 'backup.json', { type: 'application/json' }))
 }
 
+function Host() {
+  const backup = useBackup()
+  return (
+    <>
+      <BackupMenu backup={backup} />
+      {backup.dialog}
+    </>
+  )
+}
+
 function renderMenu() {
   return render(
     <ToastProvider>
-      <BackupMenu />
+      <Host />
     </ToastProvider>,
   )
 }
@@ -88,6 +99,15 @@ describe('BackupMenu', () => {
     await waitFor(() => expect(getDeckStore().getSnapshot()).toEqual(incoming))
     expect((await screen.findByText('Backup importado com sucesso')).textContent).toBeTruthy()
     await expectNoDialog()
+  })
+
+  it('styles the import dialog with the DS danger-soft warning and a danger confirm', async () => {
+    renderMenu()
+    await pickFile(JSON.stringify(buildBackup(incoming)))
+    const warning = await screen.findByText('Todos os dados atuais serão substituídos.')
+    expect(warning.className).toContain('text-danger-soft')
+    expect(screen.getByRole('button', { name: 'Substituir tudo' }).className).toContain('bg-danger')
+    expect(screen.getByRole('button', { name: 'Cancelar' }).className).toContain('bg-transparent')
   })
 
   it('keeps the data when the confirmation is cancelled', async () => {

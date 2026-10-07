@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>PTCG Tools — Conversor</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+</helmet>
+<div class="page" style="--primary:{{primary}}; --primary-hover:{{primaryHover}}; --secondary:{{secondary}}; min-height:100%; display:flex; flex-direction:column;">
+
+<header style="position:sticky; top:0; z-index:20; background:rgba(10,9,14,0.86); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.08);">
+  <div style="max-width:1240px; margin:0 auto; padding:16px clamp(20px,4vw,40px); display:flex; align-items:center; justify-content:space-between; gap:24px;">
+    <a href="https://ptcgtools.dalm.dev/" style="display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; font-weight:700; font-size:18px; letter-spacing:-0.01em;">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+        <rect x="7" y="3" width="15" height="19" rx="3" fill="#64E9EE" opacity="0.5"></rect>
+        <rect x="2" y="6.5" width="15" height="19" rx="3" fill="#2E5077"></rect>
+      </svg>
+      PTCG Tools
+    </a>
+
+    <nav class="nav-links" aria-label="Navegação principal" style="display:flex; align-items:center; gap:28px; font-size:14px; font-weight:600;">
+      <a class="nav-link" href="https://ptcgtools.dalm.dev/" style="display:inline-flex; align-items:center; gap:7px;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="5.6" y="1.8" width="9" height="10.4" rx="1.6"></rect>
+          <rect x="1.6" y="4.4" width="9" height="10.4" rx="1.6"></rect>
+        </svg>
+        Decks
+      </a>
+      <a class="nav-link" href="https://ptcgtools.dalm.dev/maintenance" style="display:inline-flex; align-items:center; gap:7px;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="2.2" width="10" height="12.2" rx="1.8"></rect>
+          <line x1="5.5" y1="1.5" x2="5.5" y2="3.3" stroke-width="1.6"></line>
+          <line x1="10.5" y1="1.5" x2="10.5" y2="3.3" stroke-width="1.6"></line>
+          <polyline points="5.5,7.8 6.8,9.1 10,5.9"></polyline>
+          <line x1="5.5" y1="11.3" x2="10.5" y2="11.3"></line>
+        </svg>
+        Manutenção
+      </a>
+      <a class="nav-link" href="https://ptcgtools.dalm.dev/converter" aria-current="page" style="display:inline-flex; align-items:center; gap:7px; color:var(--secondary,#64E9EE);">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="5" x2="11" y2="5"></line>
+          <polyline points="8.5,2.2 11,5 8.5,7.8"></polyline>
+          <line x1="13" y1="11" x2="5" y2="11"></line>
+          <polyline points="7.5,8.2 5,11 7.5,13.8"></polyline>
+        </svg>
+        Conversor
+      </a>
+    </nav>
+
+    <div class="nav-actions-desktop" style="display:flex; align-items:center; gap:12px;">
+      <button type="button" class="btn-ghost" aria-haspopup="true" aria-expanded="false" style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+        Dados
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,5 7,9 11,5"></polyline></svg>
+      </button>
+    </div>
+
+    <button type="button" class="menu-btn" aria-label="Abrir menu de navegação" style="align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,0.14); background:transparent; color:#F3F1F8; cursor:pointer;">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="17" y2="6"></line>
+        <line x1="3" y1="10" x2="17" y2="10"></line>
+        <line x1="3" y1="14" x2="17" y2="14"></line>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main style="flex:1;">
+  <div style="max-width:1240px; margin:0 auto; padding:clamp(32px,5vw,48px) clamp(20px,4vw,40px) clamp(56px,7vw,88px); display:flex; flex-direction:column; gap:40px;">
+
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <h1 style="font-size:clamp(20px,2.4vw,24px); font-weight:700; letter-spacing:-0.01em;">Conversor</h1>
+      <p style="font-size:14px; color:#A8A2B8; max-width:560px;">Cole sua decklist e converta pro formato aceito pelas lojas parceiras.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,360px); gap:clamp(28px,4vw,48px); align-items:start;">
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <h2 style="font-size:15px; font-weight:700;">Decklist</h2>
+        <textarea placeholder="Cole sua decklist aqui…" style="width:100%; height:260px; box-sizing:border-box; padding:16px; border-radius:10px; background:#120F1A; border:1px solid rgba(255,255,255,0.14); color:#F3F1F8; font-size:14px; font-family:inherit; line-height:1.7; resize:none; overflow-y:auto;">3 Abra MEG 53</textarea>
+        <button type="button" class="btn-primary" style="align-self:flex-start; padding:11px 24px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;">Converter</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:28px;">
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <h2 style="font-size:15px; font-weight:700;">Qualidade</h2>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <button type="button" aria-pressed="false" title="Mint" style="width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:transparent; border:1.5px solid #22C55E; color:#22C55E; font-size:12px; font-weight:700; cursor:pointer;">M</button>
+            <button type="button" aria-pressed="true" title="Near Mint" style="width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:#84C92B; border:1.5px solid #84C92B; color:#0A090E; font-size:12px; font-weight:700; cursor:pointer;">NM</button>
+            <button type="button" aria-pressed="false" title="Slightly Played" style="width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:transparent; border:1.5px solid #D9B816; color:#D9B816; font-size:12px; font-weight:700; cursor:pointer;">SP</button>
+            <button type="button" aria-pressed="false" title="Moderately Played" style="width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:transparent; border:1.5px solid #E8821E; color:#E8821E; font-size:12px; font-weight:700; cursor:pointer;">MP</button>
+            <button type="button" aria-pressed="false" title="Heavily Played" style="width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:transparent; border:1.5px solid #F0592E; color:#F0592E; font-size:12px; font-weight:700; cursor:pointer;">HP</button>
+            <button type="button" aria-pressed="false" title="Damaged" style="width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:transparent; border:1.5px solid #F03A47; color:#F03A47; font-size:12px; font-weight:700; cursor:pointer;">D</button>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <h2 style="font-size:15px; font-weight:700;">Idioma</h2>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <button type="button" aria-pressed="true" style="display:inline-flex; align-items:center; height:38px; padding:0 14px; border-radius:10px; background:var(--secondary,#64E9EE); border:1.5px solid var(--secondary,#64E9EE); color:#0A090E; font-size:13px; font-weight:700; cursor:pointer;">PT/EN</button>
+            <button type="button" aria-pressed="false" style="display:inline-flex; align-items:center; height:38px; padding:0 14px; border-radius:10px; background:transparent; border:1px solid rgba(255,255,255,0.14); color:#F3F1F8; font-size:13px; font-weight:700; cursor:pointer;">PT</button>
+            <button type="button" aria-pressed="false" style="display:inline-flex; align-items:center; height:38px; padding:0 14px; border-radius:10px; background:transparent; border:1px solid rgba(255,255,255,0.14); color:#F3F1F8; font-size:13px; font-weight:700; cursor:pointer;">EN</button>
+            <button type="button" aria-pressed="false" style="display:inline-flex; align-items:center; height:38px; padding:0 14px; border-radius:10px; background:transparent; border:1px solid rgba(255,255,255,0.14); color:#F3F1F8; font-size:13px; font-weight:700; cursor:pointer;">JP</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:28px;">
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h2 style="font-size:15px; font-weight:700;">Liga Pokémon</h2>
+          <button type="button" class="btn-ghost" disabled="" style="padding:7px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:not-allowed; opacity:0.45;">Copiar</button>
+        </div>
+        <textarea readonly="" placeholder="O resultado aparecerá aqui…" style="width:100%; height:220px; box-sizing:border-box; padding:16px; border-radius:10px; background:#120F1A; border:1px solid rgba(255,255,255,0.14); color:#6F6A80; font-size:14px; font-family:inherit; line-height:1.7; resize:none; overflow-y:auto;"></textarea>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h2 style="font-size:15px; font-weight:700;">MYPCards</h2>
+          <button type="button" class="btn-ghost" disabled="" style="padding:7px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:not-allowed; opacity:0.45;">Copiar</button>
+        </div>
+        <textarea readonly="" placeholder="O resultado aparecerá aqui…" style="width:100%; height:220px; box-sizing:border-box; padding:16px; border-radius:10px; background:#120F1A; border:1px solid rgba(255,255,255,0.14); color:#6F6A80; font-size:14px; font-family:inherit; line-height:1.7; resize:none; overflow-y:auto;"></textarea>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"primary":{"editor":"color","default":"#2E5077","options":["#2E5077","#1F3A57","#3D6690","#64E9EE"],"section":"Tema"},"primaryHover":{"editor":"color","default":"#3D6690","section":"Tema"},"secondary":{"editor":"color","default":"#64E9EE","section":"Tema"},"$preview":{"width":1440,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      primary: this.props.primary ?? '#2E5077',
+      primaryHover: this.props.primaryHover ?? '#3D6690',
+      secondary: this.props.secondary ?? '#64E9EE',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -10,10 +10,5 @@ function solidButton(colorClasses: string) {
 
 /** Blue confirm/save button. */
 export const SaveButton = solidButton(
-  'bg-primary text-primary-foreground hover:bg-primary-hover',
-)
-
-/** Red delete button. */
-export const DeleteButton = solidButton(
-  'bg-danger text-danger-foreground hover:bg-danger-hover',
+  'bg-primary text-ink hover:bg-primary-hover',
 )

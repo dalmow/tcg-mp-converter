@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>PTCG Tools — Feedback</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+</helmet>
+<div style="--primary:{{primary}}; --primary-hover:{{primaryHover}}; --secondary:{{secondary}}; background:#0A090E; width:100%; min-height:100%; box-sizing:border-box; padding:48px; display:flex; flex-direction:column; gap:36px;">
+
+  <div style="display:flex; flex-direction:column; gap:4px;">
+    <span style="font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#8A8598;">PTCG Tools</span>
+    <h1 style="font-size:24px; font-weight:700; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;">Feedback — modal e toast</h1>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start;">
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <span style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#8A8598;">Modal — Importar backup (Dados → Importar)</span>
+      <div style="position:relative; width:760px; max-width:100%; height:480px; border-radius:16px; overflow:hidden; background:#0A090E; border:1px solid rgba(255,255,255,0.1);">
+
+        <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column; gap:14px; opacity:0.35;">
+          <div style="height:14px; width:120px; border-radius:4px; background:rgba(255,255,255,0.12);"></div>
+          <div style="height:72px; border-radius:12px; background:#120F1A; border:1px solid rgba(255,255,255,0.08);"></div>
+          <div style="height:72px; border-radius:12px; background:#120F1A; border:1px solid rgba(255,255,255,0.08);"></div>
+        </div>
+
+        <div style="position:absolute; inset:0; background:rgba(5,4,8,0.72); display:flex; align-items:center; justify-content:center;">
+          <div style="width:400px; max-width:calc(100% - 48px); display:flex; flex-direction:column; gap:16px; padding:24px; border-radius:18px; background:#15121F; border:1px solid rgba(255,255,255,0.12); box-shadow:0 20px 44px rgba(0,0,0,0.55);">
+            <h2 style="font-size:17px; font-weight:700;">Importar backup</h2>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <p style="margin:0; font-size:14px; line-height:1.55; color:var(--secondary,#64E9EE);">O backup contém 1 deck(s) e 3 carta(s) adquirida(s).</p>
+              <p style="margin:0; font-size:14px; line-height:1.55; font-weight:600; color:#F0727B;">Todos os dados atuais serão substituídos.</p>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:4px;">
+              <button type="button" class="btn-ghost" style="padding:10px 18px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">Cancelar</button>
+              <button type="button" style="padding:10px 18px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; background:#F03A47; border:1.5px solid #F03A47; color:#F3F1F8; transition:background .15s ease, border-color .15s ease;" onmouseover="this.style.background='#D32E3A'; this.style.borderColor='#D32E3A';" onmouseout="this.style.background='#F03A47'; this.style.borderColor='#F03A47';">Substituir tudo</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <span style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#8A8598;">Toast — sucesso (canto inferior direito)</span>
+      <div style="position:relative; width:400px; max-width:100%; height:480px; border-radius:16px; overflow:hidden; background:#0A090E; border:1px solid rgba(255,255,255,0.1);">
+
+        <div style="position:absolute; bottom:20px; right:20px; max-width:calc(100% - 40px); display:inline-flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; background:#15121F; border:1.5px solid var(--secondary,#64E9EE); box-shadow:0 14px 32px rgba(0,0,0,0.5);">
+          <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="var(--secondary,#64E9EE)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="9" cy="9" r="7.4"></circle><polyline points="5.6,9.2 7.8,11.4 12.4,6.6"></polyline></svg>
+          <span style="font-size:13px; font-weight:600; color:#F3F1F8; white-space:nowrap;">Backup importado com sucesso</span>
+          <button type="button" aria-label="Fechar notificação" title="Fechar" style="display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:6px; background:transparent; border:none; color:#8A8598; cursor:pointer; flex-shrink:0;">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="4" x2="12" y2="12"></line><line x1="12" y1="4" x2="4" y2="12"></line></svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <span style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#8A8598;">Toast — erro (canto inferior direito)</span>
+      <div style="position:relative; width:400px; max-width:100%; height:480px; border-radius:16px; overflow:hidden; background:#0A090E; border:1px solid rgba(255,255,255,0.1);">
+
+        <div style="position:absolute; bottom:20px; right:20px; max-width:calc(100% - 40px); display:inline-flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; background:#15121F; border:1.5px solid #F03A47; box-shadow:0 14px 32px rgba(0,0,0,0.5);">
+          <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="#F03A47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="9" cy="9" r="7.4"></circle><line x1="9" y1="5.4" x2="9" y2="9.6"></line><circle cx="9" cy="12.4" r="0.15" fill="#F03A47"></circle></svg>
+          <span style="font-size:13px; font-weight:600; color:#F3F1F8; white-space:nowrap;">Não foi possível importar o backup</span>
+          <button type="button" aria-label="Fechar notificação" title="Fechar" style="display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:6px; background:transparent; border:none; color:#8A8598; cursor:pointer; flex-shrink:0;">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="4" x2="12" y2="12"></line><line x1="12" y1="4" x2="4" y2="12"></line></svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"primary":{"editor":"color","default":"#2E5077","options":["#2E5077","#1F3A57","#3D6690","#64E9EE"],"section":"Tema"},"primaryHover":{"editor":"color","default":"#3D6690","section":"Tema"},"secondary":{"editor":"color","default":"#64E9EE","section":"Tema"},"$preview":{"width":1360,"height":620}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      primary: this.props.primary ?? '#2E5077',
+      primaryHover: this.props.primaryHover ?? '#3D6690',
+      secondary: this.props.secondary ?? '#64E9EE',
+    };
+  }
+}
+</script>
+</body>
+</html>

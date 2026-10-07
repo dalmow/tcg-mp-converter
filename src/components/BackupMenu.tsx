@@ -1,100 +1,77 @@
-import { useRef, useState } from 'react'
 import { ChevronDownIcon } from 'lucide-react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { navLinkClass } from '@/components/navLinkClass'
+import { buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useToast } from '@/components/ui/toast'
-import { downloadBackup, parseBackup, type BackupSummary } from '@/lib/deck/backup'
-import { getDeckStore } from '@/lib/deck/deckStore'
-import type { PersistedData } from '@/lib/deck/storage'
+import type { Backup } from '@/components/useBackup'
 
-type PendingImport = { data: PersistedData; summary: BackupSummary }
+type BackupMenuProps = {
+  menuContainer?: HTMLElement | null
+  /** Controller from the host, which also renders `backup.dialog` once. */
+  backup: Backup
+}
 
-export function BackupMenu({ menuContainer }: { menuContainer?: HTMLElement | null }) {
-  const fileInput = useRef<HTMLInputElement>(null)
-  const [pending, setPending] = useState<PendingImport | null>(null)
-  const toast = useToast()
-
-  async function handleFile(file: File) {
-    const result = parseBackup(await file.text())
-    if (result.ok) setPending({ data: result.data, summary: result.summary })
-    else toast.error(result.error)
-  }
+/** Desktop "Dados" dropdown. */
+export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
+  const { exportBackup, chooseFile } = backup
 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className={navLinkClass(false)}>
+        <DropdownMenuTrigger
+          className={buttonVariants({
+            variant: 'ghost',
+            className:
+              'h-auto gap-space-2 px-space-6 py-space-3 text-nav-link [&[aria-expanded=true]_svg]:rotate-180',
+          })}
+        >
           Dados
-          <ChevronDownIcon />
+          <ChevronDownIcon className="size-[13px] transition-transform" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-auto" container={menuContainer}>
-          <DropdownMenuItem
-            onClick={() => {
-              downloadBackup(getDeckStore().getSnapshot())
-              toast.success('Backup exportado')
-            }}
-          >
+        <DropdownMenuContent className="w-auto min-w-47 p-space-3" align="end" container={menuContainer}>
+          <DropdownMenuItem className="px-space-4 py-space-4 text-nav-link" onClick={exportBackup}>
             Exportar backup
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => fileInput.current?.click()}>
+          <DropdownMenuItem className="px-space-4 py-space-4 text-nav-link" onClick={chooseFile}>
             Importar backup
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <input
-        ref={fileInput}
-        type="file"
-        aria-label="Arquivo de backup"
-        accept=".json,application/json"
-        className="hidden"
-        onChange={(event) => {
-          const file = event.target.files?.[0]
-          event.target.value = ''
-          if (file) void handleFile(file)
-        }}
-      />
-      <AlertDialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
-        <AlertDialogContent>
-          {pending && (
-            <>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Importar backup</AlertDialogTitle>
-                <AlertDialogDescription>
-                  O backup contém {pending.summary.deckCount} deck(s) e {pending.summary.ownedCount}{' '}
-                  carta(s) adquirida(s). Todos os dados atuais serão substituídos.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    getDeckStore().replaceAll(pending.data)
-                    setPending(null)
-                    toast.success('Backup importado com sucesso')
-                  }}
-                >
-                  Substituir tudo
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </>
-          )}
-        </AlertDialogContent>
-      </AlertDialog>
     </>
+  )
+}
+
+const listActionClass =
+  'cursor-pointer text-left text-body text-[#cfc9de] transition-colors hover:text-secondary focus-visible:text-secondary focus-visible:outline-none'
+
+/** Mobile sheet section: the same actions as the dropdown, stacked. */
+export function BackupList({ backup, onAction }: { backup: Backup; onAction?: () => void }) {
+  return (
+    <div className="flex flex-col gap-space-4 px-space-8 py-space-7">
+      <span className="text-eyebrow uppercase text-ink-faint">Dados</span>
+      <button
+        type="button"
+        className={listActionClass}
+        onClick={() => {
+          backup.exportBackup()
+          onAction?.()
+        }}
+      >
+        Exportar backup
+      </button>
+      <button
+        type="button"
+        className={listActionClass}
+        onClick={() => {
+          backup.chooseFile()
+          onAction?.()
+        }}
+      >
+        Importar backup
+      </button>
+    </div>
   )
 }

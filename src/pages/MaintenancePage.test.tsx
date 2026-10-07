@@ -31,6 +31,7 @@ beforeEach(() => seedStore([]))
 afterEach(cleanup)
 
 const rowOf = (name: string) => screen.getByText(name).closest('li') as HTMLElement
+const stateOf = (name: string) => (rowOf(name).querySelector('[data-slot="row-state"]') as HTMLElement).dataset.state
 
 describe('MaintenancePage', () => {
   it('lists missing cards with needed quantity and deck badges, grouped by category', () => {
@@ -39,11 +40,14 @@ describe('MaintenancePage', () => {
       makeDeck('2', 'Absol', [{ ...boss, quantity: 3 }]),
     ])
     renderPage()
-    expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' }).className).toContain('sr-only')
+    expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' }).className).not.toContain('sr-only')
+    expect(screen.getByText('Cartas que faltam para completar seus decks, agrupadas por categoria.')).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Pokémon' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Treinadores' })).toBeTruthy()
     const card = within(rowOf('Ordem da chefia'))
-    expect(card.getByText('Decks: Alakazam, Absol')).toBeTruthy()
+    expect(card.getByText('Decks:')).toBeTruthy()
+    expect(card.getByText('Alakazam').dataset.slot).toBe('badge')
+    expect(card.getByText('Absol').dataset.slot).toBe('badge')
     expect(card.getByText('Precisa: 4')).toBeTruthy()
   })
 
@@ -96,7 +100,8 @@ describe('MaintenancePage', () => {
     await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
     expect(within(rowOf('Ordem da chefia')).queryByRole('button', { name: /^Excluir/ })).toBeNull()
     const card = within(rowOf('Energia Fogo'))
-    expect(card.getByText('Decks: 0')).toBeTruthy()
+    expect(card.getByText('Decks:')).toBeTruthy()
+    expect(card.getByText('nenhum')).toBeTruthy()
     await userEvent.click(card.getByRole('button', { name: /^Excluir/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
     expect(getDeckStore().getSnapshot().owned['energy:fogo']).toBeUndefined()
@@ -127,6 +132,27 @@ describe('MaintenancePage', () => {
     act(() => getDeckStore().setOwned('MEG-54', { ...abra, quantity: 2 }))
     expect(bossInput.value).toBe('3')
     expect(abraInput.value).toBe('2')
+  })
+})
+
+describe('MaintenancePage row states', () => {
+  it('marks a row as pendency, complete or no-op', async () => {
+    seedStore(
+      [makeDeck('1', 'Alakazam', [{ ...abra, quantity: 2 }, { ...boss, quantity: 4 }])],
+      { 'MEG-54': { ...abra, quantity: 2 }, 'energy:fogo': { ...fire, quantity: 1 } },
+    )
+    renderPage()
+    await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
+    expect(stateOf('Ordem da chefia')).toBe('pendency')
+    expect(stateOf('Abra MEG 54')).toBe('complete')
+    expect(stateOf('Energia Fogo')).toBe('noop')
+  })
+
+  it('groups the quantity input actions in a button group', () => {
+    seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])])
+    renderPage()
+    const group = within(rowOf('Ordem da chefia')).getByRole('group')
+    expect(within(group).getByRole('button', { name: 'Salvar Ordem da chefia' })).toBeTruthy()
   })
 })
 

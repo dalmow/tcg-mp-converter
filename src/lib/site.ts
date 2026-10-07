@@ -15,5 +15,5 @@ export const SHARE_IMAGE_PATH = '/og-image.png'
 export const SHARE_IMAGE_WIDTH = 1200
 export const SHARE_IMAGE_HEIGHT = 630
 
-/** Matches the dark `--background` so mobile browser chrome blends in. */
-export const THEME_COLOR = '#0a0a0a'
+/** Matches the `surface-000` design token so mobile browser chrome blends in. */
+export const THEME_COLOR = '#0a090e'
