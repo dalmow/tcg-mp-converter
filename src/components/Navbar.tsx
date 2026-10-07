@@ -58,7 +58,7 @@ export function Navbar() {
         <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-space-9 px-[clamp(20px,4vw,40px)] py-space-7">
           <Link
             to={ROUTES.home}
-            className="flex items-center gap-space-4 rounded-sm font-display text-wordmark outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex items-center gap-space-4 rounded-sm font-display text-wordmark outline-none focus-visible:ring-1 focus-visible:ring-ink-faint"
           >
             <Logomark />
             PTCG Tools
@@ -81,7 +81,7 @@ export function Navbar() {
             aria-expanded={sheetOpen}
             aria-controls={sheetOpen ? sheetId : undefined}
             onClick={() => setSheetOpen(!sheetOpen)}
-            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-border text-ink outline-none transition-colors hover:border-divider-accent hover:bg-secondary-tint-strong focus-visible:ring-1 focus-visible:ring-ring nav:hidden"
+            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-border text-ink outline-none transition-colors hover:border-divider-accent hover:bg-secondary-tint-strong focus-visible:ring-1 focus-visible:ring-ink-faint nav:hidden"
           >
             {sheetOpen ? <XIcon className="size-5" /> : <MenuIcon className="size-5" />}
           </button>

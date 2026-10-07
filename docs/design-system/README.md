@@ -72,4 +72,4 @@ Tokens live in `src/index.css`, inside the `@theme static` block, and are expose
 
 Fonts are self-hosted through `@fontsource-variable/space-grotesk` (display) and `@fontsource-variable/manrope` (body); no Google Fonts request is made. The artboards in `mockups/` still link Google Fonts because they are static references, not app code.
 
-The shadcn token names (`--background`, `--card`, `--muted-foreground`, ...) remain as temporary aliases pointing at these tokens and are removed in the redesign cleanup issue. Build every surface from the three-depth `surface-*` scale and the four-step `ink-*` text scale before reaching for a one-off color — the whole system is these two scales plus `primary`/`secondary`/`danger` and their tints.
+The shadcn token names (`--background`, `--card`, `--muted-foreground`, ...) no longer exist; use the DS utilities (`bg-surface-000`, `text-ink-muted`, ...) only. Build every surface from the three-depth `surface-*` scale and the four-step `ink-*` text scale before reaching for a one-off color — the whole system is these two scales plus `primary`/`secondary`/`danger` and their tints.

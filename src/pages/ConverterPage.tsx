@@ -113,7 +113,7 @@ function PillGroup<T extends string>({
               className={cn(
                 // h-9.5: 38px DS pill, above the 24px minimum target size (WCAG 2.5.8).
                 // Unselected is a hollow outline, never reduced opacity (which would cut text contrast).
-                'inline-flex h-9.5 cursor-pointer items-center justify-center rounded-md border-[1.5px] text-ui font-bold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000',
+                'inline-flex h-9.5 cursor-pointer items-center justify-center rounded-md border-[1.5px] text-ui font-bold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ink-faint focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000',
                 pillClassName,
                 selected ? classes.selected : classes.unselected,
               )}
