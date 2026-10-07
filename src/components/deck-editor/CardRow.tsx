@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef } from 'react'
 import { CheckIcon, CircleAlertIcon, Trash2Icon } from 'lucide-react'
-import { DeleteButton } from '@/components/ActionButtons'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { RowState } from '@/components/ui/row-state'
 import { parseCard } from '@/lib/deck/cardParser'
 import type { CardCategory } from '@/lib/deck/types'
 import { cn } from '@/lib/utils'
@@ -9,6 +10,12 @@ import { CardCombobox } from './CardCombobox'
 import { deriveRowState, suggestCards } from './rowLogic'
 import type { DraftRow } from './draft'
 import type { CardSuggestion, RowContext } from './rowLogic'
+
+/** Shared by the column header of the panel and every row, so the cells line up. */
+export const ROW_GRID_CLASS = 'grid grid-cols-[36px_minmax(0,1fr)_36px_36px] items-start gap-x-space-3'
+
+// The input sits inside its RowState cell, which carries the border and tint.
+const CELL_INPUT_CLASS = 'h-9 border-0 bg-transparent px-2 text-center text-ui focus-visible:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
 
 const TEXT_PLACEHOLDER: Record<CardCategory, string> = {
   pokemon: 'Nome COLEÇÃO número',
@@ -44,7 +51,7 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
   // A null owned edit follows the stored owned map; a string is an unsaved edit of this draft.
   const ownedText = row.ownedText ?? (row.originalKey ? String(owned[row.originalKey]?.quantity ?? 0) : '')
   const { parsed, quantity, ownedQuantity, warning, valid } = deriveRowState(context, { text, quantityText, ownedText })
-  const fieldClass = valid ? 'border-success' : 'border-danger'
+  const cellState = valid ? 'complete' : 'pendency'
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
@@ -83,23 +90,25 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
       data-testid="card-row"
       data-row-id={row.id}
       data-status={valid ? 'valid' : 'invalid'}
-      className="flex flex-col gap-1"
+      className="flex flex-col gap-space-2 pb-space-6 last:pb-0"
     >
-      <div className="flex items-center gap-2">
-        <Input
-          ref={quantityInput}
-          type="number"
-          min={1}
-          className={cn('w-16 shrink-0', fieldClass)}
-          placeholder="#"
-          aria-label={`Quantidade ${where}`}
-          {...copiesRelated}
-          value={quantityText}
-          onChange={(event) => onChange({ quantityText: event.target.value })}
-        />
-        <div className="min-w-0 flex-1">
+      <div className={ROW_GRID_CLASS}>
+        <RowState state={cellState} className="h-9">
+          <Input
+            ref={quantityInput}
+            type="number"
+            min={1}
+            className={CELL_INPUT_CLASS}
+            placeholder="#"
+            aria-label={`Quantidade ${where}`}
+            {...copiesRelated}
+            value={quantityText}
+            onChange={(event) => onChange({ quantityText: event.target.value })}
+          />
+        </RowState>
+        <RowState state={cellState} className="h-9">
           <CardCombobox
-            className={fieldClass}
+            className={cn(CELL_INPUT_CLASS, 'text-left')}
             placeholder={TEXT_PLACEHOLDER[category]}
             aria-label={`Carta ${where}`}
             {...copiesRelated}
@@ -108,27 +117,36 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
             onValueChange={changeText}
             onPick={pick}
           />
-        </div>
-        <Input
-          type="number"
-          min={0}
-          className={cn('w-16 shrink-0', fieldClass)}
-          placeholder="Adq."
-          aria-label={`Adquirido ${where}`}
-          {...fieldA11y(ownedInvalid || Boolean(error), Boolean(error))}
-          value={ownedText}
-          onChange={(event) => onChange({ ownedText: event.target.value })}
-        />
-        <DeleteButton size="icon" aria-label={`Excluir linha ${position} de ${categoryTitle}`} onClick={onDelete}>
+        </RowState>
+        <RowState state={cellState} className="h-9">
+          <Input
+            type="number"
+            min={0}
+            className={CELL_INPUT_CLASS}
+            placeholder="Adq."
+            aria-label={`Adquirido ${where}`}
+            {...fieldA11y(ownedInvalid || Boolean(error), Boolean(error))}
+            value={ownedText}
+            onChange={(event) => onChange({ ownedText: event.target.value })}
+          />
+        </RowState>
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          title="Remover carta"
+          className="size-9 text-ink-muted"
+          aria-label={`Excluir linha ${position} de ${categoryTitle}`}
+          onClick={onDelete}
+        >
           <Trash2Icon />
-        </DeleteButton>
+        </Button>
       </div>
-      <p className={cn('flex items-center gap-1 text-xs', valid ? 'text-success' : 'text-danger-text')}>
+      <p className={cn('flex items-center gap-space-2 pl-0.5 text-caption', valid ? 'text-secondary' : 'text-danger-soft')}>
         {valid ? <CheckIcon className="size-3" aria-hidden="true" /> : <CircleAlertIcon className="size-3" aria-hidden="true" />}
         {valid ? 'Linha válida' : 'Linha com pendências'}
       </p>
       {message && (
-        <p id={messageId} role={error ? 'alert' : 'status'} className="text-xs text-danger-text">
+        <p id={messageId} role={error ? 'alert' : 'status'} className="pl-0.5 text-caption text-danger-soft">
           {message}
         </p>
       )}

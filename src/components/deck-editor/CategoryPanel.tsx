@@ -3,9 +3,10 @@ import { PlusIcon } from 'lucide-react'
 import { Panel } from '@/components/Panel'
 import { Button } from '@/components/ui/button'
 import { CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import type { CollectionConfig } from '@/lib/types'
 import type { CardCategory, Deck, OwnedMap } from '@/lib/deck/types'
-import { CardRow } from './CardRow'
+import { CardRow, ROW_GRID_CLASS } from './CardRow'
 import { otherRowsDeck } from './draft'
 import type { DraftRow } from './draft'
 
@@ -54,16 +55,17 @@ export function CategoryPanel({
   }
 
   return (
-    <Panel role="region" aria-label={title} className="self-start overflow-visible">
+    <Panel role="region" aria-label={title} className="self-start gap-space-7 overflow-visible rounded-2xl [--card-spacing:20px]">
       <CardHeader>
-        <CardTitle role="heading" aria-level={2}>
+        <CardTitle role="heading" aria-level={2} className="font-display text-h2">
           {title}
         </CardTitle>
         <CardAction>
           <Button
             ref={addButton}
-            variant="outline"
-            size="icon"
+            variant="ghost"
+            size="icon-sm"
+            title="Adicionar carta"
             aria-label={`Adicionar carta de ${title}`}
             onClick={onAddRow}
           >
@@ -71,7 +73,13 @@ export function CategoryPanel({
           </Button>
         </CardAction>
       </CardHeader>
-      <CardContent ref={content} className="flex flex-col gap-3">
+      <CardContent ref={content} className="flex flex-col gap-space-4">
+        {/* Names come from each input's own label; the header only aligns the columns visually. */}
+        <div aria-hidden="true" className={cn(ROW_GRID_CLASS, 'text-eyebrow text-ink-faint')}>
+          <span className="text-center">#</span>
+          <span>Carta</span>
+          <span className="text-center">Tem</span>
+        </div>
         {categoryRows.map((row, index) => (
             <CardRow
               key={row.id}
