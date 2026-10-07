@@ -11,7 +11,7 @@ describe('buildHeadTags', () => {
   it('declares description, canonical and theme-color', () => {
     expect(html).toContain('<meta name="description" content="')
     expect(html).toContain('<link rel="canonical" href="https://example.com/" />')
-    expect(html).toContain('<meta name="theme-color" content="#0a0a0a" />')
+    expect(html).toContain('<meta name="theme-color" content="#0a090e" />')
   })
 
   it('declares Open Graph and Twitter Card with an absolute image', () => {
