@@ -1,4 +1,4 @@
-/** WCAG 2.x contrast helpers for oklch() colors (used by design-token tests). */
+/** WCAG 2.x contrast helpers for oklch(), hex and rgba() colors (used by design-token tests). */
 
 export type Rgb = [number, number, number]
 
@@ -23,6 +23,32 @@ export function parseOklch(value: string): Rgb {
   const l = m[2] ? Number(m[1]) / 100 : Number(m[1])
   return oklchToRgb(l, Number(m[3]), Number(m[4]))
 }
+
+const toLinear = (channel: number) => {
+  const c = channel / 255
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+}
+
+/** Parses #rgb, #rrggbb, rgb() and rgba(); translucent colors are composited over `over`. */
+export function parseColor(value: string, over: Rgb = [0, 0, 0]): Rgb {
+  const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
+  const fn = value.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/)
+  let channels: number[]
+  let alpha = 1
+  if (hex) {
+    const digits = hex[1].length === 3 ? [...hex[1]].map((d) => d + d).join('') : hex[1]
+    channels = [0, 2, 4].map((i) => parseInt(digits.slice(i, i + 2), 16))
+  } else if (fn) {
+    channels = [fn[1], fn[2], fn[3]].map(Number)
+    alpha = fn[4] === undefined ? 1 : Number(fn[4])
+  } else {
+    throw new Error(`Not a hex or rgba color: ${value}`)
+  }
+  const background = over.map((v) => linearToSrgb(v))
+  return channels.map((c, i) => toLinear(alpha * c + (1 - alpha) * background[i])) as Rgb
+}
+
+const linearToSrgb = (v: number) => (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055) * 255
 
 export function luminance([r, g, b]: Rgb): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b

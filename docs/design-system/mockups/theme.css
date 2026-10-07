@@ -1,0 +1,81 @@
+/* PTCG Tools — shared design tokens & base styles, used by every artboard */
+
+body {
+  margin: 0;
+  background: #0A090E;
+  color: #F3F1F8;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav-link {
+  color: #CFC9DE;
+  transition: color .15s ease;
+}
+.nav-link:hover {
+  color: var(--secondary, #64E9EE);
+}
+
+.btn-primary {
+  background: var(--primary, #2E5077);
+  color: #F3F1F8;
+  border: 1.5px solid var(--secondary, #64E9EE);
+  transition: background .15s ease, border-color .15s ease, transform .15s ease;
+}
+.btn-primary:hover {
+  background: var(--primary-hover, #3D6690);
+  border-color: #8FF2F5;
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #F3F1F8;
+  background: transparent;
+  transition: border-color .15s ease, background .15s ease;
+}
+.btn-ghost:hover {
+  border-color: rgba(100,233,238,0.5);
+  background: rgba(100,233,238,0.08);
+}
+
+.feature-card {
+  transition: border-color .2s ease, transform .2s ease;
+}
+.feature-card:hover {
+  border-color: var(--secondary, #64E9EE);
+  transform: translateY(-2px);
+}
+
+.icon-chip {
+  color: var(--secondary, #64E9EE);
+}
+
+.chip-accent {
+  color: var(--secondary, #64E9EE);
+  background: rgba(100,233,238,0.12);
+  border: 1px solid rgba(100,233,238,0.3);
+}
+
+.menu-btn {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .nav-links, .nav-actions-desktop {
+    display: none;
+  }
+  .menu-btn {
+    display: inline-flex;
+  }
+}
