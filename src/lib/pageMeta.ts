@@ -1,5 +1,5 @@
 import { ROUTES } from '../routes.ts'
-import { SITE_NAME } from './site.ts'
+import { SITE_DESCRIPTION, SITE_NAME } from './site.ts'
 
 export interface PageMeta {
   title: string
@@ -13,6 +13,10 @@ function titled(label: string): string {
 }
 
 export const PAGE_META = {
+  home: {
+    title: `${SITE_NAME}: decks, conversor e manutenção de cartas`,
+    description: SITE_DESCRIPTION,
+  },
   decks: {
     title: titled('Meus decks'),
     description: 'Veja e organize os decks de Pokémon TCG que você montou, salvos no seu navegador.',
@@ -56,6 +60,6 @@ export interface PublicPage {
 
 /** Pages prerendered at build time and listed in the sitemap. */
 export const PUBLIC_PAGES: PublicPage[] = [
-  { path: ROUTES.decks, meta: PAGE_META.decks },
+  { path: ROUTES.home, meta: PAGE_META.home },
   { path: ROUTES.converter, meta: PAGE_META.converter },
 ]

@@ -57,7 +57,7 @@ export function Navbar() {
         </a>
         <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-space-9 px-[clamp(20px,4vw,40px)] py-space-7">
           <Link
-            to={ROUTES.decks}
+            to={ROUTES.home}
             className="flex items-center gap-space-4 rounded-sm font-display text-wordmark outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <Logomark />

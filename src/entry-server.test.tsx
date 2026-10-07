@@ -16,15 +16,16 @@ afterEach(() => {
 describe('prerendered public pages', () => {
   it.each(PUBLIC_PAGES)('renders the h1 and main content of $path without JavaScript', async ({ path }) => {
     const html = await renderApp(path)
-    // the decks, converter and maintenance pages show a visible title block instead of an sr-only title
-    const visibleTitles: Record<string, string> = { '/': 'Meus decks', '/converter': 'Conversor', '/maintenance': 'Manutenção' }
-    const title = visibleTitles[path]
-    expect(html).toMatch(title ? new RegExp(`<h1[^>]*>${title}</h1>`) : /<h1 class="sr-only">/)
+    const visibleTitles: Record<string, string> = {
+      '/': 'Monte, converta e mantenha em ordem seus decks favoritos',
+      '/converter': 'Conversor',
+    }
+    expect(html).toMatch(new RegExp(`<h1[^>]*>${visibleTitles[path]}</h1>`))
     expect(html).toContain('<main')
   })
 
-  it('leaves the stored-decks grid out of the prerendered home so it cannot shift layout', async () => {
-    expect(await renderApp('/')).not.toContain('Novo deck')
+  it('prerenders the landing call to action as a link to the deck list', async () => {
+    expect(await renderApp('/')).toMatch(/<a [^>]*href="\/decks"[^>]*>Abrir meus decks/)
   })
 
   it.each(PUBLIC_PAGES)('hydrates $path without errors', async ({ path }) => {
