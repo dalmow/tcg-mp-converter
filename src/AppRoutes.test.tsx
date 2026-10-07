@@ -15,7 +15,14 @@ function renderAt(path: string) {
 }
 
 describe('AppRoutes', () => {
-  it('renders / with the visible title block heading "Meus decks"', () => {
+  it('renders / with the landing page hero heading', () => {
+    renderAt(ROUTES.home)
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Monte, converta e mantenha em ordem seus decks favoritos' }),
+    ).toBeTruthy()
+  })
+
+  it('renders /decks with the visible title block heading "Meus decks"', () => {
     renderAt(ROUTES.decks)
     expect(screen.getByRole('heading', { level: 1, name: 'Meus decks' }).className).not.toContain('sr-only')
   })
@@ -40,10 +47,23 @@ describe('AppRoutes', () => {
   it('shows the navbar links on every route', () => {
     renderAt(ROUTES.converter)
     const nav = screen.getByRole('navigation')
-    // the logomark link also targets the home route, so match by accessible name
     expect(within(nav).getByRole('link', { name: 'Decks' }).getAttribute('href')).toBe(ROUTES.decks)
     expect(nav.querySelector(`a[href="${ROUTES.converter}"]`)?.textContent).toBe('Conversor')
     expect(nav.querySelector(`a[href="${ROUTES.maintenance}"]`)?.textContent).toBe('Manutenção')
+  })
+
+  it('keeps the skip link, navigation and main landmarks on the landing page', () => {
+    renderAt(ROUTES.home)
+    expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toBeTruthy()
+    expect(screen.getByRole('navigation', { name: 'Principal' })).toBeTruthy()
+    expect(screen.getByRole('main')).toBeTruthy()
+    expect(screen.getByRole('contentinfo')).toBeTruthy()
+  })
+
+  it('navigates from the landing call to action to the deck list', async () => {
+    renderAt(ROUTES.home)
+    await userEvent.click(screen.getByRole('link', { name: /Abrir meus decks/ }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Meus decks' })).toBeTruthy()
   })
 
   it('labels the navigation landmark', () => {
@@ -92,6 +112,7 @@ function metaContent(name: string): string | null {
 
 describe('AppRoutes page metadata', () => {
   it.each([
+    [ROUTES.home, 'PTCG Tools: decks, conversor e manutenção de cartas'],
     [ROUTES.decks, 'Meus decks | PTCG Tools'],
     [ROUTES.converter, 'Conversor | PTCG Tools'],
     [ROUTES.maintenance, 'Manutenção | PTCG Tools'],
@@ -103,14 +124,14 @@ describe('AppRoutes page metadata', () => {
 
   it('gives the public routes unique descriptions and no noindex', () => {
     const descriptions = new Set<string | null>()
-    for (const path of [ROUTES.decks, ROUTES.converter, ROUTES.maintenance]) {
+    for (const path of [ROUTES.home, ROUTES.decks, ROUTES.converter, ROUTES.maintenance]) {
       renderAt(path)
       expect(metaContent('robots')).toBeNull()
       descriptions.add(metaContent('description'))
       cleanup()
     }
     expect(descriptions.has(null)).toBe(false)
-    expect(descriptions.size).toBe(3)
+    expect(descriptions.size).toBe(4)
   })
 
   it('titles and marks noindex on the not-found deck route', () => {

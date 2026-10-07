@@ -31,7 +31,7 @@ describe('Navbar', () => {
   it('shows the logomark and wordmark linking to the home route', () => {
     renderNavbar()
     const home = screen.getByRole('link', { name: 'PTCG Tools' })
-    expect(home.getAttribute('href')).toBe(ROUTES.decks)
+    expect(home.getAttribute('href')).toBe(ROUTES.home)
     expect(home.querySelector('svg')).not.toBeNull()
   })
 

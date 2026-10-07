@@ -4,6 +4,7 @@ import { ToastProvider } from '@/components/ui/toast'
 import ConverterPage from '@/pages/ConverterPage'
 import DeckEditorPage from '@/pages/DeckEditorPage'
 import DeckListPage from '@/pages/DeckListPage'
+import LandingPage from '@/pages/LandingPage'
 import MaintenancePage from '@/pages/MaintenancePage'
 import { ROUTES } from '@/routes'
 
@@ -12,6 +13,7 @@ export function AppRoutes() {
     <ToastProvider>
       <Navbar />
       <Routes>
+        <Route path={ROUTES.home} element={<LandingPage />} />
         <Route path={ROUTES.decks} element={<DeckListPage />} />
         <Route path={ROUTES.newDeck} element={<DeckEditorPage />} />
         <Route path={ROUTES.deck} element={<DeckEditorPage />} />

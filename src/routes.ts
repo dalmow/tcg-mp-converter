@@ -1,5 +1,6 @@
 export const ROUTES = {
-  decks: '/',
+  home: '/',
+  decks: '/decks',
   newDeck: '/decks/new',
   deck: '/decks/:id',
   converter: '/converter',

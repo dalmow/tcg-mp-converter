@@ -55,6 +55,18 @@ describe('buildHeadTags', () => {
   })
 })
 
+describe('landing page metadata', () => {
+  it('is the first public page, canonical at the site root', () => {
+    expect(PUBLIC_PAGES[0]).toEqual({ path: '/', meta: PAGE_META.home })
+    expect(Object.keys(PAGE_META.home)).not.toContain('noindex')
+    expect(buildHeadTags(SITE_URL, PUBLIC_PAGES[0])).toContain('<link rel="canonical" href="https://example.com/" />')
+  })
+
+  it('keeps the deck list out of the public pages', () => {
+    expect(PUBLIC_PAGES.map((page) => page.path)).toEqual(['/', '/converter'])
+  })
+})
+
 describe('applyPageToShell', () => {
   const shell = `<head>${buildHeadTags(SITE_URL, SHELL_PAGE)}</head><body><div id="root"></div></body>`
 
@@ -93,6 +105,7 @@ describe('robots and sitemap', () => {
     expect(xml).toContain('<loc>https://example.com/</loc>')
     expect(xml).toContain('<loc>https://example.com/converter</loc>')
     expect(xml).not.toContain('/decks')
+    expect(xml.match(/<loc>/g)).toHaveLength(2)
     expect(xml).not.toContain('/maintenance')
     expect(xml).toContain('http://www.sitemaps.org/schemas/sitemap/0.9')
   })
