@@ -78,7 +78,7 @@ export function CategoryPanel({
         <div aria-hidden="true" className={cn(ROW_GRID_CLASS, 'text-eyebrow text-ink-faint')}>
           <span className="text-center">#</span>
           <span>Carta</span>
-          <span className="text-center">Tem</span>
+          <span className="text-center">Adq.</span>
         </div>
         {categoryRows.map((row, index) => (
             <CardRow

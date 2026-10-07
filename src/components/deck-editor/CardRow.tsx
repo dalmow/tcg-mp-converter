@@ -134,7 +134,7 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
           variant="ghost"
           size="icon-lg"
           title="Remover carta"
-          className="size-9 text-ink-muted"
+          className="text-ink-muted"
           aria-label={`Excluir linha ${position} de ${categoryTitle}`}
           onClick={onDelete}
         >
