@@ -44,7 +44,7 @@ function ProgressBar({
         aria-labelledby={labelId}
         aria-valuemin={0}
         aria-valuemax={max}
-        aria-valuenow={value}
+        aria-valuenow={Math.min(value, max)}
         className="h-1.5 w-full overflow-hidden rounded-pill bg-border-faint"
       >
         <div
