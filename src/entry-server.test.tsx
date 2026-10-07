@@ -16,8 +16,10 @@ afterEach(() => {
 describe('prerendered public pages', () => {
   it.each(PUBLIC_PAGES)('renders the h1 and main content of $path without JavaScript', async ({ path }) => {
     const html = await renderApp(path)
-    // the decks page shows the visible title block instead of an sr-only title
-    expect(html).toMatch(path === '/' ? /<h1[^>]*>Meus decks<\/h1>/ : /<h1 class="sr-only">/)
+    // the decks and converter pages show a visible title block instead of an sr-only title
+    const visibleTitles: Record<string, string> = { '/': 'Meus decks', '/converter': 'Conversor' }
+    const title = visibleTitles[path]
+    expect(html).toMatch(title ? new RegExp(`<h1[^>]*>${title}</h1>`) : /<h1 class="sr-only">/)
     expect(html).toContain('<main')
   })
 
