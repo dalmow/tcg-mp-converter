@@ -4,8 +4,6 @@
 @import "@fontsource-variable/space-grotesk";
 @import "@fontsource-variable/manrope";
 
-@custom-variant dark (&:is(.dark *));
-
 /*
  * Design system tokens. Source of truth: docs/design-system/tokens.json
  * (src/lib/designTokens.test.ts fails when the two drift apart).

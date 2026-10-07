@@ -81,10 +81,34 @@ describe('fonts', () => {
 
 describe('shadcn token aliases are gone', () => {
   it.each([
-    'background', 'foreground', 'card', 'card-foreground', 'popover', 'popover-foreground', 'primary-foreground',
-    'secondary-foreground', 'muted', 'muted-foreground', 'accent', 'accent-foreground', 'destructive', 'input',
-    'ring', 'success', 'success-foreground', 'danger-text', 'danger-foreground', 'primary-text', 'control',
-    'panel', 'panel-foreground', 'panel-border', 'chart-1', 'sidebar', 'sidebar-primary', 'radius',
+    'background',
+    'foreground',
+    'card',
+    'card-foreground',
+    'popover',
+    'popover-foreground',
+    'primary-foreground',
+    'secondary-foreground',
+    'muted',
+    'muted-foreground',
+    'accent',
+    'accent-foreground',
+    'destructive',
+    'input',
+    'ring',
+    'success',
+    'success-foreground',
+    'danger-text',
+    'danger-foreground',
+    'primary-text',
+    'control',
+    'panel',
+    'panel-foreground',
+    'panel-border',
+    'chart-1',
+    'sidebar',
+    'sidebar-primary',
+    'radius',
   ])('--%s and --color-%s are not declared', (name) => {
     expect(declaration(name)).toBeUndefined()
     expect(declaration(`color-${name}`)).toBeUndefined()
@@ -97,7 +121,7 @@ describe('shadcn token aliases are gone', () => {
   it('no source file uses an alias-only color utility', () => {
     const aliasUtility = /(?:bg|text|border|ring|fill|stroke|outline|divide)-(?:background|foreground|card|popover|muted|accent|destructive|input|ring|success|panel|control|sidebar|chart)(?:-[a-z]+)?/
     const dir = new URL('..', import.meta.url)
-    const offenders = (readdirSync(dir, { recursive: true }) as string[])
+    const offenders = readdirSync(dir, { recursive: true, encoding: 'utf-8' })
       .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
       .filter((f) => aliasUtility.test(readFileSync(new URL(f, dir), 'utf-8')))
     expect(offenders).toEqual([])
