@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SaveIcon, Trash2Icon } from 'lucide-react'
 import { DeleteButton, SaveButton } from '@/components/ActionButtons'
 import {
   AlertDialog,
@@ -11,11 +12,12 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { ButtonGroup } from '@/components/ui/button-group'
 import { Input } from '@/components/ui/input'
+import { RowState, type RowStateName } from '@/components/ui/row-state'
 import { isSatisfied, parseOwnedQuantity } from '@/lib/deck/maintenance'
 import type { MaintenanceEntry } from '@/lib/deck/maintenance'
 import type { Result } from '@/lib/deck/types'
-import { cn } from '@/lib/utils'
 
 interface MaintenanceRowProps {
   row: MaintenanceEntry
@@ -54,60 +56,83 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
     setError(null)
   }
 
+  // Unused cards need nothing from the decks, so they are no-op whatever the owned quantity.
+  const state: RowStateName = isUnused ? 'noop' : satisfied ? 'complete' : 'pendency'
+
   return (
-    <li
-      data-satisfied={satisfied}
-      className={cn(
-        'flex flex-wrap items-center gap-3 rounded-lg border border-panel-border px-3 py-2',
-        satisfied && 'border-success bg-success/10',
-      )}
-    >
-      <div className="flex min-w-48 flex-1 flex-col gap-1">
-        <span className="font-medium">{row.displayName}</span>
-        <div className="flex flex-wrap gap-1">
-          <Badge variant="secondary">
-            {isUnused ? 'Decks: 0' : `Decks: ${row.decks.join(', ')}`}
-          </Badge>
+    <li data-satisfied={satisfied} className="flex flex-col gap-space-2">
+      <RowState state={state} className="flex flex-wrap items-center justify-between gap-space-4 px-4 py-3.5">
+        <div className="flex min-w-40 flex-col gap-space-2">
+          <span className="text-body-strong">{row.displayName}</span>
+          <div className="flex flex-wrap items-center gap-space-2">
+            <span className="text-caption text-ink-faint">Decks:</span>
+            {isUnused ? (
+              <span className="text-caption text-ink-faint">nenhum</span>
+            ) : (
+              row.decks.map((deck) => <Badge key={deck}>{deck}</Badge>)
+            )}
+          </div>
         </div>
-      </div>
-      <span className="text-sm">Precisa: {row.needed}</span>
-      <label htmlFor={inputId} className="sr-only">
-        Adquirido de {row.displayName}
-      </label>
-      <Input
-        id={inputId}
-        type="number"
-        min={0}
-        inputMode="numeric"
-        className="w-20"
-        value={unsavedDraft ?? String(owned)}
-        aria-invalid={error !== null}
-        onChange={(event) => setUnsavedDraft(event.target.value)}
-      />
-      <SaveButton type="button" aria-label={`Salvar ${row.displayName}`} onClick={save}>
-        Salvar
-      </SaveButton>
-      {isUnused && (
-        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-          <AlertDialogTrigger render={<DeleteButton type="button" aria-label={`Excluir ${row.displayName}`} />}>Excluir</AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir carta?</AlertDialogTitle>
-              <AlertDialogDescription>
-                {row.displayName} será removida da manutenção.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <DeleteButton type="button" onClick={remove}>
-                Confirmar exclusão
-              </DeleteButton>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+        <div className="flex flex-wrap items-center gap-space-3">
+          <span className="text-ui whitespace-nowrap text-ink-muted">Precisa: {row.needed}</span>
+          <label htmlFor={inputId} className="sr-only">
+            Adquirido de {row.displayName}
+          </label>
+          <Input
+            id={inputId}
+            type="number"
+            min={0}
+            inputMode="numeric"
+            className="h-9 w-14 px-2 text-center text-ui [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            value={unsavedDraft ?? String(owned)}
+            aria-invalid={error !== null}
+            onChange={(event) => setUnsavedDraft(event.target.value)}
+          />
+          <ButtonGroup aria-label={`Ações de ${row.displayName}`}>
+            <SaveButton
+              type="button"
+              size="icon-lg"
+              title="Salvar"
+              aria-label={`Salvar ${row.displayName}`}
+              onClick={save}
+            >
+              <SaveIcon />
+            </SaveButton>
+            {isUnused && (
+              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogTrigger
+                  render={
+                    <DeleteButton
+                      type="button"
+                      size="icon-lg"
+                      title="Excluir"
+                      aria-label={`Excluir ${row.displayName}`}
+                    />
+                  }
+                >
+                  <Trash2Icon />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir carta?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {row.displayName} será removida da manutenção.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <DeleteButton type="button" onClick={remove}>
+                      Confirmar exclusão
+                    </DeleteButton>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </ButtonGroup>
+        </div>
+      </RowState>
       {error && (
-        <p role="alert" className="w-full text-sm text-danger-text">
+        <p role="alert" className="text-caption text-danger-soft">
           {error}
         </p>
       )}
