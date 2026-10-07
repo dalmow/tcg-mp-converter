@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Navbar } from '@/components/Navbar'
 import { ToastProvider } from '@/components/ui/toast'
 import { buildBackup } from '@/lib/deck/backup'
@@ -100,6 +100,31 @@ describe('Navbar', () => {
       })
       await userEvent.upload(screen.getByLabelText('Arquivo de backup'), file)
       expect(await screen.findByRole('alertdialog')).toBeTruthy()
+    })
+
+    it('closes when the current route row is chosen again', async () => {
+      renderNavbar(ROUTES.converter)
+      await userEvent.click(screen.getByRole('button', { name: 'Abrir menu de navegação' }))
+      const toggle = screen.getByRole('button', { name: 'Fechar menu de navegação' })
+      const sheet = document.getElementById(toggle.getAttribute('aria-controls')!)!
+      await userEvent.click(within(sheet).getByRole('link', { name: 'Conversor' }))
+      expect(screen.getByRole('button', { name: 'Abrir menu de navegação' })).toBeTruthy()
+    })
+
+    it('closes when the viewport grows past the nav breakpoint', async () => {
+      let listener: (() => void) | undefined
+      const query = {
+        matches: false,
+        addEventListener: (_: string, fn: () => void) => (listener = fn),
+        removeEventListener: () => {},
+      }
+      vi.stubGlobal('matchMedia', () => query)
+      renderNavbar()
+      await userEvent.click(screen.getByRole('button', { name: 'Abrir menu de navegação' }))
+      query.matches = true
+      act(() => listener?.())
+      expect(screen.getByRole('button', { name: 'Abrir menu de navegação' })).toBeTruthy()
+      vi.unstubAllGlobals()
     })
 
     it('closes on Escape and returns focus to the hamburger button', async () => {

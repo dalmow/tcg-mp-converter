@@ -33,8 +33,17 @@ export function Navbar() {
       setOpenedAt(null)
       toggle.current?.focus()
     }
+    // The sheet is `nav:hidden`; drop the open state when the inline nav takes over.
+    const wide = window.matchMedia?.('(min-width: 860px)')
+    function onWide() {
+      if (wide?.matches) setOpenedAt(null)
+    }
     document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
+    wide?.addEventListener('change', onWide)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      wide?.removeEventListener('change', onWide)
+    }
   }, [sheetOpen])
 
   return (
@@ -83,7 +92,13 @@ export function Navbar() {
             className="absolute inset-x-space-5 top-full mt-space-3 flex flex-col overflow-hidden rounded-4xl border border-border-faint bg-surface-200 shadow-mobile-nav nav:hidden"
           >
             {links.map(({ to, label, end, Icon }) => (
-              <NavLink key={to} to={to} end={end} className={sheetRowClass}>
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={sheetRowClass}
+                onClick={() => setSheetOpen(false)}
+              >
                 <Icon size={17} />
                 {label}
               </NavLink>

@@ -6,18 +6,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useBackup, type Backup } from '@/components/useBackup'
+import type { Backup } from '@/components/useBackup'
 
 type BackupMenuProps = {
   menuContainer?: HTMLElement | null
-  /** Shared controller from the host. Without it the menu owns its own import dialog. */
-  backup?: Backup
+  /** Controller from the host, which also renders `backup.dialog` once. */
+  backup: Backup
 }
 
 /** Desktop "Dados" dropdown. */
 export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
-  const own = useBackup()
-  const { exportBackup, chooseFile, dialog } = backup ?? own
+  const { exportBackup, chooseFile } = backup
 
   return (
     <>
@@ -41,7 +40,6 @@ export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {!backup && dialog}
     </>
   )
 }
