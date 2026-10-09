@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
-import { AppRoutes } from './AppRoutes.tsx'
+import { AppRoutes } from '@/app/AppRoutes'
 
 // Links from the hash-router days (`/#/converter`) become clean paths.
 if (window.location.hash.startsWith('#/')) {

@@ -1,6 +1,6 @@
 import { renderToString } from 'react-dom/server'
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
-import { AppRoutes } from '@/AppRoutes'
+import { AppRoutes } from '@/app/AppRoutes'
 
 const handler = createStaticHandler([{ path: '*', element: <AppRoutes /> }])
 

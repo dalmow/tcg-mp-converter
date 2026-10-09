@@ -22,7 +22,7 @@ Code is in English. User-visible strings are Portuguese (listed below in quotes)
 
 Every card belongs to one category: `pokemon`, `trainer`, `energy`. The category comes from the panel the row sits in.
 
-Row text is a single input, parsed per category. Collection acronyms are validated against `src/data/collections.json` (case-tolerant). A Pokémon number must not exceed the collection total.
+Row text is a single input, parsed per category. Collection acronyms are validated against `src/shared/data/collections.json` (case-tolerant). A Pokémon number must not exceed the collection total.
 
 | Category | Input format | Card key |
 | --- | --- | --- |
