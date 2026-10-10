@@ -5,7 +5,7 @@ import { downloadBackup, parseBackup, type BackupSummary } from '@/features/back
 import { getDeckStore } from '@/features/decks'
 import type { PersistedData } from '@/features/decks'
 
-export type PendingImport = { data: PersistedData; summary: BackupSummary }
+type PendingImport = { data: PersistedData; summary: BackupSummary }
 
 export type Backup = {
   exportBackup: () => void

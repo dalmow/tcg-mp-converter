@@ -11,7 +11,8 @@ import { cn } from '@/shared/lib/utils'
 import { convertDecklist } from '@/features/converter/lib/convertDecklist'
 import { CONDITIONS, LANGUAGES, type Condition, type ConvertDecklistResult, type Language } from '@/shared/types/domain'
 
-// Tooltip and color tone of each quality. The tone names the `quality-<tone>` theme color.
+// Tooltip and color tone of each quality. The tone names the `quality-<tone>` theme color, and index.css lists
+// every class generated from it: add a tone in both places.
 const QUALITY: Record<Condition, { title: string; tone: string }> = {
   M: { title: 'Mint', tone: 'mint' },
   NM: { title: 'Near Mint', tone: 'near-mint' },
@@ -72,7 +73,7 @@ function PillGroup<T extends string>({
       <div role="radiogroup" aria-labelledby={labelId} className="flex flex-wrap gap-space-3">
         {options.map((option, index) => {
           const selected = option === value
-          const look = appearance?.[option]
+          const optionAppearance = appearance?.[option]
 
           return (
             <button
@@ -81,7 +82,7 @@ function PillGroup<T extends string>({
               role="radio"
               aria-checked={selected}
               tabIndex={selected ? 0 : -1}
-              title={look?.title}
+              title={optionAppearance?.title}
               ref={(element) => {
                 optionRefs.current[index] = element
               }}
@@ -90,7 +91,7 @@ function PillGroup<T extends string>({
                 // Unselected is a hollow outline, never reduced opacity (which would cut text contrast).
                 'inline-flex h-9.5 cursor-pointer items-center justify-center rounded-md status-border text-ui font-bold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ink-faint focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000',
                 pillClassName,
-                toneClasses(look?.tone, selected),
+                toneClasses(optionAppearance?.tone, selected),
               )}
               onClick={() => onChange(option)}
               onKeyDown={(event) => handleKeyDown(event, index)}

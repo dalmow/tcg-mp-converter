@@ -80,7 +80,9 @@ export function convertDecklist(
       continue
     }
 
+    // A printed card reads the same in every category, so 'pokemon' is only the category label here.
     const parsed = parseCard('pokemon', tokens.slice(1).join(' '), config)
+    // parseCard sets `printing` for every printed card; this guard only narrows the type.
     const printing = parsed.ok ? parsed.card.printing : undefined
     if (!parsed.ok || !printing) {
       unresolvedCards.push({ line, reason: parsed.ok ? INVALID_FORMAT_REASON : parsed.error })
