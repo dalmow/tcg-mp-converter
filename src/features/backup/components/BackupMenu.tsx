@@ -2,11 +2,13 @@ import { ChevronDownIcon } from 'lucide-react'
 import { buttonVariants } from '@/shared/ui/buttonVariants'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/ui/DropdownMenu'
 import type { Backup } from '@/features/backup/hooks/useBackup'
+import { EXPORT_BACKUP_LABEL, IMPORT_BACKUP_LABEL } from '@/features/backup/labels'
+
+type BackupActions = Pick<Backup, 'exportBackup' | 'chooseFile'>
 
 type BackupMenuProps = {
   menuContainer?: HTMLElement | null
-  /** Controller from the host, which also renders `backup.dialog` once. */
-  backup: Backup
+  backup: BackupActions
 }
 
 /** Desktop "Dados" dropdown. */
@@ -27,10 +29,10 @@ export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-auto min-w-47 p-space-3" align="end" container={menuContainer}>
           <DropdownMenuItem className="px-space-4 py-space-4 text-nav-link" onClick={exportBackup}>
-            Exportar backup
+            {EXPORT_BACKUP_LABEL}
           </DropdownMenuItem>
           <DropdownMenuItem className="px-space-4 py-space-4 text-nav-link" onClick={chooseFile}>
-            Importar backup
+            {IMPORT_BACKUP_LABEL}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -42,7 +44,7 @@ const listActionClass =
   'cursor-pointer text-left text-body text-ink-soft transition-colors hover:text-secondary focus-visible:text-secondary focus-visible:outline-none'
 
 /** Mobile sheet section: the same actions as the dropdown, stacked. */
-export function BackupList({ backup, onAction }: { backup: Backup; onAction?: () => void }) {
+export function BackupList({ backup, onAction }: { backup: BackupActions; onAction?: () => void }) {
   return (
     <div className="flex flex-col gap-space-4 px-space-8 py-space-7">
       <span className="text-eyebrow uppercase text-ink-faint">Dados</span>
@@ -54,7 +56,7 @@ export function BackupList({ backup, onAction }: { backup: Backup; onAction?: ()
           onAction?.()
         }}
       >
-        Exportar backup
+        {EXPORT_BACKUP_LABEL}
       </button>
       <button
         type="button"
@@ -64,7 +66,7 @@ export function BackupList({ backup, onAction }: { backup: Backup; onAction?: ()
           onAction?.()
         }}
       >
-        Importar backup
+        {IMPORT_BACKUP_LABEL}
       </button>
     </div>
   )

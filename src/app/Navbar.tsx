@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { MenuIcon, XIcon } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router'
-import { BackupList, BackupMenu, useBackup } from '@/features/backup'
+import { BackupImportDialog, BackupList, BackupMenu, useBackup } from '@/features/backup'
 import { Logomark } from '@/shared/ui/Logomark'
 import { MAIN_CONTENT_ID } from '@/shared/layout/mainContent'
 import { navLinkClass, sheetRowClass } from './navLinkClass'
@@ -102,7 +102,7 @@ export function Navbar() {
             <BackupList backup={backup} onAction={() => setSheetOpen(false)} />
           </div>
         )}
-        {backup.dialog}
+        <BackupImportDialog backup={backup} />
       </nav>
     </header>
   )
