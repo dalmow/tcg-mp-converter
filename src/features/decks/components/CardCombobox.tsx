@@ -30,8 +30,8 @@ export function CardCombobox({ value, suggestions, onValueChange, onPick, ...inp
       list: element.querySelector('[role="listbox"]')?.id || undefined,
       active: element.querySelectorAll('[role="option"]')[activeIndex]?.id || undefined,
     })
-    // Depends on the index and count, not on `suggestions`: that array is new on every render and would loop.
-  }, [showList, activeIndex, suggestionCount])
+    // Depends on the key, index and count, not on `suggestions`: that array is new on every render and would loop.
+  }, [showList, activeKey, activeIndex, suggestionCount])
 
   return (
     <Command
