@@ -19,6 +19,12 @@ describe('PageLayout', () => {
     expect(heading.nextElementSibling?.textContent).toBe('Cole sua decklist.')
   })
 
+  it('places actions beside the title block', () => {
+    render(<PageLayout title="Meus decks" subtitle="Organize." actions={<button type="button">Novo deck</button>} />)
+    const titleBlock = screen.getByRole('heading', { level: 1, name: 'Meus decks' }).parentElement
+    expect(screen.getByRole('button', { name: 'Novo deck' }).parentElement).toBe(titleBlock?.parentElement)
+  })
+
   it('renders children inside the main landmark', () => {
     render(
       <PageLayout title="Conversor">
