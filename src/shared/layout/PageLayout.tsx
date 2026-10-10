@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/utils'
-import { MAIN_CONTENT_ID } from './mainContent'
+import { MainContent } from './mainContent'
 
 /** The page h1: 24px on desktop, scaling down to 20px on narrow pages. Shared by every page with a title block. */
 export const PAGE_TITLE_CLASS = 'font-display text-h1 text-[length:clamp(20px,2.4vw,24px)]'
@@ -18,11 +18,9 @@ type PageLayoutProps = {
 
 export function PageLayout({ title, subtitle, actions, compact, children }: PageLayoutProps) {
   return (
-    <main
-      id={MAIN_CONTENT_ID}
-      tabIndex={-1}
+    <MainContent
       className={cn(
-        'mx-auto flex max-w-page flex-col px-page-gutter pt-[clamp(32px,5vw,48px)] pb-[clamp(56px,7vw,88px)] outline-none',
+        'mx-auto flex max-w-page flex-col px-page-gutter pt-[clamp(32px,5vw,48px)] pb-[clamp(56px,7vw,88px)]',
         compact ? 'gap-space-10' : 'gap-space-12',
       )}
     >
@@ -37,6 +35,6 @@ export function PageLayout({ title, subtitle, actions, compact, children }: Page
         </div>
       )}
       {children}
-    </main>
+    </MainContent>
   )
 }

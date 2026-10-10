@@ -6,14 +6,8 @@ import { PageLayout } from '@/shared/layout/PageLayout'
 import { Panel } from '@/shared/ui/Panel'
 import { Switch } from '@/shared/ui/Switch'
 import { useToast } from '@/shared/hooks/useToast'
-import { CARD_CATEGORIES, type CardCategory, getDeckStore, useDeckData } from '@/features/decks'
+import { CARD_CATEGORIES, CATEGORY_TITLES, getDeckStore, useDeckData } from '@/features/decks'
 import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/features/maintenance/lib/maintenance'
-
-const CATEGORY_TITLES: Record<CardCategory, string> = {
-  pokemon: 'Pokémon',
-  trainer: 'Treinadores',
-  energy: 'Energias',
-}
 
 export default function MaintenancePage() {
   usePageMeta(PAGE_META.maintenance)

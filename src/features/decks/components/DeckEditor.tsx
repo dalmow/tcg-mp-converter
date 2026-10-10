@@ -9,7 +9,7 @@ import { PAGE_TITLE_CLASS } from '@/shared/layout/PageLayout'
 import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
-import { CARD_CATEGORIES } from '@/features/decks/types/deck'
+import { CARD_CATEGORIES, CATEGORY_TITLES } from '@/features/decks/types/deck'
 import { deckEditorMeta } from '@/shared/lib/pageMeta'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import type { CardCategory } from '@/features/decks/types/deck'
@@ -17,12 +17,6 @@ import { deckPath, ROUTES } from '@/shared/lib/routes'
 import { CategoryPanel } from './CategoryPanel'
 import { buildDeckSave, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
 import type { DraftRow } from '@/features/decks/lib/draft'
-
-const PANEL_TITLE: Record<CardCategory, string> = {
-  pokemon: 'Pokémon',
-  trainer: 'Treinadores',
-  energy: 'Energias',
-}
 
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
@@ -161,7 +155,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel
             key={category}
-            title={PANEL_TITLE[category]}
+            title={CATEGORY_TITLES[category]}
             category={category}
             rows={rows}
             rowErrors={rowErrors}

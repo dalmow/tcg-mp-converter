@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
-import { SaveButton } from './ActionButtons'
 import { Badge } from '@/shared/ui/Badge'
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
@@ -83,7 +82,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
           />
           <ButtonGroup aria-label={`Ações de ${row.displayName}`} className="h-9.5">
             {!isUnused && (
-              <SaveButton
+              <Button
                 type="button"
                 size="icon-lg"
                 title="Salvar"
@@ -91,7 +90,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
                 onClick={save}
               >
                 <SaveIcon />
-              </SaveButton>
+              </Button>
             )}
             {isUnused && (
               <ConfirmDialog

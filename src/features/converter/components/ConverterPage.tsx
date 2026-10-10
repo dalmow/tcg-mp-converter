@@ -9,53 +9,29 @@ import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { cn } from '@/shared/lib/utils'
 import { convertDecklist } from '@/features/converter/lib/convertDecklist'
-import type { Condition, ConvertDecklistResult, Language } from '@/shared/types/domain'
+import { CONDITIONS, LANGUAGES, type Condition, type ConvertDecklistResult, type Language } from '@/shared/types/domain'
 
-const conditions: Condition[] = ['M', 'NM', 'SP', 'MP', 'HP', 'D']
-const languages: Language[] = ['PTEN', 'PT', 'EN']
-
-const conditionTitles: Record<Condition, string> = {
-  M: 'Mint',
-  NM: 'Near Mint',
-  SP: 'Slightly Played',
-  MP: 'Moderately Played',
-  HP: 'Heavily Played',
-  D: 'Damaged',
+// Tooltip and color tone of each quality. The tone names the `quality-<tone>` theme color.
+const QUALITY: Record<Condition, { title: string; tone: string }> = {
+  M: { title: 'Mint', tone: 'mint' },
+  NM: { title: 'Near Mint', tone: 'near-mint' },
+  SP: { title: 'Slightly Played', tone: 'slightly-played' },
+  MP: { title: 'Moderately Played', tone: 'moderately-played' },
+  HP: { title: 'Heavily Played', tone: 'heavily-played' },
+  D: { title: 'Damaged', tone: 'damaged' },
 }
 
-type PillClasses = { selected: string; unselected: string }
+type PillAppearance = { title?: string; tone?: string }
 
-// Full class names so Tailwind can see them. Selected = solid fill with dark text, unselected = hollow outline.
-const conditionPillClasses: Record<Condition, PillClasses> = {
-  M: {
-    selected: 'border-quality-mint bg-quality-mint text-surface-000',
-    unselected: 'border-quality-mint bg-transparent text-quality-mint',
-  },
-  NM: {
-    selected: 'border-quality-near-mint bg-quality-near-mint text-surface-000',
-    unselected: 'border-quality-near-mint bg-transparent text-quality-near-mint',
-  },
-  SP: {
-    selected: 'border-quality-slightly-played bg-quality-slightly-played text-surface-000',
-    unselected: 'border-quality-slightly-played bg-transparent text-quality-slightly-played',
-  },
-  MP: {
-    selected: 'border-quality-moderately-played bg-quality-moderately-played text-surface-000',
-    unselected: 'border-quality-moderately-played bg-transparent text-quality-moderately-played',
-  },
-  HP: {
-    selected: 'border-quality-heavily-played bg-quality-heavily-played text-surface-000',
-    unselected: 'border-quality-heavily-played bg-transparent text-quality-heavily-played',
-  },
-  D: {
-    selected: 'border-quality-damaged bg-quality-damaged text-surface-000',
-    unselected: 'border-quality-damaged bg-transparent text-quality-damaged',
-  },
-}
-
-const defaultPillClasses: PillClasses = {
-  selected: 'border-secondary bg-secondary text-surface-000',
-  unselected: 'border-border bg-transparent text-ink',
+// Selected = solid fill with dark text, unselected = hollow outline. Tone classes are generated from the
+// `@source inline` list in index.css, so the class names are built here and still reach Tailwind.
+function toneClasses(tone: string | undefined, selected: boolean): string {
+  if (!tone) {
+    return selected ? 'border-secondary bg-secondary text-surface-000' : 'border-border bg-transparent text-ink'
+  }
+  return selected
+    ? `border-quality-${tone} bg-quality-${tone} text-surface-000`
+    : `border-quality-${tone} bg-transparent text-quality-${tone}`
 }
 
 function PillGroup<T extends string>({
@@ -63,16 +39,15 @@ function PillGroup<T extends string>({
   options,
   value,
   onChange,
-  pillClassesFor,
-  titleFor,
+  appearance,
   pillClassName,
 }: {
   label: string
-  options: T[]
+  options: readonly T[]
   value: T
   onChange: (value: T) => void
-  pillClassesFor?: (option: T) => PillClasses
-  titleFor?: (option: T) => string
+  /** Tooltip and tone per option. An option without an entry uses the brand color. */
+  appearance?: Partial<Record<T, PillAppearance>>
   pillClassName?: string
 }) {
   const labelId = useId()
@@ -97,7 +72,7 @@ function PillGroup<T extends string>({
       <div role="radiogroup" aria-labelledby={labelId} className="flex flex-wrap gap-space-3">
         {options.map((option, index) => {
           const selected = option === value
-          const classes = pillClassesFor ? pillClassesFor(option) : defaultPillClasses
+          const look = appearance?.[option]
 
           return (
             <button
@@ -106,7 +81,7 @@ function PillGroup<T extends string>({
               role="radio"
               aria-checked={selected}
               tabIndex={selected ? 0 : -1}
-              title={titleFor?.(option)}
+              title={look?.title}
               ref={(element) => {
                 optionRefs.current[index] = element
               }}
@@ -115,7 +90,7 @@ function PillGroup<T extends string>({
                 // Unselected is a hollow outline, never reduced opacity (which would cut text contrast).
                 'inline-flex h-9.5 cursor-pointer items-center justify-center rounded-md status-border text-ui font-bold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ink-faint focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000',
                 pillClassName,
-                selected ? classes.selected : classes.unselected,
+                toneClasses(look?.tone, selected),
               )}
               onClick={() => onChange(option)}
               onKeyDown={(event) => handleKeyDown(event, index)}
@@ -198,16 +173,15 @@ export default function ConverterPage() {
         <div className="flex flex-col gap-space-10">
           <PillGroup
             label="Qualidade"
-            options={conditions}
+            options={CONDITIONS}
             value={condition}
             onChange={setCondition}
-            pillClassesFor={(option) => conditionPillClasses[option]}
-            titleFor={(option) => conditionTitles[option]}
+            appearance={QUALITY}
             pillClassName="w-9.5"
           />
           <PillGroup
             label="Idioma"
-            options={languages}
+            options={LANGUAGES}
             value={language}
             onChange={setLanguage}
             pillClassName="px-3.5"
