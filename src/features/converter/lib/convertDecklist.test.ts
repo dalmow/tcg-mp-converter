@@ -106,7 +106,7 @@ describe('convertDecklist', () => {
     expect(result.ligaPokemon).toBe('1 Abra (053/053) [QUALIDADE=NM][IDIOMA=PTEN]')
     expect(result.mypCards).toBe('1 Abra (053/053)')
     expect(result.unresolvedCards).toEqual([
-      { line: '1 Abra MEG 54', reason: 'Número 54 fora do total da coleção "MEG" (53)' },
+      { line: '1 Abra MEG 54', reason: 'Número 54 fora do total da coleção MEG (53)' },
     ])
   })
 
@@ -115,7 +115,16 @@ describe('convertDecklist', () => {
 
     expect(result.ligaPokemon).toBe('')
     expect(result.unresolvedCards).toEqual([
-      { line: '1 Abra MEG 0', reason: 'Número 0 fora do total da coleção "MEG" (132)' },
+      { line: '1 Abra MEG 0', reason: 'Número 0 fora do total da coleção MEG (132)' },
     ])
+  })
+
+  it('merges duplicate lines whose collection codes differ only in case', () => {
+    const decklist = ['2 Abra MEG 53', '1 Abra meg 53'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('3 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.mypCards).toBe('3 Abra (053/132)')
   })
 })

@@ -1,3 +1,4 @@
+import { cardNumberOutOfRangeReason, isCardNumberInRange } from '@/shared/lib/cardNumber'
 import type { CollectionConfig } from '@/shared/types/domain'
 import type { CardCategory, Result } from '@/features/decks/types/deck'
 
@@ -69,10 +70,6 @@ function buildCard(
   return { ok: true, card: { category, key, displayName, normalizedName, basicEnergy } }
 }
 
-export function isCardNumberInRange(number: number, total: number): boolean {
-  return number >= 1 && number <= total
-}
-
 function resolvePrinting(
   category: CardCategory,
   parts: CardTextParts,
@@ -87,7 +84,7 @@ function resolvePrinting(
     return { ok: false, error: `Coleção ${collection} não cadastrada` }
   }
   if (!isCardNumberInRange(parts.number, total)) {
-    return { ok: false, error: `Número ${parts.number} fora do total da coleção ${collection} (${total})` }
+    return { ok: false, error: cardNumberOutOfRangeReason(parts.number, collection, total) }
   }
   return { ok: true, key: `${collection}-${parts.number}`, displayName: `${parts.name} ${collection} ${parts.number}` }
 }

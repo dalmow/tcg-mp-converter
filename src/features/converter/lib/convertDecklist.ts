@@ -1,4 +1,4 @@
-import { isCardNumberInRange } from '@/features/decks'
+import { cardNumberOutOfRangeReason, isCardNumberInRange } from '@/shared/lib/cardNumber'
 import type {
   CollectionConfig,
   Condition,
@@ -56,7 +56,7 @@ function mergeDuplicates(parsedLines: ParsedLine[]): ParsedLine[] {
   const merged = new Map<string, ParsedLine>()
 
   for (const parsedLine of parsedLines) {
-    const key = `${parsedLine.collection}/${parsedLine.number}`
+    const key = `${parsedLine.collection.toUpperCase()}/${parsedLine.number}`
     const existing = merged.get(key)
 
     if (existing) {
@@ -114,7 +114,7 @@ export function convertDecklist(
     if (!isCardNumberInRange(number, total)) {
       unresolvedCards.push({
         line: sourceLine,
-        reason: `Número ${number} fora do total da coleção "${collection}" (${total})`,
+        reason: cardNumberOutOfRangeReason(number, collection.toUpperCase(), total),
       })
       continue
     }
