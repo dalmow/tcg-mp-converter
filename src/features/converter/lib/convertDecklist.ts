@@ -29,6 +29,7 @@ const integerPattern = /^\d+$/
 
 type ParseLineResult = { ok: true; value: ParsedLine } | { ok: false }
 
+// Expects a trimmed line, as produced by convertDecklist.
 function parseLine(line: string): ParseLineResult {
   const tokens = line.split(/\s+/)
   const quantityToken = tokens[0]
@@ -96,16 +97,13 @@ export function convertDecklist(
     }
 
     const { sourceLine, collection, number } = parsed.value
-    const registeredCollection = Object.keys(config).find(
-      (registered) => registered.toUpperCase() === collection.toUpperCase(),
-    )
+    const registeredCollection = collection.toUpperCase()
+    const total: number | undefined = config[registeredCollection]
 
-    if (registeredCollection === undefined) {
+    if (total === undefined) {
       unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
       continue
     }
-
-    const total = config[registeredCollection]
 
     if (!isCardNumberInRange(number, total)) {
       unresolvedCards.push({

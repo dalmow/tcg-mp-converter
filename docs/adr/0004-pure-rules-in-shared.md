@@ -1,21 +1,22 @@
 # ADR 0004: Pure rules used by two features live in `shared/lib`
 
-Status: accepted
+Status: accepted. Amends the two-use clause of [ADR 0002](0002-feature-based-layout.md) for pure rules. Clarifies [ADR 0001](0001-architecture-overview.md) §3.
 
 ## Context
 
 The card number range rule (`1..total` of a Coleção) is enforced by the decks feature (`cardParser`) and by the converter (`convertDecklist`). [ADR 0002](0002-feature-based-layout.md) says a feature that needs another feature's helper widens that feature's `index.ts`, and that code moves to `shared/` on its third repetition.
 
-The decks `index.ts` is the public API of a feature whose components import React. Re-exporting the rule from it would make `convertDecklist` depend on React. [ADR 0001](0001-architecture-overview.md) requires that `convertDecklist` has no React dependency, and its tests run in a node environment.
+The decks `index.ts` also exports React components. A consumer that must stay React-free, such as `convertDecklist` ([ADR 0001](0001-architecture-overview.md) §3), would load React through that barrel. Widening it for a pure rule would break that.
 
 ## Decision
 
-- A pure rule (a predicate or a message builder with no React and no feature state) that two features use is placed in `src/shared/lib/`, once, instead of being copied or re-exported through a feature's `index.ts`.
+- A pure rule (a predicate or a message builder with no React and no feature state) used by two features lives once in `src/shared/lib/`. It is not re-exported through a feature's `index.ts` when that index exports React components.
 - This applies to `src/shared/lib/cardNumber.ts`, which holds `isCardNumberInRange` and `cardNumberOutOfRangeReason`.
-- The rule of three in ADR 0002 still applies to copies. It does not apply to a single shared rule that must be imported without pulling a feature's components.
+- A pure rule used by one feature stays in that feature's `lib/`, as ADR 0001 §3 says.
+- The existing re-exports from `decks/index.ts` (`deckInvariantError`, `uniqueDecksById`, `parseOwnedText`) are not moved here. Move one when a React-free consumer needs it.
 
 ## Consequences
 
-- `shared/lib/` gains a file that only one feature type touches today: the converter and decks both import it.
-- A feature that needs a pure rule from another feature moves that rule to `shared/lib/` in the same change. It does not widen the other feature's `index.ts` when the index exports React components.
-- The decks feature keeps its own error wording, except that the out-of-range message is now built by the shared helper, so both screens show the same text.
+- Decks and the converter import the card number rule from `shared/lib/cardNumber`.
+- The decks and converter screens show the same out-of-range text, because both use `cardNumberOutOfRangeReason`.
+- The rule of three in ADR 0002 still applies to copied code. It does not require copying a shared rule to a third feature before moving it.
