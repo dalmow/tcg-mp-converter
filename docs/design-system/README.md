@@ -77,6 +77,7 @@ These are deliberate, and the code keeps them. Anything else that differs from t
 - The card suggestion list uses `shadow-dropdown`, the dropdown shadow of this system.
 - Panels set no text size of their own: their content sets `text-body`, `text-ui` or the size it needs.
 - The Manutenção row is color-only, as the Brand, accent and signal section explains.
+- The deck editor's progress eyebrow is `ink-muted`, and its back link is a ghost icon button whose icon is `ink-muted`; both follow the editor artboard, not the `ink-faint` eyebrow rule and the ghost `ink` text.
 - The no-op row fill (`rgba(255,255,255,0.03)`), the 10px header blur and the fluid landing sizes are one-off values, not tokens.
 
 ## Consuming this system

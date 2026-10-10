@@ -52,7 +52,6 @@ export function isBlankRow(row: DraftRow): boolean {
   return row.quantityText.trim() === '' && row.text.trim() === ''
 }
 
-/** The deck formed by every other row that is already a valid card, for per-row rule checks. */
 /** The card of every row that parses, in draft order. A row with a blank quantity still gives a card (NaN). */
 function draftCards(rows: DraftRow[], collections: CollectionConfig): DeckCard[] {
   const cards: DeckCard[] = []
@@ -63,6 +62,7 @@ function draftCards(rows: DraftRow[], collections: CollectionConfig): DeckCard[]
   return cards
 }
 
+/** The deck formed by every other row that is already a valid card, for per-row rule checks. */
 export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: CollectionConfig): Deck {
   return {
     id: '',

@@ -1,7 +1,8 @@
-import * as React from 'react'
+import { useId } from 'react'
+import type { ComponentProps } from 'react'
 import { cn } from '@/shared/lib/utils'
 
-type ProgressBarProps = Omit<React.ComponentProps<'div'>, 'children'> & {
+type ProgressBarProps = Omit<ComponentProps<'div'>, 'children'> & {
   /** Eyebrow caption on the left of the label row. Compact has no label row: the label is its accessible name only. */
   label: string
   value: number
@@ -13,7 +14,7 @@ type ProgressBarProps = Omit<React.ComponentProps<'div'>, 'children'> & {
 }
 
 function ProgressBar({ className, label, value, max, suffix, compact, ...props }: ProgressBarProps) {
-  const labelId = React.useId()
+  const labelId = useId()
   const ratio = max > 0 ? value / max : 0
   const percent = Math.min(100, Math.max(0, ratio * 100))
   const track = (

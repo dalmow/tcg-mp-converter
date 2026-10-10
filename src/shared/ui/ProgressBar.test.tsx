@@ -15,7 +15,7 @@ describe('ProgressBar', () => {
     expect(bar.getAttribute('aria-valuemax')).toBe('60')
   })
 
-  it('shows the literal count as a bold value plus a muted suffix', () => {
+  it('shows the literal count as an ink value plus a semibold muted suffix', () => {
     render(<ProgressBar label="Progresso do deck" value={15} max={60} suffix="cartas" />)
 
     expect(screen.getByText('15').className).toContain('text-ink')
