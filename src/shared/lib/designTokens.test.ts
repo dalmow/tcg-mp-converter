@@ -88,6 +88,15 @@ describe('fonts', () => {
   })
 })
 
+describe('runtime dependencies', () => {
+  it('have one class helper (clsx + tailwind-merge), with no cn or shadcn package', () => {
+    expect(packageJson.dependencies).toHaveProperty('clsx')
+    expect(packageJson.dependencies).toHaveProperty('tailwind-merge')
+    expect(packageJson.dependencies).not.toHaveProperty('cn')
+    expect(packageJson.dependencies).not.toHaveProperty('shadcn')
+  })
+})
+
 describe('shadcn token aliases are gone', () => {
   it.each([
     'background',

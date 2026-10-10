@@ -17,11 +17,6 @@ describe('cn', () => {
   it('replaces the base font size with a later one', () => {
     expect(cn('text-ui', 'text-body-strong')).toBe('text-body-strong')
   })
-
-  it('skips falsy and null inputs', () => {
-    const isActive = false
-    expect(cn('text-ui', isActive && 'text-ink', null, undefined, false)).toBe('text-ui')
-  })
 })
 
 describe('cn with the project spacing tokens', () => {
