@@ -16,6 +16,7 @@ function ProgressBar({ className, label, value, max, suffix, compact, ...props }
   const labelId = React.useId()
   const ratio = max > 0 ? value / max : 0
   const percent = Math.min(100, Math.max(0, ratio * 100))
+  // The design system bar has 3px corners on its 6px track.
   const track = (
     <div
       role="progressbar"
@@ -23,9 +24,9 @@ function ProgressBar({ className, label, value, max, suffix, compact, ...props }
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={Math.min(value, max)}
-      className="h-1.5 w-full overflow-hidden rounded-pill bg-border-faint"
+      className="h-1.5 w-full overflow-hidden rounded-[3px] bg-border-faint"
     >
-      <div className="h-full rounded-pill bg-linear-to-r from-danger to-primary" style={{ width: `${percent}%` }} />
+      <div className="h-full rounded-[3px] bg-linear-to-r from-danger to-primary" style={{ width: `${percent}%` }} />
     </div>
   )
 

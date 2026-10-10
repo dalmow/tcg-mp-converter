@@ -12,8 +12,9 @@ import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import { cn } from '@/shared/lib/utils'
 import { ROUTES } from '@/shared/lib/routes'
 
-const SECTION_X = 'px-[clamp(20px,4vw,40px)]'
-const CONTAINER = 'mx-auto max-w-[1240px]'
+// The page gutter and content width every page shares, so the landing sections line up with the app pages.
+const PAGE_GUTTER = 'px-page-gutter'
+const PAGE_CONTAINER = 'mx-auto max-w-page'
 
 interface Feature {
   title: string
@@ -61,8 +62,8 @@ function IllustrationRow({ label, progress }: { label: string; progress: string 
 /** Decorative stacked cards: static markup with sample text, never real user data. */
 function HeroIllustration() {
   return (
-    <div aria-hidden="true" className="relative mx-auto h-[340px] w-full max-w-[380px]">
-      <div className="absolute top-0 right-0 box-border w-[250px] rotate-4 rounded-2xl border border-primary/50 bg-surface-100 p-space-8 shadow-modal">
+    <div aria-hidden="true" className="relative mx-auto h-85 w-full max-w-95">
+      <div className="absolute top-0 right-0 box-border w-62.5 rotate-4 rounded-2xl border border-primary/50 bg-surface-100 p-space-8 shadow-modal">
         <div className="mb-space-5 flex items-center justify-between">
           <span className="text-caption font-bold text-ink-muted">Liga Pokémon</span>
           <span className="rounded-pill border border-secondary-border-soft px-space-3 py-space-1 text-micro-label text-secondary">
@@ -75,7 +76,7 @@ function HeroIllustration() {
           <IllustrationLine width="85%" />
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 box-border w-[270px] -rotate-3 rounded-3xl border border-border bg-surface-200 p-space-9 shadow-modal">
+      <div className="absolute bottom-0 left-0 box-border w-67.5 -rotate-3 rounded-3xl border border-border bg-surface-200 p-space-9 shadow-modal">
         <div className="mb-space-6 flex items-center justify-between">
           <div className="flex items-center gap-space-3">
             <span className="size-2 rounded-pill bg-danger" />
@@ -109,13 +110,14 @@ function FeatureCard({ title, description, Icon }: Feature) {
 }
 
 function Section({ className, children }: { className?: string; children: ReactNode }) {
-  return <section className={cn(SECTION_X, className)}>{children}</section>
+  return <section className={cn(PAGE_GUTTER, className)}>{children}</section>
 }
 
+// Fluid section paddings and heading sizes are one-off values of this page, not tokens.
 function Hero() {
   return (
     <Section className="pt-[clamp(56px,8vw,96px)] pb-[clamp(64px,8vw,96px)]">
-      <div className={cn(CONTAINER, 'flex flex-wrap items-center gap-14')}>
+      <div className={cn(PAGE_CONTAINER, 'flex flex-wrap items-center gap-14')}>
         <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-space-9">
           <span className="inline-flex self-start rounded-pill border border-secondary-border-soft bg-secondary-tint-strong px-space-5 py-space-2 text-ui text-secondary">
             Para jogadores de Pokémon TCG
@@ -140,8 +142,8 @@ function Hero() {
 function ToolsSection() {
   return (
     <Section className="pb-[clamp(72px,8vw,112px)]">
-      <div className={CONTAINER}>
-        <div className="mb-space-12 flex max-w-[560px] flex-col gap-space-5">
+      <div className={PAGE_CONTAINER}>
+        <div className="mb-space-12 flex max-w-140 flex-col gap-space-5">
           <h2 className="font-display text-[length:clamp(24px,2.6vw,32px)] leading-[1.2] font-bold tracking-[-0.01em]">
             Várias ferramentas, um fluxo só
           </h2>
@@ -164,14 +166,14 @@ function ClosingCta() {
     <Section className="pb-[clamp(80px,9vw,120px)]">
       <div
         className={cn(
-          CONTAINER,
+          PAGE_CONTAINER,
           'relative flex flex-col items-center gap-space-8 overflow-hidden rounded-4xl border border-border bg-surface-100 p-[clamp(40px,6vw,64px)] text-center',
         )}
       >
         {/* Glow is a decorative one-off: size/offset have no token. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-[120px] left-1/2 h-[280px] w-[480px] -translate-x-1/2 bg-[radial-gradient(closest-side,var(--color-secondary-tint-strong),transparent)]"
+          className="pointer-events-none absolute -top-30 left-1/2 h-70 w-120 -translate-x-1/2 bg-[radial-gradient(closest-side,var(--color-secondary-tint-strong),transparent)]"
         />
         <h2 className="relative max-w-[30ch] font-display text-[length:clamp(24px,3vw,34px)] leading-[1.2] font-bold">
           Pronto pro próximo torneio?
@@ -193,8 +195,8 @@ function ClosingCta() {
 
 function LandingFooter() {
   return (
-    <footer className={cn('border-t border-border-faint py-space-10', SECTION_X)}>
-      <div className={cn(CONTAINER, 'flex flex-wrap items-center justify-between gap-space-7')}>
+    <footer className={cn('border-t border-border-faint py-space-10', PAGE_GUTTER)}>
+      <div className={cn(PAGE_CONTAINER, 'flex flex-wrap items-center justify-between gap-space-7')}>
         <div className="flex items-center gap-space-3 font-display text-wordmark">
           <Logomark size={20} />
           {SITE_NAME}

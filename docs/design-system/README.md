@@ -24,13 +24,13 @@ The quality scale (`quality-mint` → `quality-near-mint` → `quality-slightly-
 
 ### Buttons, pills and the button-group
 
-A filled action is `primary` or `danger`; nothing else gets a solid fill. A quiet action is `.btn-ghost`: transparent, a `border` hairline, and on hover a `secondary`-tinted background with a `secondary`-tinted border — never a filled hover state. A selected pill (quality, language) fills solid in its own color with dark text on top of light fills (`#0a090e` on `quality-near-mint`) or `#0a090e` on `secondary`; an unselected pill is a hollow outline in that same color (quality) or a plain `border` outline with `ink` text (language) — never grey-out an unselected quality pill, its own hue stays visible as the outline.
+A filled action is `primary` or `danger`; nothing else gets a solid fill. A quiet action is the `ghost` button variant: transparent, a `border` hairline, and on hover a `secondary`-tinted background with a `secondary`-tinted border — never a filled hover state. A selected pill (quality, language) fills solid in its own color with dark text on top of light fills (`#0a090e` on `quality-near-mint`) or `#0a090e` on `secondary`; an unselected pill is a hollow outline in that same color (quality) or a plain `border` outline with `ink` text (language) — never grey-out an unselected quality pill, its own hue stays visible as the outline.
 
 Two or more icon-only actions that belong together (Salvar/Excluir, a maintenance row's quantity actions) go in one button-group: a single outer `border-radius: radius-md` with `overflow: hidden`, no border on the group itself unless the group is the only action in the row, and a 1px `divider-accent` seam between buttons — never a border around each button individually, and never a neutral grey divider. A button-group's height always matches the input beside it.
 
 ### Rows, cards and panels
 
-A panel is `surface-100`, `radius-2xl`, a `border-faint` hairline, `space-8` padding, `space-6` gap between its heading and its content — this is the one card shape in the system; don't invent a second. A list row inside a panel can carry its own state: resting rows have no fill or border; a pendency row gets `danger-tint` background and a 1.5px `danger` border; a complete row gets `secondary-tint` and a 1.5px `secondary` border; a no-op row that needs no action (Precisa: 0 with nothing to save) gets a 1px **dashed** `border-dashed` on a near-transparent `rgba(255,255,255,0.03)` fill and keeps only the one action that still applies (Excluir, never Salvar, when there's nothing to save).
+A panel is `surface-100`, `radius-2xl`, a `border-faint` hairline, `space-8` padding (20px, the artboard value adopted in DAL-54), `space-6` gap between its heading and its content — this is the one card shape in the system; don't invent a second. Two accepted differences: the DeckEditor category panels use a `space-7` (16px) gap, and the landing feature cards use `radius-3xl` with `space-10` padding (the closing call-to-action card uses `radius-4xl`). A list row inside a panel can carry its own state: resting rows have no fill or border; a pendency row gets `danger-tint` background and a 1.5px `danger` border; a complete row gets `secondary-tint` and a 1.5px `secondary` border; a no-op row that needs no action (Precisa: 0 with nothing to save) gets a 1px **dashed** `border-dashed` on a near-transparent `rgba(255,255,255,0.03)` fill and keeps only the one action that still applies (Excluir, never Salvar, when there's nothing to save).
 
 A button and a control are always less rounded than the panel they live in: panels are `radius-2xl` (16px), buttons and inputs are `radius-sm`/`radius-md` (8–10px). This gap is deliberate at every scale in the system — never round a control up to match its container.
 
@@ -42,13 +42,15 @@ A "Decks:" caption in `ink-subtle` introduces a row of `chip-accent` badges, one
 
 A progress indicator is a label row (an `eyebrow` caption left, a bold count + `ink-subtle` suffix right — "15" + "/60 cartas") above a 6px track: `border-faint`-colored track, `radius-sm`-adjacent 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border — it sits directly on the page or panel behind it, label text only, no "X faltam" sentence duplicating the count already shown.
 
+The deck list tiles use the compact layout (`ProgressBar compact`): the bare bar with the literal count beside it ("45/60") on the right, no label row. The label stays as the accessible name only, so the count is the one visible signal.
+
 ### Toggle
 
 A toggle is a 40×22px `radius-pill` track, `secondary` when on (there is no visual "off" tint beyond the track going to `border`-level grey — off state: `rgba(255,255,255,0.14)`), with an 18×18px `surface-000`-colored knob that slides between a 2px inset on either edge.
 
 ### Modal
 
-A modal sits in `surface-200`, `radius-3xl`, a `border` at 0.12 opacity, `shadow-modal`, centered over an `overlay`-dimmed page. Title is `modal-title`; a warning sentence inside it is `danger-soft`, not `danger` — `danger` itself is reserved for the button. A modal's destructive confirm button is always a filled `danger` button, never `primary` — the system deliberately overrides "the main action is `primary`" here because the main action is also the dangerous one.
+A modal sits in `surface-200`, `radius-3xl`, a `border` hairline (the 0.14 `border` token), `shadow-modal`, centered over an `overlay`-dimmed page. Title is `modal-title`; a warning sentence inside it is `danger-soft`, not `danger` — `danger` itself is reserved for the button. A modal's destructive confirm button is always a filled `danger` button, never `primary` — the system deliberately overrides "the main action is `primary`" here because the main action is also the dangerous one.
 
 ### Toast
 
@@ -60,15 +62,31 @@ Page content is centered at `max-width: 1240px`. The header is sticky, `surface-
 
 ## Iconography
 
-Every icon is an inline SVG line icon — never an icon font, a sprite sheet, or emoji. Stroke only, `fill="none"`, `stroke-width` between 1.4 and 1.8, always `stroke-linecap="round"` and (for multi-segment icons) `stroke-linejoin="round"`. Sizes run from 12–13px (inline feedback, close buttons) through 14–18px (row/table actions) to 20–26px (menu button, logomark). An icon-only control always carries both `aria-label` and `title` with the same Portuguese action text ("Remover carta", "Salvar deck", "Fechar notificação").
+Every icon is an inline SVG line icon — never an icon font, a sprite sheet, or emoji. Stroke only, `fill="none"`, `stroke-width` between 1.4 and 1.8, always `stroke-linecap="round"` and (for multi-segment icons) `stroke-linejoin="round"`. Sizes run from 12–13px (inline feedback, close buttons) through 14–18px (row/table actions) to 20–26px (menu button, logomark).
+
+Every lucide icon takes its stroke from one default: `ICON_STROKE_WIDTH` (1.6) in `src/shared/ui/icons.tsx`, set by `IconDefaults` around the app shell. Inline SVGs (the nav icons, the logomark) set their own stroke.
+
+An icon-only control carries both `aria-label` and `title`. The rule has two parts. The `title` is the short action shown on hover ("Remover carta", "Adicionar carta", "Fechar"). The `aria-label` is the full accessible name, and it adds the row or panel when several controls share the action ("Excluir linha 2 de Pokémon", "Adicionar carta de Treinadores"). When the action needs no context, both are the same text ("Abrir menu de navegação", "Salvar deck").
 
 Two icons break the line-only rule on purpose: the toast error dot (a small solid circle at the base of the exclamation stroke) and the logomark. The logomark is two overlapping `radius`-cornered rounded rectangles standing for two trading cards: the back card is `secondary` at 50% opacity, the front card is solid `primary` — this exact two-card silhouette is the brand's mark and should never be redrawn as one shape, a diamond, or a generic app icon.
+
+## Accepted differences
+
+These are deliberate, and the code keeps them. Anything else that differs from this document is a bug.
+
+- Fixed sizes that have no token use the numeric Tailwind scale, which is the same px: `size-4.5` is the 18px icon, `size-3.25` the 13px one, `min-w-55` the 220px input column.
+- Deck list tiles keep a 22px card padding (`[--card-spacing:22px]`) and a fixed 280px tile column, both from the artboard grid.
+- The card suggestion list uses `shadow-dropdown`, the dropdown shadow of this system.
+- The Manutenção row is color-only, as the Brand, accent and signal section explains.
+- The no-op row fill (`rgba(255,255,255,0.03)`), the 10px header blur and the fluid landing sizes are one-off values, not tokens.
 
 ## Consuming this system
 
 This folder is the source of truth for the design system; the private claude.ai artifacts it was exported from are no longer needed. `mockups/` holds the `.dc.html` artboards and their `theme.css`.
 
-Tokens live in `src/index.css`, inside the `@theme static` block, and are exposed as Tailwind utilities (`bg-surface-100`, `text-ink-muted`, `rounded-2xl`, `shadow-modal`, `text-h2`, `p-space-8`, the `nav:` breakpoint at 860px). `src/shared/lib/designTokens.test.ts` fails when `src/index.css` and `tokens.json` drift apart, so change both together. Spacing tokens are named `space-N` (not `N`) so the numeric Tailwind scale (`p-4`) keeps its meaning.
+Tokens live in `src/index.css`, inside the `@theme static` block, and are exposed as Tailwind utilities (`bg-surface-100`, `text-ink-muted`, `rounded-2xl`, `shadow-modal`, `text-h2`, `p-space-8`, `max-w-page`, `px-page-gutter`, the `nav:` breakpoint at 860px). `src/shared/lib/designTokens.test.ts` fails when `src/index.css` and `tokens.json` drift apart, and fails when a declared token has no class in `src`, so change both together and remove a token from both when nothing uses it. Spacing tokens are named `space-N` (not `N`) so the numeric Tailwind scale (`p-4`) keeps its meaning; `page-gutter` is the only named spacing token, because it is fluid.
+
+Three utilities in `src/index.css` cover shared patterns: `status-border` (the 1.5px border of a filled primary or a status row), `hide-number-spinners` (quantity inputs without the browser stepper) and `no-scrollbar` (the card suggestion list). The state variants `data-open`, `data-closed`, `data-checked`, `data-unchecked`, `data-selected` and `data-disabled` are defined there too, from the attributes Base UI and cmdk set.
 
 Fonts are self-hosted through `@fontsource-variable/space-grotesk` (display) and `@fontsource-variable/manrope` (body); no Google Fonts request is made. There is no monospace family or token: code-like text, such as an unresolved decklist line in the converter, uses `font-body`. The artboards in `mockups/` still link Google Fonts because they are static references, not app code.
 

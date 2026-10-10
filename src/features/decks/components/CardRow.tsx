@@ -16,7 +16,7 @@ export const ROW_GRID_CLASS = 'grid grid-cols-[36px_minmax(0,1fr)_36px_36px] ite
 
 // The input sits inside its RowState cell, which carries the border and tint.
 const CELL_INPUT_CLASS =
-  'h-9 border-0 bg-transparent px-2 text-center text-ui focus-visible:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+  'h-9 border-0 bg-transparent px-2 text-center text-ui focus-visible:ring-0 hide-number-spinners'
 
 const TEXT_PLACEHOLDER: Record<CardCategory, string> = {
   pokemon: 'Nome COLEÇÃO número',
@@ -72,6 +72,7 @@ export function CardRow({
       : 'Linha com pendências'
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
+  const deleteLabel = `Excluir linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
   // Not isCountAtLeast: a blank quantity is NaN, and this check must not flag the owned input for it.
   const ownedInvalid = !Number.isInteger(ownedQuantity) || ownedQuantity < quantity
@@ -152,9 +153,9 @@ export function CardRow({
         <Button
           variant="ghost"
           size="icon-lg"
-          title="Remover carta"
           className="text-ink-muted"
-          aria-label={`Excluir linha ${position} de ${categoryTitle}`}
+          title="Remover carta"
+          aria-label={deleteLabel}
           onClick={onDelete}
         >
           <Trash2Icon />

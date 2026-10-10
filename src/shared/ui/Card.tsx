@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { cn } from 'cn'
 
-function Card({ className, size = 'default', ...props }: React.ComponentProps<'div'> & { size?: 'default' | 'sm' }) {
+// The panel surface: border, radius, fill and the 20px inner padding that every child aligns to.
+function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card"
-      data-size={size}
       className={cn(
-        'group/card flex flex-col gap-space-6 overflow-hidden rounded-2xl border border-border-faint bg-surface-100 py-(--card-spacing) text-body text-ink [--card-spacing:var(--spacing-space-8)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:var(--spacing-space-5)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl',
+        'flex flex-col gap-space-6 overflow-hidden rounded-2xl border border-border-faint bg-surface-100 py-(--card-spacing) text-body text-ink [--card-spacing:var(--spacing-space-8)]',
         className,
       )}
       {...props}
@@ -20,7 +20,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="card-header"
       className={cn(
-        'group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-2xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)',
+        'grid auto-rows-min items-start gap-space-1 px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto]',
         className,
       )}
       {...props}

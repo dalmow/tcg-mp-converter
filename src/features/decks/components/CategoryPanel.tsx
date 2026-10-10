@@ -53,14 +53,12 @@ export function CategoryPanel({
     onDeleteRow(rowId)
   }
 
+  const addLabel = `Adicionar carta de ${title}`
+
   return (
-    <Panel
-      role="region"
-      aria-label={title}
-      className="self-start gap-space-7 overflow-visible rounded-2xl [--card-spacing:20px]"
-    >
+    <Panel role="region" aria-label={title} className="self-start gap-space-7 overflow-visible">
       <CardHeader>
-        <CardTitle role="heading" aria-level={2} className="font-display text-h2">
+        <CardTitle role="heading" aria-level={2}>
           {title}
         </CardTitle>
         <CardAction>
@@ -69,7 +67,7 @@ export function CategoryPanel({
             variant="ghost"
             size="icon-sm"
             title="Adicionar carta"
-            aria-label={`Adicionar carta de ${title}`}
+            aria-label={addLabel}
             onClick={onAddRow}
           >
             <PlusIcon />

@@ -3,31 +3,25 @@
 import { Switch as SwitchPrimitive } from '@base-ui/react/switch'
 import { cn } from 'cn'
 
-function Switch({
-  className,
-  size = 'default',
-  ...props
-}: SwitchPrimitive.Root.Props & {
-  size?: 'sm' | 'default'
-}) {
+// The design system toggle: a 40×22px track. The knob slot is 20px with a 1px margin, so the 18px knob sits 2px in.
+// The 1px vertical margin keeps the 24px row slot that the layouts around the toggle were built on.
+function Switch({ className, ...props }: SwitchPrimitive.Root.Props) {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
-      data-size={size}
       className={cn(
-        'peer group/switch relative inline-flex shrink-0 items-center rounded-pill border-y border-transparent bg-clip-padding transition-all outline-none group-has-[:focus-visible]/field-label:border-transparent group-has-[:focus-visible]/field-label:ring-0 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:ring-1 focus-visible:ring-ink-faint aria-invalid:ring-1 aria-invalid:ring-danger/20 data-[size=default]:h-6 data-[size=default]:w-10 data-[size=sm]:h-6 data-[size=sm]:w-8 data-checked:bg-secondary data-unchecked:bg-border data-disabled:cursor-not-allowed data-disabled:opacity-45',
+        'group/switch relative my-px inline-flex h-5.5 w-10 shrink-0 items-center rounded-pill bg-clip-padding transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:ring-1 focus-visible:ring-ink-faint aria-invalid:ring-1 aria-invalid:ring-danger/20 data-checked:bg-secondary data-unchecked:bg-border data-disabled:cursor-not-allowed data-disabled:opacity-45',
         className,
       )}
       {...props}
     >
-      {/* Slot: 20px (sm: 16px) cell with a 1px margin; the knob inside is 18px (sm: 14px), so it sits 2px from the track edge. */}
       <span
         aria-hidden
-        className="pointer-events-none ml-px flex items-center justify-center transition-transform group-data-[size=default]/switch:size-5 group-data-[size=sm]/switch:size-4 group-data-checked/switch:group-data-[size=default]/switch:translate-x-4.5 group-data-checked/switch:group-data-[size=sm]/switch:translate-x-3.5"
+        className="pointer-events-none ml-px flex size-5 items-center justify-center transition-transform group-data-checked/switch:translate-x-4.5"
       >
         <SwitchPrimitive.Thumb
           data-slot="switch-thumb"
-          className="pointer-events-none block rounded-pill bg-surface-000 ring-0 group-data-[size=default]/switch:size-4.5 group-data-[size=sm]/switch:size-3.5"
+          className="pointer-events-none block size-4.5 rounded-pill bg-surface-000 ring-0"
         />
       </span>
     </SwitchPrimitive.Root>

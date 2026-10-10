@@ -14,7 +14,6 @@ const FONT_SIZES = [
   'caption',
   'micro-label',
   'eyebrow',
-  'eyebrow-wordmark',
 ]
 
 export const cn = createCn({
