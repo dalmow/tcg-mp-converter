@@ -17,6 +17,21 @@ describe('cn', () => {
   it('replaces the base font size with a later one', () => {
     expect(cn('text-ui', 'text-body-strong')).toBe('text-body-strong')
   })
+
+  it('skips falsy and null inputs', () => {
+    const isActive = false
+    expect(cn('text-ui', isActive && 'text-ink', null, undefined, false)).toBe('text-ui')
+  })
+})
+
+describe('cn with the project spacing tokens', () => {
+  it.each([
+    ['gap-space-6', 'gap-space-7', 'gap-space-7'],
+    ['px-space-2', 'px-space-5', 'px-space-5'],
+    ['py-space-2', 'py-space-5', 'py-space-5'],
+  ])('replaces %s with a later token of the same group', (base, override, expected) => {
+    expect(cn(base, override)).toBe(expected)
+  })
 })
 
 // Every font size declared in the @theme must survive cn, or a new size silently drops.
