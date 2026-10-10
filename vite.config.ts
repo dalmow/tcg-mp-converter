@@ -4,11 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { createServer, defineConfig, type Plugin } from 'vite'
 import { configDefaults } from 'vitest/config'
+import { parseBuildEnv } from './src/shared/lib/env.ts'
 import { PUBLIC_PAGES } from './src/shared/lib/pageMeta.ts'
 import { applyPageToShell, buildHeadTags, buildRobotsTxt, buildSitemapXml, SHELL_PAGE } from './src/shared/lib/seo.ts'
-import { DEFAULT_SITE_URL } from './src/shared/lib/site.ts'
 
-const siteUrl = process.env.SITE_URL || DEFAULT_SITE_URL
+const { SITE_URL: siteUrl } = parseBuildEnv(process.env)
 
 /** Injects SEO head tags into index.html and emits robots.txt / sitemap.xml. */
 function seoPlugin(): Plugin {
