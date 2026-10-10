@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 import { MaintenanceRow } from './MaintenanceRow'
 import { PAGE_META } from '@/shared/lib/pageMeta'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
@@ -6,14 +6,8 @@ import { PageLayout } from '@/shared/layout/PageLayout'
 import { Panel } from '@/shared/ui/Panel'
 import { Switch } from '@/shared/ui/Switch'
 import { useToast } from '@/shared/hooks/useToast'
-import { CARD_CATEGORIES, type CardCategory, getDeckStore, useDeckData } from '@/features/decks'
+import { CARD_CATEGORIES, CATEGORY_TITLES, getDeckStore, useDeckData } from '@/features/decks'
 import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/features/maintenance/lib/maintenance'
-
-const CATEGORY_TITLES: Record<CardCategory, string> = {
-  pokemon: 'Pokémon',
-  trainer: 'Treinadores',
-  energy: 'Energias',
-}
 
 export default function MaintenancePage() {
   usePageMeta(PAGE_META.maintenance)
@@ -22,7 +16,7 @@ export default function MaintenancePage() {
   const switchId = useId()
   const toast = useToast()
 
-  const rows = useMemo(() => deriveMaintenance(decks, owned), [decks, owned])
+  const rows = deriveMaintenance(decks, owned)
   const ownedOf = (key: string) => owned[key]?.quantity ?? 0
 
   return (

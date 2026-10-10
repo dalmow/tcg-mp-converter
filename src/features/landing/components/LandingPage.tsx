@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { Logomark } from '@/shared/ui/Logomark'
-import { MAIN_CONTENT_ID } from '@/shared/layout/mainContent'
+import { MainContent } from '@/shared/layout/mainContent'
 import { ConverterIcon, DecksIcon, MaintenanceIcon } from '@/shared/ui/NavIcons'
 import { Panel } from '@/shared/ui/Panel'
 import { buttonVariants } from '@/shared/ui/buttonVariants'
@@ -212,11 +212,11 @@ export default function LandingPage() {
 
   return (
     <>
-      <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
+      <MainContent className="flex-1">
         <Hero />
         <ToolsSection />
         <ClosingCta />
-      </main>
+      </MainContent>
       <LandingFooter />
     </>
   )

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { CircleAlertIcon, CircleCheckIcon, XIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -27,15 +27,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const nextId = useRef(0)
 
+  // Stable on purpose: Toast's auto-dismiss effect depends on it, and a new identity would restart every timer.
   const dismiss = useCallback((id: number) => {
     setToasts((current) => current.filter((toast) => toast.id !== id))
   }, [])
 
-  const api = useMemo<ToastApi>(() => {
-    const push = (variant: ToastVariant) => (message: string) =>
-      setToasts((current) => [...current, { id: nextId.current++, variant, message }])
-    return { success: push('success'), error: push('error') }
-  }, [])
+  const push = (variant: ToastVariant) => (message: string) =>
+    setToasts((current) => [...current, { id: nextId.current++, variant, message }])
+  const api: ToastApi = { success: push('success'), error: push('error') }
 
   return (
     <ToastContext.Provider value={api}>

@@ -1,25 +1,15 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/shared/ui/AlertDialog'
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { Input } from '@/shared/ui/Input'
 import { PAGE_TITLE_CLASS } from '@/shared/layout/PageLayout'
 import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
-import { CARD_CATEGORIES } from '@/features/decks/types/deck'
+import { CARD_CATEGORIES, CATEGORY_TITLES } from '@/features/decks/types/deck'
 import { deckEditorMeta } from '@/shared/lib/pageMeta'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import type { CardCategory } from '@/features/decks/types/deck'
@@ -27,12 +17,6 @@ import { deckPath, ROUTES } from '@/shared/lib/routes'
 import { CategoryPanel } from './CategoryPanel'
 import { buildDeckSave, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
 import type { DraftRow } from '@/features/decks/lib/draft'
-
-const PANEL_TITLE: Record<CardCategory, string> = {
-  pokemon: 'Pokémon',
-  trainer: 'Treinadores',
-  energy: 'Energias',
-}
 
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
@@ -153,37 +137,25 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           <Button size="icon" title="Salvar deck" aria-label="Salvar deck" className="w-11" onClick={saveDeck}>
             <SaveIcon className="size-4.5" />
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger
-              render={
-                <Button variant="danger" size="icon" title="Excluir deck" aria-label="Excluir deck" className="w-11" />
-              }
-            >
-              <Trash2Icon className="size-4.5" />
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Excluir deck?</AlertDialogTitle>
-                <AlertDialogDescription render={<div />} className="flex flex-col gap-space-2">
-                  <p className="text-secondary">A quantidade adquirida das cartas é mantida.</p>
-                  <p className="font-semibold text-danger-soft">Esta ação não pode ser desfeita.</p>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction variant="danger" onClick={deleteDeck}>
-                  Excluir
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <ConfirmDialog
+            trigger={
+              <Button variant="danger" size="icon" title="Excluir deck" aria-label="Excluir deck" className="w-11">
+                <Trash2Icon className="size-4.5" />
+              </Button>
+            }
+            title="Excluir deck?"
+            info="A quantidade adquirida das cartas é mantida."
+            warning="Esta ação não pode ser desfeita."
+            confirmLabel="Excluir"
+            onConfirm={deleteDeck}
+          />
         </ButtonGroup>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] items-start gap-space-8">
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel
             key={category}
-            title={PANEL_TITLE[category]}
+            title={CATEGORY_TITLES[category]}
             category={category}
             rows={rows}
             rowErrors={rowErrors}
@@ -197,28 +169,18 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           />
         ))}
       </div>
-      <AlertDialog
+      <ConfirmDialog
         open={blocker.state === 'blocked'}
         onOpenChange={(open) => {
           if (!open) blocker.reset?.()
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Descartar alterações?</AlertDialogTitle>
-            <AlertDialogDescription render={<div />} className="flex flex-col gap-space-2">
-              <p className="text-secondary">Há alterações não salvas neste deck.</p>
-              <p className="font-semibold text-danger-soft">Se sair agora, elas serão perdidas.</p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Continuar editando</AlertDialogCancel>
-            <AlertDialogAction variant="danger" onClick={() => blocker.proceed?.()}>
-              Descartar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title="Descartar alterações?"
+        info="Há alterações não salvas neste deck."
+        warning="Se sair agora, elas serão perdidas."
+        cancelLabel="Continuar editando"
+        confirmLabel="Descartar"
+        onConfirm={() => blocker.proceed?.()}
+      />
     </>
   )
 }

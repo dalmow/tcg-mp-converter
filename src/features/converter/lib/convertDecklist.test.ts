@@ -64,6 +64,12 @@ describe('convertDecklist', () => {
     expect(result.unresolvedCards).toEqual([{ line: '1 Mewtwo ZZZ 1', reason: 'Coleção "ZZZ" não cadastrada' }])
   })
 
+  it('names an unregistered collection as typed, with the converter wording', () => {
+    const result = convertDecklist('1 Mewtwo zzz 1', { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.unresolvedCards).toEqual([{ line: '1 Mewtwo zzz 1', reason: 'Coleção "zzz" não cadastrada' }])
+  })
+
   it('reports malformed lines as unresolved, without stopping the rest', () => {
     const decklist = ['1 Abra MEG 53', '1 Abra MEG', 'x3 Pikachu MEG 10'].join('\n')
 

@@ -1,19 +1,9 @@
 import { useState } from 'react'
 import { SaveIcon, Trash2Icon } from 'lucide-react'
-import { SaveButton } from './ActionButtons'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/shared/ui/AlertDialog'
 import { Badge } from '@/shared/ui/Badge'
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { Input } from '@/shared/ui/Input'
 import { RowState, type RowStateName } from '@/shared/ui/RowState'
 import { isSatisfied, parseOwnedQuantity } from '@/features/maintenance/lib/maintenance'
@@ -92,7 +82,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
           />
           <ButtonGroup aria-label={`Ações de ${row.displayName}`} className="h-9.5">
             {!isUnused && (
-              <SaveButton
+              <Button
                 type="button"
                 size="icon-lg"
                 title="Salvar"
@@ -100,38 +90,28 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
                 onClick={save}
               >
                 <SaveIcon />
-              </SaveButton>
+              </Button>
             )}
             {isUnused && (
-              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <AlertDialogTrigger
-                  render={
-                    <Button
-                      variant="danger"
-                      type="button"
-                      size="icon-lg"
-                      title="Excluir"
-                      aria-label={`Excluir ${row.displayName}`}
-                    />
-                  }
-                >
-                  <Trash2Icon />
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Excluir carta?</AlertDialogTitle>
-                    <AlertDialogDescription className="font-semibold text-danger-soft">
-                      {row.displayName} será removida da manutenção.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <Button variant="danger" type="button" onClick={remove}>
-                      Excluir
-                    </Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <ConfirmDialog
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                trigger={
+                  <Button
+                    variant="danger"
+                    type="button"
+                    size="icon-lg"
+                    title="Excluir"
+                    aria-label={`Excluir ${row.displayName}`}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                }
+                title="Excluir carta?"
+                warning={`${row.displayName} será removida da manutenção.`}
+                confirmLabel="Excluir"
+                onConfirm={remove}
+              />
             )}
           </ButtonGroup>
         </div>

@@ -3,6 +3,10 @@
 @import '@fontsource-variable/space-grotesk';
 @import '@fontsource-variable/manrope';
 
+/* Quality pills build their classes from a tone name (ConverterPage QUALITY).
+   Every generated class is listed here: add a tone in both places. */
+@source inline('border-quality-mint border-quality-near-mint border-quality-slightly-played border-quality-moderately-played border-quality-heavily-played border-quality-damaged bg-quality-mint bg-quality-near-mint bg-quality-slightly-played bg-quality-moderately-played bg-quality-heavily-played bg-quality-damaged text-quality-mint text-quality-near-mint text-quality-slightly-played text-quality-moderately-played text-quality-heavily-played text-quality-damaged');
+
 /* State attributes that Base UI and cmdk set on their elements, e.g. `data-checked:bg-secondary`. */
 @custom-variant data-open {
   &:where([data-open]:not([data-open='false'])) {

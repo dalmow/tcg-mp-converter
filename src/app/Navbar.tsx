@@ -1,10 +1,11 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useState } from 'react'
 import { MenuIcon, XIcon } from 'lucide-react'
-import { Link, NavLink, useLocation } from 'react-router'
-import { BackupList, BackupMenu, useBackup } from '@/features/backup'
+import { Link, NavLink } from 'react-router'
+import { BackupImportDialog, BackupList, BackupMenu, useBackup } from '@/features/backup'
 import { Logomark } from '@/shared/ui/Logomark'
 import { MAIN_CONTENT_ID } from '@/shared/layout/mainContent'
 import { navLinkClass, sheetRowClass } from './navLinkClass'
+import { useMobileSheet } from './useMobileSheet'
 import { ConverterIcon, DecksIcon, MaintenanceIcon } from '@/shared/ui/NavIcons'
 import { ROUTES } from '@/shared/lib/routes'
 
@@ -16,35 +17,10 @@ const links = [
 
 export function Navbar() {
   const [nav, setNav] = useState<HTMLElement | null>(null)
-  // The sheet is keyed to the path it was opened on, so navigating closes it without an effect.
-  const [openedAt, setOpenedAt] = useState<string | null>(null)
-  const toggle = useRef<HTMLButtonElement>(null)
+  const { sheetOpen, setSheetOpen, toggle } = useMobileSheet()
   const sheetId = useId()
-  const { pathname } = useLocation()
   const backup = useBackup()
-  const sheetOpen = openedAt === pathname
-  const setSheetOpen = (open: boolean) => setOpenedAt(open ? pathname : null)
   const menuLabel = sheetOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'
-
-  useEffect(() => {
-    if (!sheetOpen) return
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== 'Escape') return
-      setOpenedAt(null)
-      toggle.current?.focus()
-    }
-    // The sheet is `nav:hidden`; drop the open state when the inline nav takes over.
-    const wide = window.matchMedia?.('(min-width: 860px)')
-    function onWide() {
-      if (wide?.matches) setOpenedAt(null)
-    }
-    document.addEventListener('keydown', onKeyDown)
-    wide?.addEventListener('change', onWide)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      wide?.removeEventListener('change', onWide)
-    }
-  }, [sheetOpen])
 
   // The header blur is a 10px one-off: no blur token, and the surface-header token carries the tint.
   return (
@@ -102,7 +78,7 @@ export function Navbar() {
             <BackupList backup={backup} onAction={() => setSheetOpen(false)} />
           </div>
         )}
-        {backup.dialog}
+        <BackupImportDialog backup={backup} />
       </nav>
     </header>
   )

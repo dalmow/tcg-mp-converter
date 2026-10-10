@@ -1,6 +1,8 @@
-export type Condition = 'M' | 'NM' | 'SP' | 'MP' | 'HP' | 'D'
+export const CONDITIONS = ['M', 'NM', 'SP', 'MP', 'HP', 'D'] as const
+export type Condition = (typeof CONDITIONS)[number]
 
-export type Language = 'PTEN' | 'PT' | 'EN'
+export const LANGUAGES = ['PTEN', 'PT', 'EN'] as const
+export type Language = (typeof LANGUAGES)[number]
 
 export type CollectionConfig = Record<string, number>
 

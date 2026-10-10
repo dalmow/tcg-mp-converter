@@ -1,4 +1,5 @@
 import { cardNumberOutOfRangeReason, isCardNumberInRange } from '@/shared/lib/cardNumber'
+import { isIntegerText } from '@/shared/lib/integer'
 import type { CollectionConfig } from '@/shared/types/domain'
 import type { CardCategory, Result } from '@/features/decks/types/deck'
 
@@ -9,6 +10,10 @@ export interface ParsedCard {
   /** Name normalized for the 4-copy rule (trim, lowercase, no accents). */
   normalizedName: string
   basicEnergy: boolean
+  /** Card name as typed, with single spaces between words. */
+  name: string
+  /** Collection (uppercase) and number of a printed card. Absent for trainers and basic energy. */
+  printing?: { collection: string; number: number }
 }
 
 export type ParseCardResult = Result<{ card: ParsedCard }>
@@ -26,8 +31,6 @@ const BASIC_ENERGY_TYPES = ['Grama', 'Fogo', 'Água', 'Elétrica', 'Psíquica', 
 
 const basicEnergyByNormalizedType = new Map(BASIC_ENERGY_TYPES.map((type) => [normalizeName(type), type]))
 
-const integerPattern = /^\d+$/
-
 interface CardTextParts {
   name: string
   collection?: string
@@ -40,7 +43,7 @@ interface CardTextParts {
 function splitCardText(text: string): CardTextParts {
   const tokens = text.trim().split(/\s+/).filter(Boolean)
   const last = tokens[tokens.length - 1]
-  if (tokens.length >= 3 && integerPattern.test(last)) {
+  if (tokens.length >= 3 && isIntegerText(last)) {
     return {
       name: tokens.slice(0, -2).join(' '),
       collection: tokens[tokens.length - 2],
@@ -48,7 +51,7 @@ function splitCardText(text: string): CardTextParts {
       hasLooseNumber: false,
     }
   }
-  if (tokens.length >= 1 && integerPattern.test(last)) {
+  if (tokens.length >= 1 && isIntegerText(last)) {
     return { name: tokens.slice(0, -1).join(' '), number: Number(last), hasLooseNumber: true }
   }
   return { name: tokens.join(' '), hasLooseNumber: false }
@@ -60,21 +63,17 @@ const PRINTING_LABEL: Record<CardCategory, string> = {
   trainer: 'Treinador',
 }
 
-function buildCard(
-  category: CardCategory,
-  key: string,
-  displayName: string,
-  normalizedName: string,
-  basicEnergy: boolean,
-): ParseCardResult {
-  return { ok: true, card: { category, key, displayName, normalizedName, basicEnergy } }
+type CardFields = Omit<ParsedCard, 'category'>
+
+function buildCard(category: CardCategory, fields: CardFields): ParseCardResult {
+  return { ok: true, card: { category, ...fields } }
 }
 
 function resolvePrinting(
   category: CardCategory,
   parts: CardTextParts,
   collections: CollectionConfig,
-): Result<{ key: string; displayName: string }> {
+): Result<{ key: string; displayName: string; printing: { collection: string; number: number } }> {
   if (!parts.name || parts.collection === undefined || parts.number === undefined) {
     return { ok: false, error: `${PRINTING_LABEL[category]} exige nome, coleção e número` }
   }
@@ -86,7 +85,12 @@ function resolvePrinting(
   if (!isCardNumberInRange(parts.number, total)) {
     return { ok: false, error: cardNumberOutOfRangeReason(parts.number, collection, total) }
   }
-  return { ok: true, key: `${collection}-${parts.number}`, displayName: `${parts.name} ${collection} ${parts.number}` }
+  return {
+    ok: true,
+    key: `${collection}-${parts.number}`,
+    displayName: `${parts.name} ${collection} ${parts.number}`,
+    printing: { collection, number: parts.number },
+  }
 }
 
 function parseBasicEnergyType(name: string): string | undefined {
@@ -107,7 +111,7 @@ export function parseCard(category: CardCategory, text: string, collections: Col
     }
     const name = text.trim().split(/\s+/).join(' ')
     const normalizedName = normalizeName(name)
-    return buildCard(category, normalizedName, name, normalizedName, false)
+    return buildCard(category, { key: normalizedName, displayName: name, normalizedName, basicEnergy: false, name })
   }
 
   const hasPrinting = parts.collection !== undefined || parts.hasLooseNumber
@@ -117,11 +121,25 @@ export function parseCard(category: CardCategory, text: string, collections: Col
       return { ok: false, error: 'Energia especial exige coleção e número' }
     }
     const normalizedType = normalizeName(type)
+    const displayName = `Energia ${type}`
     // Prefixed so a basic energy key can never equal a trainer's normalized-name key.
-    return buildCard(category, `energy:${normalizedType}`, `Energia ${type}`, normalizedType, true)
+    return buildCard(category, {
+      key: `energy:${normalizedType}`,
+      displayName,
+      normalizedName: normalizedType,
+      basicEnergy: true,
+      name: displayName,
+    })
   }
 
   const printing = resolvePrinting(category, parts, collections)
   if (!printing.ok) return printing
-  return buildCard(category, printing.key, printing.displayName, normalizeName(parts.name), false)
+  return buildCard(category, {
+    key: printing.key,
+    displayName: printing.displayName,
+    normalizedName: normalizeName(parts.name),
+    basicEnergy: false,
+    name: parts.name,
+    printing: printing.printing,
+  })
 }

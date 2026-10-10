@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BackupMenu } from './BackupMenu'
+import { BackupImportDialog } from './BackupImportDialog'
 import { ToastProvider } from '@/shared/ui/Toast'
 import { useBackup } from '@/features/backup/hooks/useBackup'
 import { buildBackup } from '@/features/backup/lib/backup'
@@ -54,7 +55,7 @@ function Host() {
   return (
     <>
       <BackupMenu backup={backup} />
-      {backup.dialog}
+      <BackupImportDialog backup={backup} />
     </>
   )
 }

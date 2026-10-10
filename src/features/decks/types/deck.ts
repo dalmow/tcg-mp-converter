@@ -19,6 +19,13 @@ const countSchema = (min: number) => z.number().refine((value) => isCountAtLeast
 const cardCategorySchema = z.enum(CARD_CATEGORIES)
 export type CardCategory = z.infer<typeof cardCategorySchema>
 
+/** Section title of each category, in the deck editor and in Manutenção. */
+export const CATEGORY_TITLES: Record<CardCategory, string> = {
+  pokemon: 'Pokémon',
+  trainer: 'Treinadores',
+  energy: 'Energias',
+}
+
 const deckCardSchema = z.object({
   category: cardCategorySchema,
   key: z.string(),
