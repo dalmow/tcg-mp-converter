@@ -1,23 +1,27 @@
 import { z } from 'zod'
-import { deckInvariantError, persistedDataSchema, type PersistedData, type Result } from '@/features/decks'
+import {
+  deckInvariantError,
+  duplicateDeckIdError,
+  persistedDataSchema,
+  type PersistedData,
+  type Result,
+} from '@/features/decks'
 
 export const BACKUP_VERSION = 1
 
-const backupFileSchema = persistedDataSchema.extend({
-  version: z.number(),
-  exportedAt: z.string(),
-})
-export type BackupFile = z.infer<typeof backupFileSchema>
+const backupFileSchema = persistedDataSchema.extend({ version: z.number() })
+const backupVersionSchema = backupFileSchema.pick({ version: true })
 
-const backupVersionSchema = z.object({ version: z.number() })
-
-const INVALID_FILE_ERROR = 'Arquivo de backup inválido'
+/** `exportedAt` is written on export; import does not read it. */
+export type BackupFile = z.infer<typeof backupFileSchema> & { exportedAt: string }
 
 export interface BackupSummary {
   deckCount: number
   /** Owned entries with quantity greater than zero. */
   ownedCount: number
 }
+
+const INVALID_FILE_ERROR = 'Arquivo de backup inválido'
 
 export function buildBackup(data: PersistedData, now: Date = new Date()): BackupFile {
   return { version: BACKUP_VERSION, exportedAt: now.toISOString(), ...data }
@@ -45,14 +49,17 @@ export function parseBackup(text: string): Result<{ data: PersistedData; summary
   } catch {
     return { ok: false, error: INVALID_FILE_ERROR }
   }
-  const version = backupVersionSchema.safeParse(raw)
-  if (!version.success) return { ok: false, error: INVALID_FILE_ERROR }
-  if (version.data.version !== BACKUP_VERSION) {
+  const parsedVersion = backupVersionSchema.safeParse(raw)
+  if (!parsedVersion.success) return { ok: false, error: INVALID_FILE_ERROR }
+  if (parsedVersion.data.version !== BACKUP_VERSION) {
     return { ok: false, error: 'Versão de backup não suportada' }
   }
-  const parsed = backupFileSchema.safeParse(raw)
-  if (!parsed.success) return { ok: false, error: INVALID_FILE_ERROR }
-  const { decks, owned } = parsed.data
+  const parsedBackup = backupFileSchema.safeParse(raw)
+  if (!parsedBackup.success) return { ok: false, error: INVALID_FILE_ERROR }
+
+  const { decks, owned } = parsedBackup.data
+  const idError = duplicateDeckIdError(decks)
+  if (idError) return { ok: false, error: idError }
   for (const deck of decks) {
     const invariantError = deckInvariantError(deck)
     if (invariantError) return { ok: false, error: invariantError }

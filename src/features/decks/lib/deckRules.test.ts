@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { addDeckCard, maxQuantityFor, validateDeck, validateQuantity } from './deckRules'
+import {
+  addDeckCard,
+  deckInvariantError,
+  duplicateDeckIdError,
+  maxQuantityFor,
+  validateDeck,
+  validateQuantity,
+} from './deckRules'
 import type { Deck, DeckCard, OwnedMap } from '@/features/decks/types/deck'
 
 const collections = { MEG: 132, BLK: 86, SVI: 198 }
@@ -16,6 +23,32 @@ function ownedFor(cards: DeckCard[], extra = 0): OwnedMap {
     cards.map((c) => [c.key, { displayName: c.displayName, category: c.category, quantity: c.quantity + extra }]),
   )
 }
+
+describe('deckInvariantError', () => {
+  it('accepts a deck with unique keys and exactly 60 cards', () => {
+    expect(deckInvariantError(deck([{ ...fire, quantity: 60 }]))).toBeNull()
+  })
+  it('rejects a deck with more than 60 cards', () => {
+    expect(deckInvariantError(deck([{ ...fire, quantity: 61 }]))).toBe('Deck "D" tem mais de 60 cartas')
+  })
+  it('rejects a deck that repeats a card key', () => {
+    expect(deckInvariantError(deck([abra, abra]))).toBe('Deck "D" tem cartas duplicadas')
+  })
+})
+
+describe('duplicateDeckIdError', () => {
+  it('accepts decks with distinct ids', () => {
+    expect(
+      duplicateDeckIdError([
+        { ...deck([abra]), id: '1' },
+        { ...deck([fire]), id: '2' },
+      ]),
+    ).toBeNull()
+  })
+  it('rejects two decks that share an id', () => {
+    expect(duplicateDeckIdError([deck([abra]), deck([fire])])).toBe('Dois decks têm o mesmo id')
+  })
+})
 
 describe('addDeckCard / quantity', () => {
   it('rejects a duplicate key', () => {

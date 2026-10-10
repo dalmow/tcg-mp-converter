@@ -18,6 +18,11 @@ export function deckInvariantError(deck: Deck): string | null {
   return null
 }
 
+/** Deck ids are what the store matches on, so two decks cannot share one. Shared by storage and backup. */
+export function duplicateDeckIdError(decks: Deck[]): string | null {
+  return new Set(decks.map((deck) => deck.id)).size === decks.length ? null : 'Dois decks têm o mesmo id'
+}
+
 /** Largest quantity a row may take, given the other rows of the deck. */
 export function maxQuantityFor(deck: Deck, key: string): number {
   const others = deck.cards.filter((card) => card.key !== key)

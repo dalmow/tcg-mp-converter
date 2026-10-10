@@ -5,10 +5,10 @@ export const CARD_CATEGORIES = ['pokemon', 'trainer', 'energy'] as const
 export const DECK_SIZE = 60
 export const MAX_COPIES_PER_NAME = 4
 
-export const cardCategorySchema = z.enum(CARD_CATEGORIES)
+const cardCategorySchema = z.enum(CARD_CATEGORIES)
 export type CardCategory = z.infer<typeof cardCategorySchema>
 
-export const deckCardSchema = z.object({
+const deckCardSchema = z.object({
   category: cardCategorySchema,
   key: z.string(),
   displayName: z.string(),
@@ -32,6 +32,12 @@ export type OwnedEntry = z.infer<typeof ownedEntrySchema>
 
 export const ownedMapSchema = z.record(z.string(), ownedEntrySchema)
 export type OwnedMap = z.infer<typeof ownedMapSchema>
+
+export const persistedDataSchema = z.object({
+  decks: z.array(deckSchema),
+  owned: ownedMapSchema,
+})
+export type PersistedData = z.infer<typeof persistedDataSchema>
 
 /** Success payload merged with `ok: true`, or an error message with `ok: false`. */
 export type Result<T extends object = object> = ({ ok: true } & T) | { ok: false; error: string }

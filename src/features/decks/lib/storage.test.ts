@@ -22,31 +22,29 @@ describe('recoverPersistedData', () => {
     expect(recoverPersistedData({ decks: [deck], owned })).toEqual({ decks: [deck], owned })
   })
 
-  it.each([
-    ['null', null],
-    ['decks not an array', { decks: {}, owned }],
-    ['owned is an array', { decks: [], owned: [] }],
-  ])('falls back to empty data when the top level is %s', (_label, value) => {
-    expect(recoverPersistedData(value)).toEqual(EMPTY_DATA)
+  it('falls back to empty data when the stored value is not an object', () => {
+    expect(recoverPersistedData(null)).toEqual(EMPTY_DATA)
+  })
+
+  it('keeps the valid owned entries when decks is not an array', () => {
+    expect(recoverPersistedData({ decks: {}, owned })).toEqual({ decks: [], owned })
+  })
+
+  it('keeps the valid decks when owned is not an object', () => {
+    expect(recoverPersistedData({ decks: [deck], owned: [] })).toEqual({ decks: [deck], owned: {} })
   })
 
   it.each([
     ['without id', { name: 'x', cards: [] }],
     ['with an unknown category', { ...deck, cards: [{ ...card, category: 'item' }] }],
     ['with a non-integer quantity', { ...deck, cards: [{ ...card, quantity: 1.5 }] }],
-    ['with duplicate card keys', { ...deck, cards: [card, card] }],
-    [
-      'with more than 60 cards',
-      {
-        ...deck,
-        cards: [
-          { ...card, quantity: 40 },
-          { ...card, key: 'MEG-2', quantity: 21 },
-        ],
-      },
-    ],
   ])('drops a deck %s and keeps the valid decks', (_label, invalidDeck) => {
     expect(recoverPersistedData({ decks: [invalidDeck, deck], owned }).decks).toEqual([deck])
+  })
+
+  it('keeps the first of two decks that share an id', () => {
+    const renamed = { ...deck, name: 'Outro' }
+    expect(recoverPersistedData({ decks: [deck, renamed], owned }).decks).toEqual([deck])
   })
 
   it('drops owned entries that do not match the schema and keeps the others', () => {
