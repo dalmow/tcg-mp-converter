@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from 'cn'
+import { cn } from '@/shared/lib/utils'
 
 // One state pattern for a row or an inline input. Color is the only cue here;
 // the icon-plus-sentence companion line is owned by the screen using it.

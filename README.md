@@ -34,7 +34,7 @@ administração). Mapeia sigla da Coleção para o total de cartas, ex:
 ## Stack
 
 - SPA em Vite (sem backend).
-- Componentes via shadcn/ui (CLI).
+- Componentes próprios em `src/shared/ui/`, sobre `@base-ui/react` e `cmdk` (sem CLI do shadcn/ui).
 - Tailwind CSS, tema dark como padrão.
 - Deploy: Vercel, domínio próprio.
 

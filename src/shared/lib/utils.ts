@@ -1,4 +1,5 @@
-import { createCn } from 'cn/config'
+import { clsx, type ClassValue } from 'clsx'
+import { extendTailwindMerge } from 'tailwind-merge'
 
 // Font sizes from the @theme in index.css. Unknown text-* classes count as colors,
 // so without this list a text color class drops the size (text-ui, text-body).
@@ -33,7 +34,7 @@ const SPACE_TOKENS = [
   'space-12',
 ]
 
-export const cn = createCn({
+const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
       'font-size': [{ text: FONT_SIZES }],
@@ -43,3 +44,8 @@ export const cn = createCn({
     },
   },
 })
+
+// The single class-merge helper: clsx resolves conditional classes, twMerge resolves Tailwind conflicts.
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs))
+}

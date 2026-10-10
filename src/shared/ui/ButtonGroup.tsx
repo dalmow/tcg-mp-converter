@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cn } from 'cn'
+import { cn } from '@/shared/lib/utils'
 
 // One outer radius clips the buttons; the 1px gap shows the container's
 // divider-accent background as the seam, so no button carries a border.

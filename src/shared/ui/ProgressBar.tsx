@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cn } from 'cn'
+import { cn } from '@/shared/lib/utils'
 
 type ProgressBarProps = Omit<React.ComponentProps<'div'>, 'children'> & {
   /** Accessible name of the bar. Not shown: the count beside the bar is the only visible signal. */
