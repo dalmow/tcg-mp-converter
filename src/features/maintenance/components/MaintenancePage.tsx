@@ -26,8 +26,12 @@ export default function MaintenancePage() {
   const ownedOf = (key: string) => owned[key]?.quantity ?? 0
 
   return (
-    <PageLayout title="Manutenção" subtitle="Cartas que faltam para completar seus decks, agrupadas por categoria.">
-      <div className="flex items-center gap-space-3">
+    <PageLayout
+      title="Manutenção"
+      subtitle="Cartas que faltam para completar seus decks, agrupadas por categoria."
+      compact
+    >
+      <div className="flex items-center gap-space-4">
         <Switch id={switchId} checked={onlyMissing} onCheckedChange={setOnlyMissing} />
         <label htmlFor={switchId} className="text-body-strong">
           Só faltantes
@@ -39,12 +43,12 @@ export default function MaintenancePage() {
           .filter((row) => !onlyMissing || !isSatisfied(row, ownedOf(row.key)))
           .sort((a, b) => a.displayName.localeCompare(b.displayName))
         return (
-          <Panel key={category} className="gap-space-4 rounded-2xl p-5">
+          <Panel key={category} className="px-(--card-spacing)">
             <h2 className="text-body-strong">{CATEGORY_TITLES[category]}</h2>
             {visible.length === 0 ? (
               <p className="text-ui text-ink-muted">Nenhuma carta.</p>
             ) : (
-              <ul className="flex flex-col gap-space-3">
+              <ul className="flex flex-col gap-space-5">
                 {visible.map((row) => (
                   <MaintenanceRow
                     key={row.key}

@@ -170,6 +170,24 @@ describe('MaintenancePage row states', () => {
     expect(stateOf('Energia Fogo')).toBe('noop')
   })
 
+  it('keeps only Excluir on a no-op row, never Salvar', async () => {
+    seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'energy:fogo': { ...fire, quantity: 1 } })
+    renderPage()
+    await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
+    const card = within(rowOf('Energia Fogo'))
+    expect(card.queryByRole('button', { name: /^Salvar/ })).toBeNull()
+    expect(card.getByRole('button', { name: /^Excluir/ })).toBeTruthy()
+  })
+
+  it('does not accept edits on a no-op row, since nothing can save them', async () => {
+    seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])], { 'energy:fogo': { ...fire, quantity: 1 } })
+    renderPage()
+    await userEvent.click(screen.getByRole('switch', { name: 'Só faltantes' }))
+    const input = within(rowOf('Energia Fogo')).getByLabelText(/^Adquirido/) as HTMLInputElement
+    await userEvent.type(input, '5')
+    expect(input.value).toBe('1')
+  })
+
   it('groups the quantity input actions in a button group', () => {
     seedStore([makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }])])
     renderPage()

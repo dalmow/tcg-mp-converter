@@ -62,19 +62,19 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
 
   return (
     <li data-satisfied={satisfied} className="flex flex-col gap-space-2">
-      <RowState state={state} className="flex flex-wrap items-center justify-between gap-space-4 px-4 py-3.5">
+      <RowState state={state} className="flex flex-wrap items-center justify-between gap-space-7 px-4 py-3.5">
         <div className="flex min-w-40 flex-col gap-space-2">
           <span className="text-body-strong">{row.displayName}</span>
           <div className="flex flex-wrap items-center gap-space-2">
-            <span className="text-caption text-ink-faint">Decks:</span>
+            <span className="text-caption text-ink-subtle">Decks:</span>
             {isUnused ? (
-              <span className="text-caption text-ink-faint">nenhum</span>
+              <span className="text-caption text-ink-subtle">nenhum</span>
             ) : (
               row.decks.map((deck) => <Badge key={deck}>{deck}</Badge>)
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-space-3">
+        <div className="flex flex-wrap items-center gap-space-5">
           <span className="text-ui whitespace-nowrap text-ink-muted">Precisa: {row.needed}</span>
           <label htmlFor={inputId} className="sr-only">
             Adquirido de {row.displayName}
@@ -84,21 +84,24 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
             type="number"
             min={0}
             inputMode="numeric"
-            className="h-9 w-14 px-2 text-center text-ui [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="h-9.5 w-14 px-2 text-center text-ui [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             value={unsavedDraft ?? String(owned)}
+            readOnly={isUnused}
             aria-invalid={error !== null}
             onChange={(event) => setUnsavedDraft(event.target.value)}
           />
-          <ButtonGroup aria-label={`Ações de ${row.displayName}`}>
-            <SaveButton
-              type="button"
-              size="icon-lg"
-              title="Salvar"
-              aria-label={`Salvar ${row.displayName}`}
-              onClick={save}
-            >
-              <SaveIcon />
-            </SaveButton>
+          <ButtonGroup aria-label={`Ações de ${row.displayName}`} className="h-9.5">
+            {!isUnused && (
+              <SaveButton
+                type="button"
+                size="icon-lg"
+                title="Salvar"
+                aria-label={`Salvar ${row.displayName}`}
+                onClick={save}
+              >
+                <SaveIcon />
+              </SaveButton>
+            )}
             {isUnused && (
               <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                 <AlertDialogTrigger
