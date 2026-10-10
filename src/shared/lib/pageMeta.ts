@@ -34,6 +34,11 @@ export const PAGE_META = {
     description: 'Monte um novo deck de Pokémon TCG por categoria de carta.',
     noindex: true,
   },
+  routeError: {
+    title: titled('Algo deu errado'),
+    description: 'Não foi possível mostrar esta página.',
+    noindex: true,
+  },
   deckNotFound: {
     title: titled('Deck não encontrado'),
     description: 'O deck pedido não existe neste navegador.',

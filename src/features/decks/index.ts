@@ -1,6 +1,6 @@
 // Public API of the decks feature. Other features import from here, never from `lib/` or `components/`.
-export { default as DeckEditorPage } from '@/features/decks/components/DeckEditorPage'
-export { default as DeckListPage } from '@/features/decks/components/DeckListPage'
+// The screens are not re-exported: the backup feature imports this file statically, which would pull them
+// into the entry chunk. `app/AppRoutes` lazy-loads them by path.
 export { CARD_CATEGORIES, DECK_SIZE, persistedDataSchema } from '@/features/decks/types/deck'
 export type {
   CardCategory,

@@ -18,20 +18,20 @@ src/
   shared/     cross-feature UI, hooks, pure helpers, domain types, static data; imports nothing from app/ or features/
 ```
 
-- `app/` may import any feature through its `index.ts` and any `shared/` module.
+- `app/` may import any feature through its `index.ts` and any `shared/` module. Route screens are the exception: `app/lazyPages.ts` imports them by path, so each screen is its own chunk (DAL-59).
 - A feature may import `shared/`. It imports another feature only through that feature's `index.ts`.
 - `shared/` never imports `features/` or `app/`. `features/` never imports `app/`.
 - The graph has no cycles: `app → features/* → shared`, and `maintenance` and `backup` depend on `decks`.
 
 ### Feature map
 
-| Feature       | Owns                                                                                                                                                                                | Public API (`index.ts`)                                                                               |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `decks`       | deck list and editor screens, deck editor components, deck domain (`types/deck.ts`, `lib/deckStore`, `lib/storage`, `lib/deckRules`, `lib/cardParser`, `lib/draft`, `lib/rowLogic`) | `DeckListPage`, `DeckEditorPage`, deck store and storage, deck types and rules used by other features |
-| `maintenance` | Manutenção screen, `MaintenanceRow`, `ActionButtons`, `lib/maintenance`                                                                                                             | `MaintenancePage`                                                                                     |
-| `backup`      | `BackupMenu`, `BackupList`, `useBackup`, `lib/backup`                                                                                                                               | `BackupMenu`, `BackupList`, `useBackup`, `buildBackup`                                                |
-| `converter`   | Conversor screen, `lib/convertDecklist`                                                                                                                                             | `ConverterPage`                                                                                       |
-| `landing`     | landing page at `/`                                                                                                                                                                 | `LandingPage`                                                                                         |
+| Feature       | Owns                                                                                                                                                                                | Public API (`index.ts`)                                                                  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `decks`       | deck list and editor screens, deck editor components, deck domain (`types/deck.ts`, `lib/deckStore`, `lib/storage`, `lib/deckRules`, `lib/cardParser`, `lib/draft`, `lib/rowLogic`) | Deck store and storage, deck types and rules used by other features (screens: see above) |
+| `maintenance` | Manutenção screen, `MaintenanceRow`, `ActionButtons`, `lib/maintenance`                                                                                                             | `MaintenancePage`                                                                        |
+| `backup`      | `BackupMenu`, `BackupList`, `useBackup`, `lib/backup`                                                                                                                               | `BackupMenu`, `BackupList`, `useBackup`, `buildBackup`                                   |
+| `converter`   | Conversor screen, `lib/convertDecklist`                                                                                                                                             | `ConverterPage`                                                                          |
+| `landing`     | landing page at `/`                                                                                                                                                                 | `LandingPage`                                                                            |
 
 `shared/` holds what more than one feature or the app shell uses:
 
@@ -55,7 +55,7 @@ features/<name>/
   index.ts      public API
 ```
 
-- There is no `pages/` folder. A route component is the feature's page. `app/AppRoutes.tsx` composes the routes. Route components keep their default export. That is the seam for `React.lazy` in DAL-59.
+- There is no `pages/` folder. A route component is the feature's page. `app/AppRoutes.tsx` composes the routes. Route components keep their default export, which `app/lazyPages.ts` lazy-imports by path (DAL-59). A feature index does not re-export a screen that another feature imports statically, because the screen would then load with the entry chunk. `decks` is that case: the backup feature imports its index.
 - There is no `api/` folder. The app has no backend, so persistence lives in `decks/lib/storage.ts`. When a backend exists, add `api/` to that feature.
 - This differs from the folder list in `.claude/rules/typescript-react-vite.md` (`components,hooks,api,types`): `lib/` is added and `api/` is omitted. That file is not changed in this decision; update it to match.
 

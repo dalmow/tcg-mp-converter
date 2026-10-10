@@ -4,8 +4,9 @@ import { hydrateRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { act } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AppRoutes } from '@/app/AppRoutes'
+import { appRoutes } from '@/app/AppRoutes'
 import { renderApp } from './entry-server'
+import { ROUTE_LOADING_TEXT } from '@/app/RouteLoading'
 import { PUBLIC_PAGES } from '@/shared/lib/pageMeta'
 
 afterEach(() => {
@@ -24,6 +25,10 @@ describe('prerendered public pages', () => {
     expect(html).toContain('<main')
   })
 
+  it.each(PUBLIC_PAGES)('prerenders the page of $path instead of its loading fallback', async ({ path }) => {
+    expect(await renderApp(path)).not.toContain(ROUTE_LOADING_TEXT)
+  })
+
   it('prerenders the landing call to action as a link to the deck list', async () => {
     expect(await renderApp('/')).toMatch(/<a [^>]*href="\/decks"[^>]*>Abrir meus decks/)
   })
@@ -35,7 +40,7 @@ describe('prerendered public pages', () => {
     window.history.replaceState(null, '', path)
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
     const onRecoverableError = vi.fn()
-    const router = createBrowserRouter([{ path: '*', element: <AppRoutes /> }])
+    const router = createBrowserRouter(appRoutes)
     await act(async () => {
       hydrateRoot(
         container,
