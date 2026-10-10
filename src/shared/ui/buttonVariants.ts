@@ -4,7 +4,7 @@ const primaryStyle =
   'status-border border-secondary bg-primary text-ink hover:border-secondary-strong hover:bg-primary-hover'
 const dangerStyle = 'status-border border-danger bg-danger text-ink hover:border-danger-hover hover:bg-danger-hover'
 const ghostStyle =
-  'border-border bg-transparent text-ink hover:border-divider-accent hover:bg-secondary-tint-strong aria-expanded:border-divider-accent aria-expanded:bg-secondary-tint-strong'
+  'border-border bg-transparent text-ink hover:border-divider-accent hover:bg-secondary-tint-strong aria-expanded:border-border-strong aria-expanded:bg-white/[0.04]'
 
 // Design system: three variants (primary, danger, ghost).
 export const buttonVariants = cva(
@@ -22,6 +22,7 @@ export const buttonVariants = cva(
         icon: 'size-8',
         'icon-sm': 'size-7 rounded-sm in-data-[slot=button-group]:rounded-none',
         'icon-lg': 'size-9 rounded-sm',
+        dialog: 'h-auto px-space-8 py-space-4',
       },
     },
     defaultVariants: {

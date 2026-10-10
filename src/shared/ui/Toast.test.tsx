@@ -92,6 +92,13 @@ describe('Toast', () => {
     expect(screen.queryByRole('status')).toBeNull()
   })
 
+  it('gives the close button a visible title besides its aria-label', async () => {
+    setup()
+    await userEvent.click(screen.getByText('ok'))
+    const close = screen.getByRole('button', { name: 'Fechar notificação' })
+    expect(close.getAttribute('title')).toBe('Fechar')
+  })
+
   it('gives the close button a hit area of at least 24x24px', async () => {
     setup()
     await userEvent.click(screen.getByText('ok'))
