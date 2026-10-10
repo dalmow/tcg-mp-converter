@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/ui/AlertDialog'
-import { useToast } from '@/shared/ui/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import { downloadBackup, parseBackup, type BackupSummary } from '@/features/backup/lib/backup'
 import { getDeckStore } from '@/features/decks'
 import type { PersistedData } from '@/features/decks'

@@ -2,7 +2,8 @@
 import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { TOAST_DURATION_MS, ToastProvider, useToast } from './Toast'
+import { TOAST_DURATION_MS, ToastProvider } from './Toast'
+import { useToast } from '@/shared/hooks/useToast'
 
 function Trigger() {
   const toast = useToast()

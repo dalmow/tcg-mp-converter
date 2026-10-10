@@ -15,7 +15,7 @@ import {
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
 import { Input } from '@/shared/ui/Input'
-import { useToast } from '@/shared/ui/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
 import { CARD_CATEGORIES } from '@/features/decks/types/deck'

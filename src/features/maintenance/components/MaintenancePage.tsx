@@ -5,7 +5,7 @@ import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import { PageLayout } from '@/shared/layout/PageLayout'
 import { Panel } from '@/shared/ui/Panel'
 import { Switch } from '@/shared/ui/Switch'
-import { useToast } from '@/shared/ui/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import { CARD_CATEGORIES, type CardCategory, getDeckStore, useDeckData } from '@/features/decks'
 import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/features/maintenance/lib/maintenance'
 

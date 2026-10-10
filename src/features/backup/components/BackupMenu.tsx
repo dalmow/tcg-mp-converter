@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from 'lucide-react'
-import { buttonVariants } from '@/shared/ui/Button'
+import { buttonVariants } from '@/shared/ui/buttonVariants'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/ui/DropdownMenu'
 import type { Backup } from '@/features/backup/hooks/useBackup'
 
