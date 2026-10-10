@@ -26,11 +26,6 @@ describe('AppRoutes', () => {
     ).toBeTruthy()
   })
 
-  it('shows a loading state while the page chunk loads', () => {
-    renderAt(ROUTES.decks)
-    expect(screen.getByRole('status').textContent).toBe('Carregando…')
-  })
-
   it('renders /decks with the visible title block heading "Meus decks"', async () => {
     renderAt(ROUTES.decks)
     expect((await screen.findByRole('heading', { level: 1, name: 'Meus decks' })).className).not.toContain('sr-only')

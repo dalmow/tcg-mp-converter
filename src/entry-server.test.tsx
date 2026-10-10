@@ -25,7 +25,7 @@ describe('prerendered public pages', () => {
     expect(html).toContain('<main')
   })
 
-  it.each(PUBLIC_PAGES)('prerenders the page of  instead of its loading fallback', async ({ path }) => {
+  it.each(PUBLIC_PAGES)('prerenders the page of $path instead of its loading fallback', async ({ path }) => {
     expect(await renderApp(path)).not.toContain(ROUTE_LOADING_TEXT)
   })
 

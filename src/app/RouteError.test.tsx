@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { appRoutes } from './AppRoutes'
@@ -45,6 +45,14 @@ describe('route error boundaries', () => {
     renderAt(ROUTES.maintenance)
     const back = await screen.findByRole('link', { name: 'Voltar ao início' })
     expect(back.getAttribute('href')).toBe(ROUTES.home)
+  })
+
+  it('titles the error state and keeps it out of the index', async () => {
+    document.head.insertAdjacentHTML('beforeend', '<link rel="canonical" href="https://example.com/converter" />')
+    renderAt(ROUTES.converter)
+    await waitFor(() => expect(document.title).toBe('Algo deu errado | PTCG Tools'))
+    expect(document.head.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex')
+    expect(document.head.querySelector('link[rel="canonical"]')).toBeNull()
   })
 
   it('keeps the navigation so the user can leave the failed page', async () => {

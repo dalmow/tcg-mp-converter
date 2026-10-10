@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { DEFAULT_SITE_URL } from './site.ts'
 
-/** An empty variable (`SITE_URL=`) means unset, as it did before validation existed. */
+/** An empty variable (`SITE_URL=`) counts as unset, so a blank CI setting keeps the default origin. */
 const emptyAsUnset = (value: unknown) => (value === '' ? undefined : value)
 
 /** Build-time variables read by `vite.config.ts`. None reach the client bundle. */
@@ -12,7 +12,7 @@ const buildEnvSchema = z.object({
   ),
 })
 
-export type BuildEnv = {
+type BuildEnv = {
   /** Canonical origin of the site, used for SEO tags and the sitemap. */
   SITE_URL: string
 }
