@@ -20,7 +20,8 @@ const DECKS_SUBTITLE =
   'Organize suas 60 cartas por Pokémon, Treinador e Energia — e veja de cara o que ainda falta fechar.'
 
 // Artboard values without a spacing or breakpoint token: the 22px card padding sits between space-8 and space-9,
-// the 280px tile column and 18px gap are the artboard's fixed grid, and 761px is where three such tiles fit.
+// the 280px tile column and 18px gap are the artboard's fixed grid. Three tiles need 876px of content width, which
+// the page padding leaves from 960px up; the artboard breakpoint (760px) overflows between 761px and 955px.
 const DECK_TILE_CLASS =
   'min-h-32 gap-space-10 px-(--card-spacing) [--card-spacing:22px] transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary'
 
@@ -83,7 +84,7 @@ export default function DeckListPage() {
             </Link>
           </Panel>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-[18px] min-[761px]:grid-cols-[repeat(3,280px)] min-[761px]:justify-start">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-[18px] min-[960px]:grid-cols-[repeat(3,280px)] min-[960px]:justify-start">
             {decks.map((deck) => (
               <DeckBlock key={deck.id} deck={deck} owned={owned} />
             ))}
