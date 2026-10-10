@@ -12,5 +12,6 @@ export type {
   Result,
 } from '@/features/decks/types/deck'
 export { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
+export { isCardNumberInRange } from '@/features/decks/lib/cardParser'
 export { parseOwnedText } from '@/features/decks/lib/rowLogic'
 export { deckInvariantError, totalQuantity, uniqueDecksById } from '@/features/decks/lib/deckRules'

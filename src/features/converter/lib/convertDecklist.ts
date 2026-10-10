@@ -1,3 +1,4 @@
+import { isCardNumberInRange } from '@/features/decks'
 import type {
   CollectionConfig,
   Condition,
@@ -110,10 +111,10 @@ export function convertDecklist(
       continue
     }
 
-    if (number > total) {
+    if (!isCardNumberInRange(number, total)) {
       unresolvedCards.push({
         line: sourceLine,
-        reason: `Número ${number} acima do total da coleção "${collection}" (${total})`,
+        reason: `Número ${number} fora do total da coleção "${collection}" (${total})`,
       })
       continue
     }

@@ -69,6 +69,10 @@ function buildCard(
   return { ok: true, card: { category, key, displayName, normalizedName, basicEnergy } }
 }
 
+export function isCardNumberInRange(number: number, total: number): boolean {
+  return number >= 1 && number <= total
+}
+
 function resolvePrinting(
   category: CardCategory,
   parts: CardTextParts,
@@ -82,7 +86,7 @@ function resolvePrinting(
   if (total === undefined) {
     return { ok: false, error: `Coleção ${collection} não cadastrada` }
   }
-  if (parts.number < 1 || parts.number > total) {
+  if (!isCardNumberInRange(parts.number, total)) {
     return { ok: false, error: `Número ${parts.number} fora do total da coleção ${collection} (${total})` }
   }
   return { ok: true, key: `${collection}-${parts.number}`, displayName: `${parts.name} ${collection} ${parts.number}` }
