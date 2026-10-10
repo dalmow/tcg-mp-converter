@@ -9,6 +9,4 @@ function solidButton(colorClasses: string) {
 }
 
 /** Blue confirm/save button. */
-export const SaveButton = solidButton(
-  'bg-primary text-ink hover:bg-primary-hover',
-)
+export const SaveButton = solidButton('bg-primary text-ink hover:bg-primary-hover')

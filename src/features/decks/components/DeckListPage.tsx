@@ -32,7 +32,11 @@ function DeckTile({
   children: ReactNode
 }) {
   return (
-    <Link to={to} aria-label={label} className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-secondary">
+    <Link
+      to={to}
+      aria-label={label}
+      className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+    >
       <Panel className={cn('h-full', DECK_TILE_CLASS, className)}>{children}</Panel>
     </Link>
   )
@@ -52,7 +56,9 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
         )}
       </div>
       <div className="flex flex-col gap-space-3">
-        {validation.missingMessage && <span className="text-caption text-danger-soft">{validation.missingMessage}</span>}
+        {validation.missingMessage && (
+          <span className="text-caption text-danger-soft">{validation.missingMessage}</span>
+        )}
         <ProgressBar compact label="Cartas no deck" value={validation.total} max={DECK_SIZE} />
       </div>
     </DeckTile>

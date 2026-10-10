@@ -54,8 +54,12 @@ describe('design tokens in src/index.css match docs/design-system/tokens.json', 
   })
 
   it('font families', () => {
-    expect(normalize(declaration('font-display') ?? '')).toBe(normalize("'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif"))
-    expect(normalize(declaration('font-body') ?? '')).toBe(normalize("'Manrope Variable', ui-sans-serif, system-ui, sans-serif"))
+    expect(normalize(declaration('font-display') ?? '')).toBe(
+      normalize("'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif"),
+    )
+    expect(normalize(declaration('font-body') ?? '')).toBe(
+      normalize("'Manrope Variable', ui-sans-serif, system-ui, sans-serif"),
+    )
   })
 
   it('nav breakpoint', () => {
@@ -119,7 +123,8 @@ describe('shadcn token aliases are gone', () => {
   })
 
   it('no source file uses an alias-only color utility', () => {
-    const aliasUtility = /(?:bg|text|border|ring|fill|stroke|outline|divide)-(?:background|foreground|card|popover|muted|accent|destructive|input|ring|success|panel|control|sidebar|chart)(?:-[a-z]+)?/
+    const aliasUtility =
+      /(?:bg|text|border|ring|fill|stroke|outline|divide)-(?:background|foreground|card|popover|muted|accent|destructive|input|ring|success|panel|control|sidebar|chart)(?:-[a-z]+)?/
     const dir = new URL('../..', import.meta.url)
     const offenders = readdirSync(dir, { recursive: true, encoding: 'utf-8' })
       .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))

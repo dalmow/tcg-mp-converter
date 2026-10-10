@@ -32,10 +32,9 @@ describe('contrast helper', () => {
     expect(parseColor('#fff')).toEqual(parseColor('#ffffff'))
     expect(parseColor('rgba(255,255,255,1)')).toEqual(parseColor('#ffffff'))
     expect(parseColor('rgba(255,255,255,0)', parseColor('#000000'))).toEqual(parseColor('#000000'))
-    expect(contrastRatio(parseColor('rgba(255,255,255,0.5)', parseColor('#000000')), parseColor('#000000'))).toBeCloseTo(
-      contrastRatio(parseColor('#808080'), parseColor('#000000')),
-      1,
-    )
+    expect(
+      contrastRatio(parseColor('rgba(255,255,255,0.5)', parseColor('#000000')), parseColor('#000000')),
+    ).toBeCloseTo(contrastRatio(parseColor('#808080'), parseColor('#000000')), 1)
   })
 
   it('rejects unsupported colors', () => {

@@ -24,12 +24,12 @@ Every card belongs to one category: `pokemon`, `trainer`, `energy`. The category
 
 Row text is a single input, parsed per category. Collection acronyms are validated against `src/shared/data/collections.json` (case-tolerant). A Pokémon number must not exceed the collection total.
 
-| Category | Input format | Card key |
-| --- | --- | --- |
-| Pokémon | `<name> <COLLECTION> <number>`, e.g. `Abra MEG 54`. Collection and number required. | `COLLECTION-number` |
-| Trainer | name only, e.g. `Ordem da chefia`. Row is invalid if a collection or number is present. | normalized name (trim, lowercase, no accents) |
-| Basic energy | name without collection or number, e.g. `Energia Fogo`. Recognized by a fixed PT list: Grama, Fogo, Água, Elétrica, Psíquica, Lutadora, Escuridão, Metal (with or without the "Energia" prefix). | canonical type |
-| Special energy | name plus collection and number, e.g. `Energia de Prisma BLK 86`. Same logic as Pokémon. | `COLLECTION-number` |
+| Category       | Input format                                                                                                                                                                                     | Card key                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| Pokémon        | `<name> <COLLECTION> <number>`, e.g. `Abra MEG 54`. Collection and number required.                                                                                                              | `COLLECTION-number`                           |
+| Trainer        | name only, e.g. `Ordem da chefia`. Row is invalid if a collection or number is present.                                                                                                          | normalized name (trim, lowercase, no accents) |
+| Basic energy   | name without collection or number, e.g. `Energia Fogo`. Recognized by a fixed PT list: Grama, Fogo, Água, Elétrica, Psíquica, Lutadora, Escuridão, Metal (with or without the "Energia" prefix). | canonical type                                |
+| Special energy | name plus collection and number, e.g. `Energia de Prisma BLK 86`. Same logic as Pokémon.                                                                                                         | `COLLECTION-number`                           |
 
 An energy row with no collection/number and a name outside the basic list is invalid ("Energia especial exige coleção e número"). Only Portuguese names are recognized.
 

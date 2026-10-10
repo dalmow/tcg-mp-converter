@@ -24,12 +24,7 @@ export interface CardSuggestion {
 }
 
 /** Known cards of a category (in a deck or in the owned map) whose name contains the typed text. */
-export function suggestCards(
-  category: CardCategory,
-  text: string,
-  decks: Deck[],
-  owned: OwnedMap,
-): CardSuggestion[] {
+export function suggestCards(category: CardCategory, text: string, decks: Deck[], owned: OwnedMap): CardSuggestion[] {
   const known = new Map<string, CardSuggestion>()
   for (const [key, entry] of Object.entries(owned)) {
     if (entry.category === category) known.set(key, { key, displayName: entry.displayName, quantity: entry.quantity })
@@ -65,9 +60,7 @@ export function copiesInDeck(
 }
 
 export function copiesWarning(parsed: ParsedCard, copies: number): string | null {
-  return copies > MAX_COPIES_PER_NAME
-    ? `Mais de ${MAX_COPIES_PER_NAME} cópias de ${parsed.displayName} no deck`
-    : null
+  return copies > MAX_COPIES_PER_NAME ? `Mais de ${MAX_COPIES_PER_NAME} cópias de ${parsed.displayName} no deck` : null
 }
 
 export function parseIntegerText(text: string): number {
@@ -79,7 +72,6 @@ export function parseIntegerText(text: string): number {
 export function parseOwnedText(text: string): number {
   return text.trim() === '' ? 0 : parseIntegerText(text)
 }
-
 
 export interface RowInput {
   text: string
@@ -99,7 +91,6 @@ export function deriveRowState(context: RowContext, input: RowInput) {
     parsed.ok && Number.isInteger(quantity)
       ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
-  const valid =
-    parsed.ok && !quantityError && Number.isInteger(ownedQuantity) && ownedQuantity >= quantity && !warning
+  const valid = parsed.ok && !quantityError && Number.isInteger(ownedQuantity) && ownedQuantity >= quantity && !warning
   return { parsed, quantity, ownedQuantity, quantityError, warning, valid }
 }

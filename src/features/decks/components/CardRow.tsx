@@ -15,7 +15,8 @@ import type { CardSuggestion, RowContext } from '@/features/decks/lib/rowLogic'
 export const ROW_GRID_CLASS = 'grid grid-cols-[36px_minmax(0,1fr)_36px_36px] items-start gap-x-space-3'
 
 // The input sits inside its RowState cell, which carries the border and tint.
-const CELL_INPUT_CLASS = 'h-9 border-0 bg-transparent px-2 text-center text-ui focus-visible:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+const CELL_INPUT_CLASS =
+  'h-9 border-0 bg-transparent px-2 text-center text-ui focus-visible:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
 
 const TEXT_PLACEHOLDER: Record<CardCategory, string> = {
   pokemon: 'Nome COLEÇÃO número',
@@ -38,7 +39,16 @@ interface CardRowProps {
   onDelete: () => void
 }
 
-export function CardRow({ context, position, categoryTitle, row, error, focusOnMount, onChange, onDelete }: CardRowProps) {
+export function CardRow({
+  context,
+  position,
+  categoryTitle,
+  row,
+  error,
+  focusOnMount,
+  onChange,
+  onDelete,
+}: CardRowProps) {
   const messageId = useId()
   const quantityInput = useRef<HTMLInputElement>(null)
   useEffect(() => {
@@ -142,8 +152,14 @@ export function CardRow({ context, position, categoryTitle, row, error, focusOnM
         </Button>
       </div>
       {/* Plain template, not cn(): tailwind-merge does not know the text-caption token and would drop it next to a text color. */}
-      <p className={`flex items-center gap-space-2 pl-0.5 text-caption ${valid ? 'text-secondary' : 'text-danger-soft'}`}>
-        {valid ? <CheckIcon className="size-3" aria-hidden="true" /> : <CircleAlertIcon className="size-3" aria-hidden="true" />}
+      <p
+        className={`flex items-center gap-space-2 pl-0.5 text-caption ${valid ? 'text-secondary' : 'text-danger-soft'}`}
+      >
+        {valid ? (
+          <CheckIcon className="size-3" aria-hidden="true" />
+        ) : (
+          <CircleAlertIcon className="size-3" aria-hidden="true" />
+        )}
         {valid ? 'Linha válida' : 'Linha com pendências'}
       </p>
       {message && (

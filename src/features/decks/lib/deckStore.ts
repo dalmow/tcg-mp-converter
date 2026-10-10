@@ -55,9 +55,7 @@ export function createDeckStore(storage: DeckStorage) {
      */
     saveDeck(deck: Deck, owned: OwnedMap = {}) {
       const exists = snapshot.decks.some((d) => d.id === deck.id)
-      const decks = exists
-        ? snapshot.decks.map((d) => (d.id === deck.id ? deck : d))
-        : [...snapshot.decks, deck]
+      const decks = exists ? snapshot.decks.map((d) => (d.id === deck.id ? deck : d)) : [...snapshot.decks, deck]
       commit({ decks, owned: { ...snapshot.owned, ...owned } })
     },
 

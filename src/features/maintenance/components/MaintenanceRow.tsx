@@ -70,9 +70,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
             {isUnused ? (
               <span className="text-caption text-ink-faint">nenhum</span>
             ) : (
-              row.decks.map((deck) => (
-                <Badge key={deck}>{deck}</Badge>
-              ))
+              row.decks.map((deck) => <Badge key={deck}>{deck}</Badge>)
             )}
           </div>
         </div>

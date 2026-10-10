@@ -26,10 +26,7 @@ export default function MaintenancePage() {
   const ownedOf = (key: string) => owned[key]?.quantity ?? 0
 
   return (
-    <PageLayout
-      title="Manutenção"
-      subtitle="Cartas que faltam para completar seus decks, agrupadas por categoria."
-    >
+    <PageLayout title="Manutenção" subtitle="Cartas que faltam para completar seus decks, agrupadas por categoria.">
       <div className="flex items-center gap-space-3">
         <Switch id={switchId} checked={onlyMissing} onCheckedChange={setOnlyMissing} />
         <label htmlFor={switchId} className="text-body-strong">

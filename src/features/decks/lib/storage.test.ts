@@ -1,11 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import {
-  createDeckStorage,
-  EMPTY_DATA,
-  parsePersistedData,
-  STORAGE_KEY,
-  type StringStorage,
-} from './storage'
+import { createDeckStorage, EMPTY_DATA, parsePersistedData, STORAGE_KEY, type StringStorage } from './storage'
 import type { Deck, OwnedMap } from '@/features/decks/types/deck'
 
 function memoryBackend(initial?: string): StringStorage & { raw: () => string | null } {

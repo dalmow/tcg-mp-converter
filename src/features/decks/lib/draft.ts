@@ -81,8 +81,7 @@ export function isDirty(name: string, rows: DraftRow[], saved: Deck | undefined)
 }
 
 export type DeckSaveResult =
-  | { ok: true; deck: Deck; owned: OwnedMap }
-  | { ok: false; nameError: string | null; rowErrors: Record<string, string> }
+  { ok: true; deck: Deck; owned: OwnedMap } | { ok: false; nameError: string | null; rowErrors: Record<string, string> }
 
 /**
  * Turns the draft into the deck and the owned entries to write, or reports every error that stops

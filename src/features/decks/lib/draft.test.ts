@@ -12,7 +12,11 @@ const draft = (name: string, rows: DraftRow[]) => ({ id: 'deck', name, rows })
 
 describe('buildDeckSave', () => {
   it('builds the deck and writes owned for rows with no owned record', () => {
-    const result = buildDeckSave(draft(' Alakazam ', [row({ id: 'a', quantityText: '2', text: 'Abra MEG 54' })]), {}, collections)
+    const result = buildDeckSave(
+      draft(' Alakazam ', [row({ id: 'a', quantityText: '2', text: 'Abra MEG 54' })]),
+      {},
+      collections,
+    )
     expect(result).toEqual({
       ok: true,
       deck: {
@@ -43,12 +47,20 @@ describe('buildDeckSave', () => {
   })
 
   it('discards blank rows silently', () => {
-    const result = buildDeckSave(draft('D', [row({ id: 'a' }), row({ id: 'b', quantityText: ' ', text: '' })]), {}, collections)
+    const result = buildDeckSave(
+      draft('D', [row({ id: 'a' }), row({ id: 'b', quantityText: ' ', text: '' })]),
+      {},
+      collections,
+    )
     expect(result.ok && result.deck.cards).toEqual([])
   })
 
   it('blocks on an empty name, reporting it with the row errors', () => {
-    const result = buildDeckSave(draft(' ', [row({ id: 'a', quantityText: '1', text: 'Abra XYZ 54' })]), {}, collections)
+    const result = buildDeckSave(
+      draft(' ', [row({ id: 'a', quantityText: '1', text: 'Abra XYZ 54' })]),
+      {},
+      collections,
+    )
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.nameError).toBe(NAME_REQUIRED)
@@ -123,8 +135,20 @@ describe('isDirty', () => {
     expect(isDirty('Other', rowsFromDeck(saved), saved)).toBe(true)
     expect(isDirty('Alakazam', [], saved)).toBe(true)
     expect(isDirty('Alakazam', [...rowsFromDeck(saved), row({ id: 'n', text: 'x' })], saved)).toBe(true)
-    expect(isDirty('Alakazam', rowsFromDeck(saved).map((r) => ({ ...r, quantityText: '3' })), saved)).toBe(true)
-    expect(isDirty('Alakazam', rowsFromDeck(saved).map((r) => ({ ...r, ownedText: '2' })), saved)).toBe(true)
+    expect(
+      isDirty(
+        'Alakazam',
+        rowsFromDeck(saved).map((r) => ({ ...r, quantityText: '3' })),
+        saved,
+      ),
+    ).toBe(true)
+    expect(
+      isDirty(
+        'Alakazam',
+        rowsFromDeck(saved).map((r) => ({ ...r, ownedText: '2' })),
+        saved,
+      ),
+    ).toBe(true)
   })
 
   it('is dirty for a new deck with anything typed', () => {

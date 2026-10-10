@@ -91,13 +91,7 @@ export function Navbar() {
             className="absolute inset-x-space-5 top-full mt-space-3 flex flex-col overflow-hidden rounded-4xl border border-border-faint bg-surface-200 shadow-mobile-nav nav:hidden"
           >
             {links.map(({ to, label, end, Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={sheetRowClass}
-                onClick={() => setSheetOpen(false)}
-              >
+              <NavLink key={to} to={to} end={end} className={sheetRowClass} onClick={() => setSheetOpen(false)}>
                 <Icon size={17} />
                 {label}
               </NavLink>

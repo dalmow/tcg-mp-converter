@@ -54,7 +54,11 @@ export function CategoryPanel({
   }
 
   return (
-    <Panel role="region" aria-label={title} className="self-start gap-space-7 overflow-visible rounded-2xl [--card-spacing:20px]">
+    <Panel
+      role="region"
+      aria-label={title}
+      className="self-start gap-space-7 overflow-visible rounded-2xl [--card-spacing:20px]"
+    >
       <CardHeader>
         <CardTitle role="heading" aria-level={2} className="font-display text-h2">
           {title}
@@ -80,18 +84,18 @@ export function CategoryPanel({
           <span className="text-center">Adq.</span>
         </div>
         {categoryRows.map((row, index) => (
-            <CardRow
-              key={row.id}
-              context={{ category, otherRows: otherRowsDeck(rows, row.id, collections), decks, owned, collections }}
-              row={row}
-              position={index + 1}
-              categoryTitle={title}
-              error={rowErrors[row.id] ?? null}
-              focusOnMount={row.id === focusRowId}
-              onChange={(patch) => onChangeRow(row.id, patch)}
-              onDelete={() => deleteRow(row.id)}
-            />
-          ))}
+          <CardRow
+            key={row.id}
+            context={{ category, otherRows: otherRowsDeck(rows, row.id, collections), decks, owned, collections }}
+            row={row}
+            position={index + 1}
+            categoryTitle={title}
+            error={rowErrors[row.id] ?? null}
+            focusOnMount={row.id === focusRowId}
+            onChange={(patch) => onChangeRow(row.id, patch)}
+            onDelete={() => deleteRow(row.id)}
+          />
+        ))}
       </CardContent>
     </Panel>
   )

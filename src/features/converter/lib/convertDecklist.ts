@@ -1,4 +1,10 @@
-import type { CollectionConfig, Condition, ConvertDecklistResult, Language, UnresolvedCard } from '@/shared/types/domain'
+import type {
+  CollectionConfig,
+  Condition,
+  ConvertDecklistResult,
+  Language,
+  UnresolvedCard,
+} from '@/shared/types/domain'
 
 function padLeft3(value: number): string {
   return String(value).padStart(3, '0')

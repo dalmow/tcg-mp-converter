@@ -57,8 +57,8 @@ export function useBackup(): Backup {
                 <AlertDialogTitle>Importar backup</AlertDialogTitle>
                 <AlertDialogDescription render={<div />} className="flex flex-col gap-space-2">
                   <p className="text-secondary">
-                    O backup contém {pending.summary.deckCount} deck(s) e {pending.summary.ownedCount}{' '}
-                    carta(s) adquirida(s).
+                    O backup contém {pending.summary.deckCount} deck(s) e {pending.summary.ownedCount} carta(s)
+                    adquirida(s).
                   </p>
                   <p className="font-semibold text-danger-soft">Todos os dados atuais serão substituídos.</p>
                 </AlertDialogDescription>

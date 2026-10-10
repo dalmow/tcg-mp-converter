@@ -13,15 +13,15 @@ Date: 2026-10-01. Audited commit: `e60d4fe` (`main` after DAL-26) plus the fixes
 
 ## Results (public routes `/` and `/converter`)
 
-| Metric | Mobile | Desktop | "Good" threshold |
-| --- | --- | --- | --- |
-| Lighthouse SEO | 100 / 100 | 100 / 100 | 100 |
-| Lighthouse Performance | 100 / 100 | 100 / 100 | - |
-| Lighthouse Best practices | 100 / 100 | 100 / 100 | - |
-| LCP (lab) | 0.9 s | 0.3 s | <= 2.5 s |
-| CLS (lab, empty storage) | 0 | 0 | <= 0.1 |
-| CLS (8 stored decks, home) | 0.0002 | - | <= 0.1 |
-| TBT (lab proxy for INP) | 0-10 ms | 0 ms | INP <= 200 ms |
+| Metric                     | Mobile    | Desktop   | "Good" threshold |
+| -------------------------- | --------- | --------- | ---------------- |
+| Lighthouse SEO             | 100 / 100 | 100 / 100 | 100              |
+| Lighthouse Performance     | 100 / 100 | 100 / 100 | -                |
+| Lighthouse Best practices  | 100 / 100 | 100 / 100 | -                |
+| LCP (lab)                  | 0.9 s     | 0.3 s     | <= 2.5 s         |
+| CLS (lab, empty storage)   | 0         | 0         | <= 0.1           |
+| CLS (8 stored decks, home) | 0.0002    | -         | <= 0.1           |
+| TBT (lab proxy for INP)    | 0-10 ms   | 0 ms      | INP <= 200 ms    |
 
 Accessibility is 100 on `/` and 90 on `/converter`; those failures (`color-contrast`, `label`) are already in
 `docs/accessibility-audit.md` (A-01 to A-03) and belong to DAL-24.

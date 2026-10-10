@@ -23,8 +23,7 @@ export const PAGE_META = {
   },
   converter: {
     title: titled('Conversor'),
-    description:
-      'Converta uma decklist de Pokémon TCG para o formato de busca da Liga Pokemon e da MYPCards.',
+    description: 'Converta uma decklist de Pokémon TCG para o formato de busca da Liga Pokemon e da MYPCards.',
   },
   maintenance: {
     title: titled('Manutenção'),

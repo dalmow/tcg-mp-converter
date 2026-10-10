@@ -37,9 +37,7 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Manutenção' }).className).not.toContain('sr-only')
   })
 
-  it.each([
-    [ROUTES.newDeck, 'Novo deck'],
-  ])('renders %s with sr-only heading "%s"', (path, heading) => {
+  it.each([[ROUTES.newDeck, 'Novo deck']])('renders %s with sr-only heading "%s"', (path, heading) => {
     renderAt(path)
     expect(screen.getByRole('heading', { level: 1, name: heading }).className).toContain('sr-only')
   })

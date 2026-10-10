@@ -27,7 +27,10 @@ export function useToast(): ToastApi {
 }
 
 // Errors interrupt (assertive); successes wait their turn (polite).
-const VARIANT_STYLE: Record<ToastVariant, { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }> = {
+const VARIANT_STYLE: Record<
+  ToastVariant,
+  { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }
+> = {
   success: { role: 'status', border: 'border-secondary', text: 'text-secondary', Icon: CircleCheckIcon },
   error: { role: 'alert', border: 'border-danger', text: 'text-danger', Icon: CircleAlertIcon },
 }

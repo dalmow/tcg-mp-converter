@@ -57,10 +57,7 @@ function isDeck(value: unknown): value is Deck {
 
 function isOwnedEntry(value: unknown): value is OwnedEntry {
   return (
-    isRecord(value) &&
-    typeof value.displayName === 'string' &&
-    isCategory(value.category) &&
-    isCount(value.quantity, 0)
+    isRecord(value) && typeof value.displayName === 'string' && isCategory(value.category) && isCount(value.quantity, 0)
   )
 }
 

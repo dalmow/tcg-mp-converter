@@ -48,7 +48,13 @@ describe('deriveMaintenance', () => {
   })
 })
 
-const entry: MaintenanceEntry = { key: 'MEG-54', displayName: 'Abra MEG 54', category: 'pokemon', needed: 3, decks: ['A'] }
+const entry: MaintenanceEntry = {
+  key: 'MEG-54',
+  displayName: 'Abra MEG 54',
+  category: 'pokemon',
+  needed: 3,
+  decks: ['A'],
+}
 
 describe('isSatisfied', () => {
   it('is true when owned reaches needed', () => {

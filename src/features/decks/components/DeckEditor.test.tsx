@@ -132,7 +132,11 @@ describe('DeckEditor', () => {
 
   it('uses "#" as the quantity placeholder', async () => {
     renderEditor()
-    expect(panel('Pokémon').getByLabelText(/^Quantidade/).getAttribute('placeholder')).toBe('#')
+    expect(
+      panel('Pokémon')
+        .getByLabelText(/^Quantidade/)
+        .getAttribute('placeholder'),
+    ).toBe('#')
   })
 
   it('writes nothing until Save deck, then commits name, rows and owned together', async () => {
@@ -422,7 +426,9 @@ describe('DeckEditor', () => {
   it('follows owned changes made elsewhere unless the field has an unsaved edit', async () => {
     const card = { category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 2 } as const
     const deck = { id: 'abc', name: 'Alakazam', cards: [card] }
-    const entry = (quantity: number) => ({ 'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon' as const, quantity } })
+    const entry = (quantity: number) => ({
+      'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon' as const, quantity },
+    })
     getDeckStore().saveDeck(deck, entry(1))
     renderEditor(deckPath('abc'))
     const owned = () => panel('Pokémon').getByLabelText(/^Adquirido/) as HTMLInputElement

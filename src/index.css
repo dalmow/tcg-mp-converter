@@ -1,8 +1,8 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/space-grotesk";
-@import "@fontsource-variable/manrope";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/manrope';
 
 /*
  * Design system tokens. Source of truth: docs/design-system/tokens.json
@@ -12,28 +12,28 @@
   --color-surface-000: #0a090e;
   --color-surface-100: #120f1a;
   --color-surface-200: #15121f;
-  --color-surface-header: rgba(10,9,14,0.86);
-  --color-overlay: rgba(5,4,8,0.72);
+  --color-surface-header: rgba(10, 9, 14, 0.86);
+  --color-overlay: rgba(5, 4, 8, 0.72);
   --color-ink: #f3f1f8;
   --color-ink-muted: #a8a2b8;
   --color-ink-faint: #8a8598;
   --color-ink-subtle: #827d96;
-  --color-border: rgba(255,255,255,0.14);
-  --color-border-faint: rgba(255,255,255,0.08);
-  --color-border-strong: rgba(255,255,255,0.3);
-  --color-border-dashed: rgba(255,255,255,0.16);
-  --color-divider-accent: rgba(100,233,238,0.5);
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-border-faint: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.3);
+  --color-border-dashed: rgba(255, 255, 255, 0.16);
+  --color-divider-accent: rgba(100, 233, 238, 0.5);
   --color-primary: #2e5077;
   --color-primary-hover: #3d6690;
   --color-secondary: #64e9ee;
   --color-secondary-strong: #8ff2f5;
-  --color-secondary-tint: rgba(100,233,238,0.06);
-  --color-secondary-tint-strong: rgba(100,233,238,0.12);
-  --color-secondary-border-soft: rgba(100,233,238,0.3);
+  --color-secondary-tint: rgba(100, 233, 238, 0.06);
+  --color-secondary-tint-strong: rgba(100, 233, 238, 0.12);
+  --color-secondary-border-soft: rgba(100, 233, 238, 0.3);
   --color-danger: #f03a47;
   --color-danger-hover: #d32e3a;
   --color-danger-soft: #f0727b;
-  --color-danger-tint: rgba(240,58,71,0.06);
+  --color-danger-tint: rgba(240, 58, 71, 0.06);
   --color-quality-mint: #22c55e;
   --color-quality-near-mint: #84c92b;
   --color-quality-slightly-played: #d9b816;
@@ -112,10 +112,10 @@
   --radius-4xl: 20px;
   --radius-pill: 999px;
 
-  --shadow-dropdown: 0 20px 40px rgba(0,0,0,0.5);
-  --shadow-mobile-nav: 0 30px 60px rgba(0,0,0,0.5);
-  --shadow-modal: 0 20px 44px rgba(0,0,0,0.55);
-  --shadow-toast: 0 14px 32px rgba(0,0,0,0.5);
+  --shadow-dropdown: 0 20px 40px rgba(0, 0, 0, 0.5);
+  --shadow-mobile-nav: 0 30px 60px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 20px 44px rgba(0, 0, 0, 0.55);
+  --shadow-toast: 0 14px 32px rgba(0, 0, 0, 0.5);
 
   --breakpoint-nav: 860px;
 }

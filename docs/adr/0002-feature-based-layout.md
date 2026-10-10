@@ -25,13 +25,13 @@ src/
 
 ### Feature map
 
-| Feature | Owns | Public API (`index.ts`) |
-| --- | --- | --- |
-| `decks` | deck list and editor screens, deck editor components, deck domain (`types/deck.ts`, `lib/deckStore`, `lib/storage`, `lib/deckRules`, `lib/cardParser`, `lib/draft`, `lib/rowLogic`) | `DeckListPage`, `DeckEditorPage`, deck store and storage, deck types and rules used by other features |
-| `maintenance` | Manutenção screen, `MaintenanceRow`, `ActionButtons`, `lib/maintenance` | `MaintenancePage` |
-| `backup` | `BackupMenu`, `BackupList`, `useBackup`, `lib/backup` | `BackupMenu`, `BackupList`, `useBackup`, `buildBackup` |
-| `converter` | Conversor screen, `lib/convertDecklist` | `ConverterPage` |
-| `landing` | landing page at `/` | `LandingPage` |
+| Feature       | Owns                                                                                                                                                                                | Public API (`index.ts`)                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `decks`       | deck list and editor screens, deck editor components, deck domain (`types/deck.ts`, `lib/deckStore`, `lib/storage`, `lib/deckRules`, `lib/cardParser`, `lib/draft`, `lib/rowLogic`) | `DeckListPage`, `DeckEditorPage`, deck store and storage, deck types and rules used by other features |
+| `maintenance` | Manutenção screen, `MaintenanceRow`, `ActionButtons`, `lib/maintenance`                                                                                                             | `MaintenancePage`                                                                                     |
+| `backup`      | `BackupMenu`, `BackupList`, `useBackup`, `lib/backup`                                                                                                                               | `BackupMenu`, `BackupList`, `useBackup`, `buildBackup`                                                |
+| `converter`   | Conversor screen, `lib/convertDecklist`                                                                                                                                             | `ConverterPage`                                                                                       |
+| `landing`     | landing page at `/`                                                                                                                                                                 | `LandingPage`                                                                                         |
 
 `shared/` holds what more than one feature or the app shell uses:
 
