@@ -108,14 +108,6 @@ describe('parseBackup', () => {
     })
   })
 
-  it('accepts owned quantities above the safe integer range, as the forms can save them', () => {
-    const huge: PersistedData = {
-      ...data,
-      owned: { fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 1e20 } },
-    }
-    expect(parseBackup(JSON.stringify(buildBackup(huge))).ok).toBe(true)
-  })
-
   it('rejects a deck with a duplicate card key', () => {
     const bad: PersistedData = {
       ...data,

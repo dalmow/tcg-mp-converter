@@ -48,7 +48,8 @@ function recoverOwned(value: unknown): OwnedMap {
 /**
  * Keeps every valid deck and owned entry, and drops the rest, so one bad entry does not erase the saved
  * data. Each container is checked on its own, so a broken or missing `owned` keeps valid decks and vice
- * versa. A value that is not an object falls back to empty.
+ * versa. A value that is not an object falls back to empty. The return type is PersistedData, so a field
+ * added to the schema fails typecheck here until it is recovered.
  */
 export function recoverPersistedData(value: unknown): PersistedData {
   const parsedShape = z.object({ decks: z.unknown().optional(), owned: z.unknown().optional() }).safeParse(value)

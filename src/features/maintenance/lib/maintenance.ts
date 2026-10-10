@@ -1,5 +1,4 @@
-import { parseOwnedText } from '@/features/decks'
-import type { CardCategory, Deck, OwnedEntry, OwnedMap } from '@/features/decks'
+import { parseOwnedText, type CardCategory, type Deck, type OwnedEntry, type OwnedMap } from '@/features/decks'
 
 export interface MaintenanceEntry {
   key: string
