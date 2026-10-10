@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 import { MaintenanceRow } from './MaintenanceRow'
 import { PAGE_META } from '@/shared/lib/pageMeta'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
@@ -16,7 +16,7 @@ export default function MaintenancePage() {
   const switchId = useId()
   const toast = useToast()
 
-  const rows = useMemo(() => deriveMaintenance(decks, owned), [decks, owned])
+  const rows = deriveMaintenance(decks, owned)
   const ownedOf = (key: string) => owned[key]?.quantity ?? 0
 
   return (
