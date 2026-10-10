@@ -2,23 +2,13 @@
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router'
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ToastProvider } from '@/shared/ui/Toast'
 import DeckEditorPage from './DeckEditorPage'
 import { EMPTY_DATA } from '@/features/decks/lib/storage'
 import { getDeckStore } from '@/features/decks/lib/deckStore'
 import type { Deck } from '@/features/decks/types/deck'
 import { deckPath, ROUTES } from '@/shared/lib/routes'
-
-beforeAll(() => {
-  // cmdk (used by the card combobox) relies on browser APIs jsdom lacks.
-  globalThis.ResizeObserver ??= class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  Element.prototype.scrollIntoView ??= () => {}
-})
 
 beforeEach(() => getDeckStore().replaceAll(EMPTY_DATA))
 afterEach(cleanup)

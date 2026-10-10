@@ -66,7 +66,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: false,
+    setupFiles: ['./src/test/setup.ts'],
     // `.claude/` holds git worktrees with stale copies of the source, not part of this project.
-    exclude: [...configDefaults.exclude, '.claude/**'],
+    exclude: [...configDefaults.exclude, '.claude/**', 'dist/**', 'node_modules/**'],
   },
 })
