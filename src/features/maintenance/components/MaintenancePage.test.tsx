@@ -95,7 +95,7 @@ describe('MaintenancePage', () => {
     expect((await screen.findByRole('status')).textContent).toContain('Quantidade salva')
     const card = within(rowOf('Energia Fogo'))
     await userEvent.click(card.getByRole('button', { name: /^Excluir/ }))
-    await userEvent.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir' }))
     expect(await screen.findByText('Carta excluída')).toBeTruthy()
   })
 
@@ -115,7 +115,7 @@ describe('MaintenancePage', () => {
     expect(card.getByText('Decks:')).toBeTruthy()
     expect(card.getByText('nenhum')).toBeTruthy()
     await userEvent.click(card.getByRole('button', { name: /^Excluir/ }))
-    await userEvent.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir' }))
     expect(getDeckStore().getSnapshot().owned['energy:fogo']).toBeUndefined()
   })
 

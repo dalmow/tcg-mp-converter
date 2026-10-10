@@ -124,7 +124,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <Button variant="danger" type="button" onClick={remove}>
-                      Confirmar exclusão
+                      Excluir
                     </Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>

@@ -88,6 +88,7 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
       <button
         type="button"
         aria-label="Fechar notificação"
+        title="Fechar"
         className="-m-0.5 flex size-6 shrink-0 items-center justify-center rounded-xs text-ink-faint hover:text-ink"
         onClick={() => onDismiss(id)}
       >
