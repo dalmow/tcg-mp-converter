@@ -1,4 +1,5 @@
-import { cardNumberOutOfRangeReason, isCardNumberInRange } from '@/shared/lib/cardNumber'
+import { parseCard } from '@/features/decks'
+import { isIntegerText } from '@/shared/lib/integer'
 import type {
   CollectionConfig,
   Condition,
@@ -7,12 +8,14 @@ import type {
   UnresolvedCard,
 } from '@/shared/types/domain'
 
+const INVALID_FORMAT_REASON = 'Linha em formato inválido'
+
 function padLeft3(value: number): string {
   return String(value).padStart(3, '0')
 }
 
-interface ParsedLine {
-  sourceLine: string
+interface ValidLine {
+  key: string
   quantity: number
   name: string
   collection: string
@@ -25,45 +28,16 @@ function isSectionHeader(line: string): boolean {
   return sectionHeaderPattern.test(line)
 }
 
-const integerPattern = /^\d+$/
+function mergeDuplicates(validLines: ValidLine[]): ValidLine[] {
+  const merged = new Map<string, ValidLine>()
 
-type ParseLineResult = { ok: true; value: ParsedLine } | { ok: false }
-
-// Expects a trimmed line, as produced by convertDecklist.
-function parseLine(line: string): ParseLineResult {
-  const tokens = line.split(/\s+/)
-  const quantityToken = tokens[0]
-  const numberToken = tokens[tokens.length - 1]
-  const collection = tokens[tokens.length - 2]
-  const name = tokens.slice(1, tokens.length - 2).join(' ')
-
-  if (tokens.length < 4 || !integerPattern.test(quantityToken) || !integerPattern.test(numberToken)) {
-    return { ok: false }
-  }
-
-  return {
-    ok: true,
-    value: {
-      sourceLine: line,
-      quantity: Number(quantityToken),
-      name,
-      collection,
-      number: Number(numberToken),
-    },
-  }
-}
-
-function mergeDuplicates(parsedLines: ParsedLine[]): ParsedLine[] {
-  const merged = new Map<string, ParsedLine>()
-
-  for (const parsedLine of parsedLines) {
-    const key = `${parsedLine.collection}/${parsedLine.number}`
-    const existing = merged.get(key)
+  for (const validLine of validLines) {
+    const existing = merged.get(validLine.key)
 
     if (existing) {
-      existing.quantity += parsedLine.quantity
+      existing.quantity += validLine.quantity
     } else {
-      merged.set(key, { ...parsedLine })
+      merged.set(validLine.key, { ...validLine })
     }
   }
 
@@ -86,34 +60,40 @@ export function convertDecklist(
   const mypCardsLines: string[] = []
   const unresolvedCards: UnresolvedCard[] = []
 
-  const validLines: ParsedLine[] = []
+  const validLines: ValidLine[] = []
 
   for (const line of lines) {
-    const parsed = parseLine(line)
+    // Line shape: `<quantity> <name> <COLLECTION> <number>`. Only the card part goes to parseCard.
+    const tokens = line.split(/\s+/)
+    const quantityToken = tokens[0]
+    const numberToken = tokens[tokens.length - 1]
+    const collection = tokens[tokens.length - 2]
 
-    if (!parsed.ok) {
-      unresolvedCards.push({ line, reason: 'Linha em formato inválido' })
+    if (tokens.length < 4 || !isIntegerText(quantityToken) || !isIntegerText(numberToken)) {
+      unresolvedCards.push({ line, reason: INVALID_FORMAT_REASON })
       continue
     }
 
-    const { sourceLine, collection, number } = parsed.value
-    const collectionKey = collection.toUpperCase()
-    const total: number | undefined = config[collectionKey]
-
-    if (total === undefined) {
-      unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
+    // The converter names the collection as typed; parseCard owns the range check and the card key.
+    if (config[collection.toUpperCase()] === undefined) {
+      unresolvedCards.push({ line, reason: `Coleção "${collection}" não cadastrada` })
       continue
     }
 
-    if (!isCardNumberInRange(number, total)) {
-      unresolvedCards.push({
-        line: sourceLine,
-        reason: cardNumberOutOfRangeReason(number, collectionKey, total),
-      })
+    const parsed = parseCard('pokemon', tokens.slice(1).join(' '), config)
+    const printing = parsed.ok ? parsed.card.printing : undefined
+    if (!parsed.ok || !printing) {
+      unresolvedCards.push({ line, reason: parsed.ok ? INVALID_FORMAT_REASON : parsed.error })
       continue
     }
 
-    validLines.push({ ...parsed.value, collection: collectionKey })
+    validLines.push({
+      key: parsed.card.key,
+      quantity: Number(quantityToken),
+      name: parsed.card.name,
+      collection: printing.collection,
+      number: printing.number,
+    })
   }
 
   for (const { quantity, name, collection, number } of mergeDuplicates(validLines)) {

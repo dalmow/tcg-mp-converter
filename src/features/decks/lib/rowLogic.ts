@@ -1,3 +1,4 @@
+import { parseIntegerText } from '@/shared/lib/integer'
 import type { CollectionConfig } from '@/shared/types/domain'
 import { normalizeName, parseCard } from './cardParser'
 import type { ParsedCard } from './cardParser'
@@ -61,11 +62,6 @@ export function copiesInDeck(
 
 export function copiesWarning(parsed: ParsedCard, copies: number): string | null {
   return copies > MAX_COPIES_PER_NAME ? `Mais de ${MAX_COPIES_PER_NAME} cópias de ${parsed.displayName} no deck` : null
-}
-
-export function parseIntegerText(text: string): number {
-  const trimmed = text.trim()
-  return /^\d+$/.test(trimmed) ? Number(trimmed) : Number.NaN
 }
 
 /** Empty owned text counts as 0. NaN when the text is not a count the stored data accepts. */
