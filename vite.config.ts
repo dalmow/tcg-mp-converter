@@ -1,9 +1,9 @@
-/// <reference types="vitest/config" />
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { createServer, defineConfig, type Plugin } from 'vite'
+import { configDefaults } from 'vitest/config'
 import { PUBLIC_PAGES } from './src/shared/lib/pageMeta.ts'
 import { applyPageToShell, buildHeadTags, buildRobotsTxt, buildSitemapXml, SHELL_PAGE } from './src/shared/lib/seo.ts'
 import { DEFAULT_SITE_URL } from './src/shared/lib/site.ts'
@@ -66,5 +66,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: false,
+    // `.claude/` holds git worktrees with stale copies of the source, not part of this project.
+    exclude: [...configDefaults.exclude, '.claude/**'],
   },
 })
