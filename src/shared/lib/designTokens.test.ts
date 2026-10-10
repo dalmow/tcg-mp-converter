@@ -23,10 +23,12 @@ const declaration = (name: string) => {
 }
 const asCss = (value: string) => value.replace(/^\{(.+)\}$/, 'var(--color-$1)')
 const normalize = (value: string) => value.replace(/\s+/g, '').replace(/"/g, "'")
+// Prettier writes spaces inside CSS function arguments (`rgba(1, 2)`); the token value has none.
+const canonicalCss = (value: string) => value.replace(/\s*([(),])\s*/g, '$1')
 
 describe('design tokens in src/index.css match docs/design-system/tokens.json', () => {
   it.each(tokens.color.tokens.map((t) => [t.name, t.value]))('color %s', (name, value) => {
-    expect(declaration(`color-${name}`)).toBe(asCss(value))
+    expect(canonicalCss(declaration(`color-${name}`) ?? '')).toBe(canonicalCss(asCss(value)))
   })
 
   it.each(tokens.radius.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
@@ -34,7 +36,7 @@ describe('design tokens in src/index.css match docs/design-system/tokens.json', 
   })
 
   it.each(tokens.shadow.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
-    expect(declaration(name)).toBe(value)
+    expect(canonicalCss(declaration(name) ?? '')).toBe(canonicalCss(value))
   })
 
   it.each(tokens.spacing.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
