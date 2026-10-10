@@ -110,4 +110,18 @@ describe('parseBackup', () => {
       error: 'Deck "Alakazam" tem mais de 60 cartas',
     })
   })
+
+  it('ignores unknown fields', () => {
+    const text = JSON.stringify({ ...buildBackup(data), extra: true })
+    expect(parseBackup(text)).toEqual({
+      ok: true,
+      data,
+      summary: { deckCount: 1, ownedCount: 2 },
+    })
+  })
+
+  it('rejects a file without exportedAt', () => {
+    const { exportedAt: _exportedAt, ...withoutTimestamp } = buildBackup(data)
+    expect(parseBackup(JSON.stringify(withoutTimestamp)).ok).toBe(false)
+  })
 })

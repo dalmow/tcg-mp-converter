@@ -4,6 +4,6 @@ export { default as DeckListPage } from '@/features/decks/components/DeckListPag
 export { CARD_CATEGORIES, DECK_SIZE } from '@/features/decks/types/deck'
 export type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from '@/features/decks/types/deck'
 export { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
-export { parsePersistedData } from '@/features/decks/lib/storage'
+export { persistedDataSchema } from '@/features/decks/lib/storage'
 export type { PersistedData } from '@/features/decks/lib/storage'
-export { totalQuantity } from '@/features/decks/lib/deckRules'
+export { deckInvariantError, totalQuantity } from '@/features/decks/lib/deckRules'

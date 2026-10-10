@@ -7,6 +7,17 @@ export function totalQuantity(cards: DeckCard[]): number {
   return cards.reduce((sum, card) => sum + card.quantity, 0)
 }
 
+/** Returns a Portuguese error for the first deck invariant the deck breaks, or null. Shared by storage and backup. */
+export function deckInvariantError(deck: Deck): string | null {
+  if (new Set(deck.cards.map((card) => card.key)).size !== deck.cards.length) {
+    return `Deck "${deck.name}" tem cartas duplicadas`
+  }
+  if (totalQuantity(deck.cards) > DECK_SIZE) {
+    return `Deck "${deck.name}" tem mais de ${DECK_SIZE} cartas`
+  }
+  return null
+}
+
 /** Largest quantity a row may take, given the other rows of the deck. */
 export function maxQuantityFor(deck: Deck, key: string): number {
   const others = deck.cards.filter((card) => card.key !== key)

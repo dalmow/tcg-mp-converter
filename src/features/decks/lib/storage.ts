@@ -1,12 +1,15 @@
-import { CARD_CATEGORIES } from '@/features/decks/types/deck'
-import type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from '@/features/decks/types/deck'
+import { z } from 'zod'
+import { deckInvariantError } from '@/features/decks/lib/deckRules'
+import { deckSchema, ownedEntrySchema, ownedMapSchema } from '@/features/decks/types/deck'
+import type { Deck, OwnedMap } from '@/features/decks/types/deck'
 
 export const STORAGE_KEY = 'ptcg:v1'
 
-export interface PersistedData {
-  decks: Deck[]
-  owned: OwnedMap
-}
+export const persistedDataSchema = z.object({
+  decks: z.array(deckSchema),
+  owned: ownedMapSchema,
+})
+export type PersistedData = z.infer<typeof persistedDataSchema>
 
 export const EMPTY_DATA: PersistedData = { decks: [], owned: {} }
 
@@ -23,53 +26,32 @@ export interface DeckStorage {
   subscribe(onExternalChange: () => void): () => void
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
+const storedShapeSchema = z.object({
+  decks: z.array(z.unknown()),
+  owned: z.record(z.string(), z.unknown()),
+})
 
-function isCategory(value: unknown): value is CardCategory {
-  return typeof value === 'string' && (CARD_CATEGORIES as readonly string[]).includes(value)
-}
+/**
+ * Keeps every deck and owned entry that is valid, and drops the rest, so one bad entry does not erase
+ * the saved data. Data without the top-level shape falls back to empty.
+ */
+export function recoverPersistedData(value: unknown): PersistedData {
+  const shape = storedShapeSchema.safeParse(value)
+  if (!shape.success) return EMPTY_DATA
 
-function isCount(value: unknown, min: number): value is number {
-  return typeof value === 'number' && Number.isInteger(value) && value >= min
-}
-
-function isDeckCard(value: unknown): value is DeckCard {
-  return (
-    isRecord(value) &&
-    isCategory(value.category) &&
-    typeof value.key === 'string' &&
-    typeof value.displayName === 'string' &&
-    isCount(value.quantity, 1)
-  )
-}
-
-function isDeck(value: unknown): value is Deck {
-  return (
-    isRecord(value) &&
-    typeof value.id === 'string' &&
-    typeof value.name === 'string' &&
-    Array.isArray(value.cards) &&
-    value.cards.every(isDeckCard)
-  )
-}
-
-function isOwnedEntry(value: unknown): value is OwnedEntry {
-  return (
-    isRecord(value) && typeof value.displayName === 'string' && isCategory(value.category) && isCount(value.quantity, 0)
-  )
-}
-
-/** Validates unknown input (storage or backup file) into `PersistedData`. */
-export function parsePersistedData(value: unknown): Result<{ data: PersistedData }> {
-  if (!isRecord(value) || !Array.isArray(value.decks) || !isRecord(value.owned)) {
-    return { ok: false, error: 'Dados inválidos' }
+  const decks: Deck[] = []
+  for (const item of shape.data.decks) {
+    const deck = deckSchema.safeParse(item)
+    if (deck.success && deckInvariantError(deck.data) === null) decks.push(deck.data)
   }
-  if (!value.decks.every(isDeck) || !Object.values(value.owned).every(isOwnedEntry)) {
-    return { ok: false, error: 'Dados inválidos' }
+
+  const owned: OwnedMap = {}
+  for (const [key, item] of Object.entries(shape.data.owned)) {
+    const entry = ownedEntrySchema.safeParse(item)
+    if (entry.success) owned[key] = entry.data
   }
-  return { ok: true, data: { decks: value.decks, owned: value.owned as OwnedMap } }
+
+  return { decks, owned }
 }
 
 /** Calls `onChange` when another tab changes the stored data; returns the cleanup function. */
@@ -88,12 +70,11 @@ export function createDeckStorage(
 ): DeckStorage {
   return {
     load() {
-      // Corrupt or unreadable storage falls back to empty; the next save replaces it.
+      // Unreadable storage falls back to empty; the next save replaces it.
       try {
         const raw = backend.getItem(STORAGE_KEY)
         if (raw === null) return EMPTY_DATA
-        const parsed = parsePersistedData(JSON.parse(raw))
-        return parsed.ok ? parsed.data : EMPTY_DATA
+        return recoverPersistedData(JSON.parse(raw))
       } catch {
         return EMPTY_DATA
       }
