@@ -23,6 +23,9 @@ const data: PersistedData = {
   },
 }
 
+const deck = data.decks[0]
+const card = deck.cards[0]
+
 describe('buildBackup', () => {
   it('builds the payload with version, timestamp, decks and owned', () => {
     const payload = buildBackup(data, new Date('2026-01-02T03:04:05.000Z'))
@@ -54,6 +57,15 @@ describe('parseBackup', () => {
     expect(parseBackup(text).ok).toBe(false)
   })
 
+  it.each([
+    ['an unknown card category', { decks: [{ ...deck, cards: [{ ...card, category: 'item' }] }] }],
+    ['a non-integer card quantity', { decks: [{ ...deck, cards: [{ ...card, quantity: 1.5 }] }] }],
+    ['decks that is not an array', { decks: {} }],
+    ['owned that is an array', { owned: [] }],
+  ])('rejects a file with %s', (_label, overrides) => {
+    expect(parseBackup(JSON.stringify({ ...buildBackup(data), ...overrides })).ok).toBe(false)
+  })
+
   it('rejects an owned entry that breaks the schema', () => {
     const text = JSON.stringify({
       ...buildBackup(data),
@@ -83,7 +95,7 @@ describe('parseBackup', () => {
   })
 
   it('ignores unknown fields', () => {
-    const text = JSON.stringify({ ...buildBackup(data), extra: true })
+    const text = JSON.stringify({ ...buildBackup(data), decks: [{ ...deck, color: 'red' }] })
     expect(parseBackup(text)).toEqual({
       ok: true,
       data,

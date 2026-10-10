@@ -2,7 +2,7 @@ import type { CollectionConfig } from '@/shared/types/domain'
 import { normalizeName, parseCard } from './cardParser'
 import type { ParsedCard } from './cardParser'
 import { validateQuantity } from './deckRules'
-import { MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
+import { isCount, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
 import type { CardCategory, Deck, OwnedMap } from '@/features/decks/types/deck'
 
 const MAX_SUGGESTIONS = 8
@@ -88,9 +88,9 @@ export function deriveRowState(context: RowContext, input: RowInput) {
   // `otherRows` excludes this row, so there is no key to exclude; '' matches none.
   const quantityError = validateQuantity(otherRows, '', quantity)
   const warning =
-    parsed.ok && Number.isInteger(quantity)
+    parsed.ok && isCount(quantity, 0)
       ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
-  const valid = parsed.ok && !quantityError && Number.isInteger(ownedQuantity) && ownedQuantity >= quantity && !warning
+  const valid = parsed.ok && !quantityError && isCount(ownedQuantity, quantity) && !warning
   return { parsed, quantity, ownedQuantity, quantityError, warning, valid }
 }

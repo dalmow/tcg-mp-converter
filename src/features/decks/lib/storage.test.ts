@@ -43,6 +43,16 @@ describe('recoverPersistedData', () => {
     ['with an unknown category', { ...deck, cards: [{ ...card, category: 'item' }] }],
     ['with a non-integer quantity', { ...deck, cards: [{ ...card, quantity: 1.5 }] }],
     ['with duplicate card keys', { ...deck, cards: [card, card] }],
+    [
+      'with more than 60 cards',
+      {
+        ...deck,
+        cards: [
+          { ...card, quantity: 40 },
+          { ...card, key: 'MEG-2', quantity: 21 },
+        ],
+      },
+    ],
   ])('drops a deck %s and keeps the valid decks', (_label, invalidDeck) => {
     expect(recoverPersistedData({ decks: [invalidDeck, deck], owned }).decks).toEqual([deck])
   })

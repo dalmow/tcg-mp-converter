@@ -82,4 +82,7 @@ describe('parseOwnedQuantity', () => {
   it('rejects negative, decimal and non-numeric input', () => {
     for (const text of ['-1', '1.5', '1e2', 'abc']) expect(parseOwnedQuantity(text)).toBeNull()
   })
+  it('rejects a quantity too large to store', () => {
+    expect(parseOwnedQuantity('9'.repeat(400))).toBeNull()
+  })
 })

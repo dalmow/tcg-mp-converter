@@ -59,7 +59,8 @@ export function parseBackup(text: string): Result<{ data: PersistedData; summary
   if (!parsedBackup.success) return { ok: false, error: INVALID_FILE_ERROR }
 
   const { decks, owned } = parsedBackup.data
-  if (uniqueDecksById(decks).length !== decks.length) return { ok: false, error: DUPLICATE_DECK_ID_ERROR }
+  const hasDuplicateIds = uniqueDecksById(decks).length !== decks.length
+  if (hasDuplicateIds) return { ok: false, error: DUPLICATE_DECK_ID_ERROR }
   for (const deck of decks) {
     const invariantError = deckInvariantError(deck)
     if (invariantError) return { ok: false, error: invariantError }

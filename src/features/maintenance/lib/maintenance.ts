@@ -1,3 +1,4 @@
+import { isCount } from '@/features/decks'
 import type { CardCategory, Deck, OwnedEntry, OwnedMap } from '@/features/decks'
 
 export interface MaintenanceEntry {
@@ -49,5 +50,7 @@ export function parseOwnedQuantity(text: string): number | null {
   const trimmed = text.trim()
   if (trimmed === '') return 0
   if (!/^\d+$/.test(trimmed)) return null
-  return Number(trimmed)
+  const quantity = Number(trimmed)
+  // A digit string past the float range becomes Infinity, which would be saved as null and lost on reload.
+  return isCount(quantity, 0) ? quantity : null
 }

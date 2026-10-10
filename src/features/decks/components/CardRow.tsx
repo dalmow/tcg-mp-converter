@@ -4,7 +4,7 @@ import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { RowState } from '@/shared/ui/RowState'
 import { parseCard } from '@/features/decks/lib/cardParser'
-import type { CardCategory } from '@/features/decks/types/deck'
+import { isCount, type CardCategory } from '@/features/decks/types/deck'
 import { cn } from '@/shared/lib/utils'
 import { CardCombobox } from './CardCombobox'
 import { deriveRowState, suggestCards } from '@/features/decks/lib/rowLogic'
@@ -65,7 +65,7 @@ export function CardRow({
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
-  const ownedInvalid = !Number.isInteger(ownedQuantity) || ownedQuantity < quantity
+  const ownedInvalid = !isCount(ownedQuantity, quantity)
   function fieldA11y(invalid: boolean, described: boolean) {
     return {
       'aria-invalid': invalid ? true : undefined,

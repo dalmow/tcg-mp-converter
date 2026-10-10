@@ -5,8 +5,15 @@ export const CARD_CATEGORIES = ['pokemon', 'trainer', 'energy'] as const
 export const DECK_SIZE = 60
 export const MAX_COPIES_PER_NAME = 4
 
-/** Whole number from `min`. Same rule the forms apply (Number.isInteger), so every quantity a form saves reloads. */
-const countSchema = (min: number) => z.number().refine((value) => Number.isInteger(value) && value >= min)
+/**
+ * The one rule for quantities, shared by the forms and every stored or imported count. Not zod's int(): that
+ * rejects values above 2^53 that a form can save. Infinity (a digit string past the float range) is rejected.
+ */
+export function isCount(value: number, min: number): boolean {
+  return Number.isInteger(value) && value >= min
+}
+
+const countSchema = (min: number) => z.number().refine((value) => isCount(value, min))
 
 const cardCategorySchema = z.enum(CARD_CATEGORIES)
 export type CardCategory = z.infer<typeof cardCategorySchema>
