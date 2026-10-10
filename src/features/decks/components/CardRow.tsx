@@ -66,7 +66,10 @@ export function CardRow({
     ownedText,
   })
   const cellState = valid ? 'complete' : 'pendency'
-  const pendencyText = missing > 0 ? `Linha com pendências — faltam ${missing} carta(s)` : 'Linha com pendências'
+  const pendencyText =
+    missing > 0
+      ? `Linha com pendências — faltam ${missing} ${missing === 1 ? 'carta' : 'cartas'}`
+      : 'Linha com pendências'
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.

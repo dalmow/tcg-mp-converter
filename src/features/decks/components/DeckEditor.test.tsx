@@ -598,13 +598,13 @@ describe('DeckEditor accessibility', () => {
   it('counts the copies still missing in the pendency sentence', async () => {
     renderEditor()
     const { element } = await addRow('Treinadores', '4', 'Ordem da chefia', '1')
-    expect(within(element).getByText('Linha com pendências — faltam 3 carta(s)')).toBeTruthy()
+    expect(within(element).getByText('Linha com pendências — faltam 3 cartas')).toBeTruthy()
   })
 
-  it('counts a single missing copy with the same pattern', async () => {
+  it('uses the singular for a single missing copy', async () => {
     renderEditor()
     const { element } = await addRow('Treinadores', '1', 'Ordem da chefia')
-    expect(within(element).getByText('Linha com pendências — faltam 1 carta(s)')).toBeTruthy()
+    expect(within(element).getByText('Linha com pendências — faltam 1 carta')).toBeTruthy()
   })
 
   it('ties a row error to its inputs and shows a non-colour cue', async () => {
