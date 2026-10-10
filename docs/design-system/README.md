@@ -40,7 +40,7 @@ A "Decks:" caption in `ink-subtle` introduces a row of `chip-accent` badges, one
 
 ### Progress
 
-A progress indicator is a 6px track with the literal count beside it ("45/60") on the right, and no label row. The track is `border-faint`-colored with 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border, and no "X faltam" sentence repeats the count. The deck list tiles are its one use. Its label is the accessible name only, so the count is the one visible signal.
+A progress indicator is a 6px track with a literal count ("45/60" or "15/60 cartas") beside it, in one of two layouts. The compact layout is the bare track with the count on the right and no label row; the deck list tiles use it, and its label is the accessible name only, so the count is the one visible signal. The default layout adds a label row above the track: an uppercase eyebrow caption on the left ("Progresso do deck"), then the count on the right as a bold `ink` number and a semibold `ink-subtle` suffix. The deck editor uses it. Its eyebrow caption is `ink-muted`, as the editor artboard shows it; this is the one accepted exception to the `ink-faint` eyebrow rule above. The track is `border-faint`-colored with 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border, and no "X faltam" sentence repeats the count.
 
 ### Toggle
 
@@ -77,6 +77,7 @@ These are deliberate, and the code keeps them. Anything else that differs from t
 - The card suggestion list uses `shadow-dropdown`, the dropdown shadow of this system.
 - Panels set no text size of their own: their content sets `text-body`, `text-ui` or the size it needs.
 - The Manutenção row is color-only, as the Brand, accent and signal section explains.
+- The deck editor's progress eyebrow is `ink-muted`, and its back link is a ghost icon button whose icon is `ink-muted`; both follow the editor artboard, not the `ink-faint` eyebrow rule and the ghost `ink` text.
 - The no-op row fill (`rgba(255,255,255,0.03)`), the 10px header blur and the fluid landing sizes are one-off values, not tokens.
 
 ## Consuming this system

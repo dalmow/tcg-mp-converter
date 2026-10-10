@@ -71,6 +71,15 @@ function savedDeck(): Deck | undefined {
   return getDeckStore().getSnapshot().decks[0]
 }
 
+function progressBar() {
+  return screen.getByRole('progressbar', { name: 'Progresso do deck' })
+}
+
+/** The visible "{count}/60 cartas" text of the progress bar. */
+function cardCountText() {
+  return screen.getByText('/60 cartas').parentElement?.textContent
+}
+
 describe('DeckEditor', () => {
   it('shows the three category panels, the name input and the Save deck button', () => {
     renderEditor()
@@ -118,6 +127,31 @@ describe('DeckEditor', () => {
     const group = within(screen.getByRole('group', { name: 'Ações do deck' }))
     expect(group.getByRole('button', { name: /Salvar deck/ })).toBeTruthy()
     expect(group.getByRole('button', { name: /Excluir deck/ })).toBeTruthy()
+  })
+
+  it('shows the draft card count against the 60-card total above the panels', async () => {
+    renderEditor()
+    const bar = progressBar()
+    expect(cardCountText()).toBe('0/60 cartas')
+    expect(
+      bar.compareDocumentPosition(screen.getByRole('region', { name: 'Pokémon' })) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+
+    await addRow('Pokémon', '2', 'abra meg 54', '3')
+    await addRow('Treinadores', '4', 'Ordem da chefia', '4')
+    expect(cardCountText()).toBe('6/60 cartas')
+    expect(bar.getAttribute('aria-valuenow')).toBe('6')
+
+    // A row that does not parse as a card yet does not count.
+    await addRow('Energias', '5', 'Abra XYZ 54')
+    expect(cardCountText()).toBe('6/60 cartas')
+  })
+
+  it('keeps a row whose quantity is still blank out of the count', async () => {
+    renderEditor()
+    await addRow('Energias', '', 'Psíquica')
+    expect(cardCountText()).toBe('0/60 cartas')
+    expect(progressBar().getAttribute('aria-valuenow')).toBe('0')
   })
 
   it('uses "#" as the quantity placeholder', async () => {
@@ -173,6 +207,27 @@ describe('DeckEditor', () => {
     cleanup()
     renderEditor()
     expect(screen.queryByRole('heading', { name: /Editando deck/ })).toBeNull()
+  })
+
+  it('links back to Meus decks beside the title of an existing deck', async () => {
+    getDeckStore().saveDeck({ id: 'abc', name: 'Alakazam', cards: [] })
+    renderEditor(deckPath('abc'))
+    const back = screen.getByRole('link', { name: 'Voltar para Meus decks' })
+    const title = screen.getByRole('heading', { level: 1, name: 'Editando deck Alakazam' })
+    expect(back.getAttribute('href')).toBe(ROUTES.decks)
+    expect(back.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    // The outline of the ghost variant must survive the muted icon colour: no conflicting border class.
+    const classes = back.className.split(/\s+/)
+    expect(classes).toContain('border-border')
+    expect(classes).not.toContain('border-transparent')
+
+    await userEvent.setup().click(back)
+    expect(await screen.findByRole('heading', { name: 'Lista' })).toBeTruthy()
+  })
+
+  it('shows no back link on a new deck', () => {
+    renderEditor()
+    expect(screen.queryByRole('link', { name: 'Voltar para Meus decks' })).toBeNull()
   })
 
   it('does not save on Enter in the name field and an empty name does not revert', async () => {

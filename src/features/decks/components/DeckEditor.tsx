@@ -1,22 +1,27 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
-import { SaveIcon, Trash2Icon } from 'lucide-react'
+import { ChevronLeftIcon, SaveIcon, Trash2Icon } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { Input } from '@/shared/ui/Input'
 import { PAGE_TITLE_CLASS } from '@/shared/layout/PageLayout'
+import { ProgressBar } from '@/shared/ui/ProgressBar'
+import { buttonVariants } from '@/shared/ui/buttonVariants'
+import { cn } from '@/shared/lib/utils'
 import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
-import { CARD_CATEGORIES, CATEGORY_TITLES } from '@/features/decks/types/deck'
+import { CARD_CATEGORIES, CATEGORY_TITLES, DECK_SIZE } from '@/features/decks/types/deck'
 import { deckEditorMeta } from '@/shared/lib/pageMeta'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import type { CardCategory } from '@/features/decks/types/deck'
 import { deckPath, ROUTES } from '@/shared/lib/routes'
 import { CategoryPanel } from './CategoryPanel'
-import { buildDeckSave, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
+import { buildDeckSave, draftTotalQuantity, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
 import type { DraftRow } from '@/features/decks/lib/draft'
+
+const BACK_TO_DECKS_LABEL = 'Voltar para Meus decks'
 
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
@@ -112,7 +117,19 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   return (
     <>
-      {stored && <h1 className={PAGE_TITLE_CLASS}>Editando deck {stored.name}</h1>}
+      {stored && (
+        <div className="flex items-center gap-space-4">
+          <Link
+            to={ROUTES.decks}
+            title={BACK_TO_DECKS_LABEL}
+            aria-label={BACK_TO_DECKS_LABEL}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), 'text-ink-muted')}
+          >
+            <ChevronLeftIcon aria-hidden />
+          </Link>
+          <h1 className={PAGE_TITLE_CLASS}>Editando deck {stored.name}</h1>
+        </div>
+      )}
       <div className="flex flex-wrap items-start gap-space-6">
         <div className="flex min-w-55 flex-1 flex-col gap-space-2">
           <Input
@@ -151,6 +168,12 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           />
         </ButtonGroup>
       </div>
+      <ProgressBar
+        label="Progresso do deck"
+        value={draftTotalQuantity(rows, collections)}
+        max={DECK_SIZE}
+        suffix="cartas"
+      />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] items-start gap-space-8">
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel

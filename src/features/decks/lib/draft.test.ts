@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import collections from '@/shared/data/collections.json'
 import type { Deck } from '@/features/decks/types/deck'
-import { buildDeckSave, isDirty, NAME_REQUIRED, OWNED_INVALID, rowsFromDeck } from './draft'
+import { buildDeckSave, draftTotalQuantity, isDirty, NAME_REQUIRED, OWNED_INVALID, rowsFromDeck } from './draft'
 import type { DraftRow } from './draft'
 
 function row(partial: Partial<DraftRow> & Pick<DraftRow, 'id'>): DraftRow {
@@ -112,6 +112,36 @@ describe('buildDeckSave', () => {
       collections,
     )
     expect(result.ok).toBe(true)
+  })
+})
+
+describe('draftTotalQuantity', () => {
+  it('sums the quantities of the rows that parse as a card', () => {
+    const rows = [
+      row({ id: 'a', quantityText: '2', text: 'abra meg 54' }),
+      row({ id: 'b', category: 'trainer', quantityText: '4', text: 'Ordem da chefia' }),
+    ]
+    expect(draftTotalQuantity(rows, collections)).toBe(6)
+  })
+
+  it('leaves out a row whose quantity is still blank, instead of adding NaN', () => {
+    const rows = [
+      row({ id: 'a', quantityText: '2', text: 'abra meg 54' }),
+      row({ id: 'b', category: 'energy', text: 'Psíquica' }),
+    ]
+    expect(draftTotalQuantity(rows, collections)).toBe(2)
+  })
+
+  it('leaves out a row that does not parse as a card yet', () => {
+    const rows = [
+      row({ id: 'a', quantityText: '2', text: 'abra meg 54' }),
+      row({ id: 'b', quantityText: '5', text: 'Abra XYZ 54' }),
+    ]
+    expect(draftTotalQuantity(rows, collections)).toBe(2)
+  })
+
+  it('is zero for a draft with no rows', () => {
+    expect(draftTotalQuantity([], collections)).toBe(0)
   })
 })
 

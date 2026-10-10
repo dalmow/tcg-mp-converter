@@ -46,7 +46,7 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
           <CircleAlert role="img" aria-label="Deck inválido" className="size-4.5 shrink-0 text-danger" />
         )}
       </div>
-      <ProgressBar label="Cartas no deck" value={validation.total} max={DECK_SIZE} />
+      <ProgressBar compact label="Cartas no deck" value={validation.total} max={DECK_SIZE} />
     </DeckTile>
   )
 }
