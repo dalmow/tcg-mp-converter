@@ -74,11 +74,6 @@ export function parseOwnedText(text: string): number {
   return isCountAtLeast(quantity, 0) ? quantity : Number.NaN
 }
 
-/** Copies a row still needs to buy. 0 while its quantity or owned count is not a whole number yet. */
-export function missingCopies(quantity: number, ownedQuantity: number): number {
-  return Number.isInteger(quantity) && Number.isInteger(ownedQuantity) ? Math.max(quantity - ownedQuantity, 0) : 0
-}
-
 export interface RowInput {
   text: string
   quantityText: string
@@ -98,5 +93,10 @@ export function deriveRowState(context: RowContext, input: RowInput) {
       ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
   const valid = parsed.ok && !quantityError && isCountAtLeast(ownedQuantity, quantity) && !warning
-  return { parsed, quantity, ownedQuantity, quantityError, warning, valid }
+  // Copies still to buy. Shown only for a resolved card; 0 while the quantity or owned count is not a whole number.
+  const missing =
+    parsed.ok && Number.isInteger(quantity) && Number.isInteger(ownedQuantity)
+      ? Math.max(quantity - ownedQuantity, 0)
+      : 0
+  return { parsed, quantity, ownedQuantity, quantityError, warning, valid, missing }
 }

@@ -7,7 +7,7 @@ import { parseCard } from '@/features/decks/lib/cardParser'
 import type { CardCategory } from '@/features/decks/types/deck'
 import { cn } from '@/shared/lib/utils'
 import { CardCombobox } from './CardCombobox'
-import { deriveRowState, missingCopies, suggestCards } from '@/features/decks/lib/rowLogic'
+import { deriveRowState, suggestCards } from '@/features/decks/lib/rowLogic'
 import type { DraftRow } from '@/features/decks/lib/draft'
 import type { CardSuggestion, RowContext } from '@/features/decks/lib/rowLogic'
 
@@ -60,10 +60,13 @@ export function CardRow({
   const { quantityText, text } = row
   // A null owned edit follows the stored owned map; a string is an unsaved edit of this draft.
   const ownedText = row.ownedText ?? (row.originalKey ? String(owned[row.originalKey]?.quantity ?? 0) : '')
-  const { parsed, quantity, ownedQuantity, warning, valid } = deriveRowState(context, { text, quantityText, ownedText })
+  const { parsed, quantity, ownedQuantity, warning, valid, missing } = deriveRowState(context, {
+    text,
+    quantityText,
+    ownedText,
+  })
   const cellState = valid ? 'complete' : 'pendency'
-  // The count only means something once the card resolves; an unresolved row is just "pendency".
-  const missing = parsed.ok ? missingCopies(quantity, ownedQuantity) : 0
+  const pendencyText = missing > 0 ? `Linha com pendências — faltam ${missing} carta(s)` : 'Linha com pendências'
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
@@ -163,7 +166,7 @@ export function CardRow({
         ) : (
           <CircleAlertIcon className="size-3" aria-hidden="true" />
         )}
-        {valid ? 'Linha válida' : `Linha com pendências${missing > 0 ? ` — faltam ${missing} carta(s)` : ''}`}
+        {valid ? 'Linha válida' : pendencyText}
       </p>
       {message && (
         <p id={messageId} role={error ? 'alert' : 'status'} className="pl-0.5 text-caption text-danger-soft">
