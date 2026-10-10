@@ -32,9 +32,7 @@ export function downloadBackup(data: PersistedData, now: Date = new Date()) {
 }
 
 function readVersion(raw: unknown): unknown {
-  return typeof raw === 'object' && raw !== null
-    ? (raw as Record<string, unknown>).version
-    : undefined
+  return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).version : undefined
 }
 
 /** Returns a Portuguese error for the first deck invariant the data breaks, or null. */

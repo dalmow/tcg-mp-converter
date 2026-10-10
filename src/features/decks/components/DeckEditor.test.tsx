@@ -2,23 +2,13 @@
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router'
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ToastProvider } from '@/shared/ui/Toast'
 import DeckEditorPage from './DeckEditorPage'
 import { EMPTY_DATA } from '@/features/decks/lib/storage'
 import { getDeckStore } from '@/features/decks/lib/deckStore'
 import type { Deck } from '@/features/decks/types/deck'
 import { deckPath, ROUTES } from '@/shared/lib/routes'
-
-beforeAll(() => {
-  // cmdk (used by the card combobox) relies on browser APIs jsdom lacks.
-  globalThis.ResizeObserver ??= class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  Element.prototype.scrollIntoView ??= () => {}
-})
 
 beforeEach(() => getDeckStore().replaceAll(EMPTY_DATA))
 afterEach(cleanup)
@@ -132,7 +122,11 @@ describe('DeckEditor', () => {
 
   it('uses "#" as the quantity placeholder', async () => {
     renderEditor()
-    expect(panel('Pokémon').getByLabelText(/^Quantidade/).getAttribute('placeholder')).toBe('#')
+    expect(
+      panel('Pokémon')
+        .getByLabelText(/^Quantidade/)
+        .getAttribute('placeholder'),
+    ).toBe('#')
   })
 
   it('writes nothing until Save deck, then commits name, rows and owned together', async () => {
@@ -158,7 +152,7 @@ describe('DeckEditor', () => {
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
     await save(user)
-    expect(router.state.location.pathname).toBe(deckPath(savedDeck()!.id))
+    expect(router.state.location.pathname).toBe(deckPath(savedDeck()?.id ?? ''))
     expect(router.state.historyAction).toBe('REPLACE')
     expect((await screen.findByRole('status')).textContent).toContain('Deck salvo')
   })
@@ -422,7 +416,9 @@ describe('DeckEditor', () => {
   it('follows owned changes made elsewhere unless the field has an unsaved edit', async () => {
     const card = { category: 'pokemon', key: 'MEG-54', displayName: 'Abra MEG 54', quantity: 2 } as const
     const deck = { id: 'abc', name: 'Alakazam', cards: [card] }
-    const entry = (quantity: number) => ({ 'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon' as const, quantity } })
+    const entry = (quantity: number) => ({
+      'MEG-54': { displayName: 'Abra MEG 54', category: 'pokemon' as const, quantity },
+    })
     getDeckStore().saveDeck(deck, entry(1))
     renderEditor(deckPath('abc'))
     const owned = () => panel('Pokémon').getByLabelText(/^Adquirido/) as HTMLInputElement

@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { CircleAlertIcon, CircleCheckIcon, XIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { ToastContext, type ToastApi } from '@/shared/hooks/useToast'
 
 type ToastVariant = 'success' | 'error'
 
@@ -13,21 +14,11 @@ interface ToastItem {
   message: string
 }
 
-interface ToastApi {
-  success: (message: string) => void
-  error: (message: string) => void
-}
-
-const ToastContext = createContext<ToastApi | null>(null)
-
-export function useToast(): ToastApi {
-  const api = useContext(ToastContext)
-  if (!api) throw new Error('useToast must be used inside <ToastProvider>')
-  return api
-}
-
 // Errors interrupt (assertive); successes wait their turn (polite).
-const VARIANT_STYLE: Record<ToastVariant, { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }> = {
+const VARIANT_STYLE: Record<
+  ToastVariant,
+  { role: 'alert' | 'status'; border: string; text: string; Icon: typeof CircleAlertIcon }
+> = {
   success: { role: 'status', border: 'border-secondary', text: 'text-secondary', Icon: CircleCheckIcon },
   error: { role: 'alert', border: 'border-danger', text: 'text-danger', Icon: CircleAlertIcon },
 }

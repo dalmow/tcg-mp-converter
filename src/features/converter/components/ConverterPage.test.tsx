@@ -41,9 +41,7 @@ describe('ConverterPage selectors', () => {
 
     expect(group.getAllByRole('radio')).toHaveLength(options.length)
     for (const option of options) {
-      expect(group.getByRole('radio', { name: option }).getAttribute('aria-checked')).toBe(
-        String(option === selected),
-      )
+      expect(group.getByRole('radio', { name: option }).getAttribute('aria-checked')).toBe(String(option === selected))
     }
   })
 
@@ -176,9 +174,7 @@ describe('ConverterPage design system copy', () => {
     renderPage()
 
     expect(screen.getByRole('heading', { level: 1, name: 'Conversor' })).toBeTruthy()
-    expect(
-      screen.getByText('Cole sua decklist e converta pro formato aceito pelas lojas parceiras.'),
-    ).toBeTruthy()
+    expect(screen.getByText('Cole sua decklist e converta pro formato aceito pelas lojas parceiras.')).toBeTruthy()
   })
 
   it('uses the DS placeholders for the input and result textareas', () => {
@@ -188,9 +184,7 @@ describe('ConverterPage design system copy', () => {
       'Cole sua decklist aqui…',
     )
     for (const name of ['Liga Pokemon', 'MYPCards']) {
-      expect(screen.getByRole('textbox', { name }).getAttribute('placeholder')).toBe(
-        'O resultado aparecerá aqui…',
-      )
+      expect(screen.getByRole('textbox', { name }).getAttribute('placeholder')).toBe('O resultado aparecerá aqui…')
     }
   })
 

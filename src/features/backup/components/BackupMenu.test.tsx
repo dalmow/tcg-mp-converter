@@ -81,7 +81,8 @@ describe('BackupMenu', () => {
     await userEvent.click(await screen.findByText('Exportar backup'))
     expect(click).toHaveBeenCalledOnce()
     expect(await screen.findByText('Backup exportado')).toBeTruthy()
-    const payload = JSON.parse(await blob!.text())
+    if (!blob) throw new Error('backup blob was not created')
+    const payload = JSON.parse(await blob.text())
     expect(payload).toMatchObject({
       version: 1,
       decks: current.decks,

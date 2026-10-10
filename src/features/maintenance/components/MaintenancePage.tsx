@@ -5,7 +5,7 @@ import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import { PageLayout } from '@/shared/layout/PageLayout'
 import { Panel } from '@/shared/ui/Panel'
 import { Switch } from '@/shared/ui/Switch'
-import { useToast } from '@/shared/ui/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import { CARD_CATEGORIES, type CardCategory, getDeckStore, useDeckData } from '@/features/decks'
 import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/features/maintenance/lib/maintenance'
 
@@ -26,10 +26,7 @@ export default function MaintenancePage() {
   const ownedOf = (key: string) => owned[key]?.quantity ?? 0
 
   return (
-    <PageLayout
-      title="Manutenção"
-      subtitle="Cartas que faltam para completar seus decks, agrupadas por categoria."
-    >
+    <PageLayout title="Manutenção" subtitle="Cartas que faltam para completar seus decks, agrupadas por categoria.">
       <div className="flex items-center gap-space-3">
         <Switch id={switchId} checked={onlyMissing} onCheckedChange={setOnlyMissing} />
         <label htmlFor={switchId} className="text-body-strong">

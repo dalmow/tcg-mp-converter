@@ -1,54 +1,38 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Command as CommandPrimitive } from "cmdk"
-import { cn } from "cn"
+import * as React from 'react'
+import { Command as CommandPrimitive } from 'cmdk'
+import { cn } from 'cn'
 
-import { CheckIcon } from "lucide-react"
+import { CheckIcon } from 'lucide-react'
 
-function Command({
-  className,
-  ...props
-}: React.ComponentProps<typeof CommandPrimitive>) {
+function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
       data-slot="command"
-      className={cn(
-        "flex size-full flex-col overflow-hidden rounded-lg! bg-surface-200 p-1 text-ink",
-        className
-      )}
+      className={cn('flex size-full flex-col overflow-hidden rounded-lg! bg-surface-200 p-1 text-ink', className)}
       {...props}
     />
   )
 }
 
-function CommandList({
-  className,
-  ...props
-}: React.ComponentProps<typeof CommandPrimitive.List>) {
+function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      className={cn(
-        "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none",
-        className
-      )}
+      className={cn('no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none', className)}
       {...props}
     />
   )
 }
 
-function CommandItem({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof CommandPrimitive.Item>) {
+function CommandItem({ className, children, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
         "group/command-item relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-body outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-secondary-tint-strong data-selected:text-ink [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-secondary",
-        className
+        className,
       )}
       {...props}
     >
@@ -58,8 +42,4 @@ function CommandItem({
   )
 }
 
-export {
-  Command,
-  CommandList,
-  CommandItem,
-}
+export { Command, CommandList, CommandItem }

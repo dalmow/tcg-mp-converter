@@ -15,7 +15,7 @@ import {
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
 import { Input } from '@/shared/ui/Input'
-import { useToast } from '@/shared/ui/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
 import { CARD_CATEGORIES } from '@/features/decks/types/deck'
@@ -48,9 +48,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   // The draft: everything edited here stays in memory until Save deck commits it in one go.
   const [name, setName] = useState(initial?.name ?? '')
-  const [rows, setRows] = useState<DraftRow[]>(() =>
-    initial ? rowsFromDeck(initial) : CARD_CATEGORIES.map(newRow),
-  )
+  const [rows, setRows] = useState<DraftRow[]>(() => (initial ? rowsFromDeck(initial) : CARD_CATEGORIES.map(newRow)))
   const [nameError, setNameError] = useState<string | null>(null)
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
   const [focusRowId, setFocusRowId] = useState<string | null>(null)
@@ -158,7 +156,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           </Button>
           <AlertDialog>
             <AlertDialogTrigger
-              render={<Button variant="danger" size="icon" title="Excluir deck" aria-label="Excluir deck" className="w-11" />}
+              render={
+                <Button variant="danger" size="icon" title="Excluir deck" aria-label="Excluir deck" className="w-11" />
+              }
             >
               <Trash2Icon className="size-[18px]" />
             </AlertDialogTrigger>
@@ -172,7 +172,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction variant="danger" onClick={deleteDeck}>Excluir</AlertDialogAction>
+                <AlertDialogAction variant="danger" onClick={deleteDeck}>
+                  Excluir
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -212,7 +214,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Continuar editando</AlertDialogCancel>
-            <AlertDialogAction variant="danger" onClick={() => blocker.proceed?.()}>Descartar</AlertDialogAction>
+            <AlertDialogAction variant="danger" onClick={() => blocker.proceed?.()}>
+              Descartar
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

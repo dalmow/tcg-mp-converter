@@ -11,10 +11,7 @@ const fire: DeckCard = { category: 'energy', key: 'energy:fogo', displayName: 'E
 
 function ownedFor(cards: DeckCard[], missing = 0): OwnedMap {
   return Object.fromEntries(
-    cards.map((c) => [
-      c.key,
-      { displayName: c.displayName, category: c.category, quantity: c.quantity - missing },
-    ]),
+    cards.map((c) => [c.key, { displayName: c.displayName, category: c.category, quantity: c.quantity - missing }]),
   )
 }
 

@@ -26,7 +26,7 @@ const normalize = (value: string) => value.replace(/\s+/g, '').replace(/"/g, "'"
 
 describe('design tokens in src/index.css match docs/design-system/tokens.json', () => {
   it.each(tokens.color.tokens.map((t) => [t.name, t.value]))('color %s', (name, value) => {
-    expect(declaration(`color-${name}`)).toBe(asCss(value))
+    expect(normalize(declaration(`color-${name}`) ?? '')).toBe(normalize(asCss(value)))
   })
 
   it.each(tokens.radius.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
@@ -34,7 +34,7 @@ describe('design tokens in src/index.css match docs/design-system/tokens.json', 
   })
 
   it.each(tokens.shadow.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
-    expect(declaration(name)).toBe(value)
+    expect(normalize(declaration(name) ?? '')).toBe(normalize(value))
   })
 
   it.each(tokens.spacing.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
@@ -54,8 +54,12 @@ describe('design tokens in src/index.css match docs/design-system/tokens.json', 
   })
 
   it('font families', () => {
-    expect(normalize(declaration('font-display') ?? '')).toBe(normalize("'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif"))
-    expect(normalize(declaration('font-body') ?? '')).toBe(normalize("'Manrope Variable', ui-sans-serif, system-ui, sans-serif"))
+    expect(normalize(declaration('font-display') ?? '')).toBe(
+      normalize("'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif"),
+    )
+    expect(normalize(declaration('font-body') ?? '')).toBe(
+      normalize("'Manrope Variable', ui-sans-serif, system-ui, sans-serif"),
+    )
   })
 
   it('nav breakpoint', () => {
@@ -119,7 +123,8 @@ describe('shadcn token aliases are gone', () => {
   })
 
   it('no source file uses an alias-only color utility', () => {
-    const aliasUtility = /(?:bg|text|border|ring|fill|stroke|outline|divide)-(?:background|foreground|card|popover|muted|accent|destructive|input|ring|success|panel|control|sidebar|chart)(?:-[a-z]+)?/
+    const aliasUtility =
+      /(?:bg|text|border|ring|fill|stroke|outline|divide)-(?:background|foreground|card|popover|muted|accent|destructive|input|ring|success|panel|control|sidebar|chart)(?:-[a-z]+)?/
     const dir = new URL('../..', import.meta.url)
     const offenders = readdirSync(dir, { recursive: true, encoding: 'utf-8' })
       .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))

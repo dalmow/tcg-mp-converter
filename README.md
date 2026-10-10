@@ -13,6 +13,7 @@ Número da carta e total da Coleção sempre com padding left até 3 dígitos
 - **MYPCards**: `qtd nome (num/total)` — sem tags de Qualidade/Idioma.
 
 Exemplo (`3 Abra MEG 53`, Qualidade NM, Idioma PTEN):
+
 - Liga Pokemon: `3 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]`
 - MYPCards: `3 Abra (053/132)`
 

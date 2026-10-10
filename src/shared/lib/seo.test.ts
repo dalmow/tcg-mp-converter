@@ -25,7 +25,7 @@ describe('buildHeadTags', () => {
   it('embeds JSON-LD that parses', () => {
     const match = html.match(/<script type="application\/ld\+json">(.*)<\/script>/s)
     expect(match).not.toBeNull()
-    expect(() => JSON.parse(match![1])).not.toThrow()
+    expect(() => JSON.parse(match?.[1] ?? '')).not.toThrow()
   })
 
   it('does not repeat favicon links', () => {

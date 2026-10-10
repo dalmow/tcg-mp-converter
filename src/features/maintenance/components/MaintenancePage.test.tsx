@@ -36,7 +36,10 @@ const stateOf = (name: string) => (rowOf(name).querySelector('[data-slot="row-st
 describe('MaintenancePage', () => {
   it('lists missing cards with needed quantity and deck badges, grouped by category', () => {
     seedStore([
-      makeDeck('1', 'Alakazam', [{ ...abra, quantity: 2 }, { ...boss, quantity: 4 }]),
+      makeDeck('1', 'Alakazam', [
+        { ...abra, quantity: 2 },
+        { ...boss, quantity: 4 },
+      ]),
       makeDeck('2', 'Absol', [{ ...boss, quantity: 3 }]),
     ])
     renderPage()
@@ -53,7 +56,12 @@ describe('MaintenancePage', () => {
 
   it('hides satisfied cards by default and shows them when the toggle is off', async () => {
     seedStore(
-      [makeDeck('1', 'Alakazam', [{ ...abra, quantity: 2 }, { ...boss, quantity: 4 }])],
+      [
+        makeDeck('1', 'Alakazam', [
+          { ...abra, quantity: 2 },
+          { ...boss, quantity: 4 },
+        ]),
+      ],
       { 'MEG-54': { ...abra, quantity: 2 } },
     )
     renderPage()
@@ -71,7 +79,11 @@ describe('MaintenancePage', () => {
     await userEvent.clear(input)
     await userEvent.type(input, '3')
     await userEvent.click(card.getByRole('button', { name: /^Salvar/ }))
-    expect(getDeckStore().getSnapshot().owned['ordem da chefia']).toEqual({ displayName: 'Ordem da chefia', category: 'trainer', quantity: 3 })
+    expect(getDeckStore().getSnapshot().owned['ordem da chefia']).toEqual({
+      displayName: 'Ordem da chefia',
+      category: 'trainer',
+      quantity: 3,
+    })
   })
 
   it('shows toasts when saving and deleting an owned card', async () => {
@@ -119,7 +131,12 @@ describe('MaintenancePage', () => {
 
   it('keeps an unsaved draft when the store changes, and follows the store otherwise', async () => {
     seedStore(
-      [makeDeck('1', 'Alakazam', [{ ...boss, quantity: 4 }, { ...abra, quantity: 2 }])],
+      [
+        makeDeck('1', 'Alakazam', [
+          { ...boss, quantity: 4 },
+          { ...abra, quantity: 2 },
+        ]),
+      ],
       { 'ordem da chefia': { ...boss, quantity: 1 }, 'MEG-54': { ...abra, quantity: 1 } },
     )
     renderPage()
@@ -138,7 +155,12 @@ describe('MaintenancePage', () => {
 describe('MaintenancePage row states', () => {
   it('marks a row as pendency, complete or no-op', async () => {
     seedStore(
-      [makeDeck('1', 'Alakazam', [{ ...abra, quantity: 2 }, { ...boss, quantity: 4 }])],
+      [
+        makeDeck('1', 'Alakazam', [
+          { ...abra, quantity: 2 },
+          { ...boss, quantity: 4 },
+        ]),
+      ],
       { 'MEG-54': { ...abra, quantity: 2 }, 'energy:fogo': { ...fire, quantity: 1 } },
     )
     renderPage()

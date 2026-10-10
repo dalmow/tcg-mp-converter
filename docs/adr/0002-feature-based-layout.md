@@ -25,19 +25,19 @@ src/
 
 ### Feature map
 
-| Feature | Owns | Public API (`index.ts`) |
-| --- | --- | --- |
-| `decks` | deck list and editor screens, deck editor components, deck domain (`types/deck.ts`, `lib/deckStore`, `lib/storage`, `lib/deckRules`, `lib/cardParser`, `lib/draft`, `lib/rowLogic`) | `DeckListPage`, `DeckEditorPage`, deck store and storage, deck types and rules used by other features |
-| `maintenance` | Manutenção screen, `MaintenanceRow`, `ActionButtons`, `lib/maintenance` | `MaintenancePage` |
-| `backup` | `BackupMenu`, `BackupList`, `useBackup`, `lib/backup` | `BackupMenu`, `BackupList`, `useBackup`, `buildBackup` |
-| `converter` | Conversor screen, `lib/convertDecklist` | `ConverterPage` |
-| `landing` | landing page at `/` | `LandingPage` |
+| Feature       | Owns                                                                                                                                                                                | Public API (`index.ts`)                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `decks`       | deck list and editor screens, deck editor components, deck domain (`types/deck.ts`, `lib/deckStore`, `lib/storage`, `lib/deckRules`, `lib/cardParser`, `lib/draft`, `lib/rowLogic`) | `DeckListPage`, `DeckEditorPage`, deck store and storage, deck types and rules used by other features |
+| `maintenance` | Manutenção screen, `MaintenanceRow`, `ActionButtons`, `lib/maintenance`                                                                                                             | `MaintenancePage`                                                                                     |
+| `backup`      | `BackupMenu`, `BackupList`, `useBackup`, `lib/backup`                                                                                                                               | `BackupMenu`, `BackupList`, `useBackup`, `buildBackup`                                                |
+| `converter`   | Conversor screen, `lib/convertDecklist`                                                                                                                                             | `ConverterPage`                                                                                       |
+| `landing`     | landing page at `/`                                                                                                                                                                 | `LandingPage`                                                                                         |
 
 `shared/` holds what more than one feature or the app shell uses:
 
-- `shared/ui/`: UI primitives (`Button`, `ButtonGroup`, `Card`, `Input`, `Label`, `Switch`, `Textarea`, `Badge`, `AlertDialog`, `DropdownMenu`, `Command`, `Toast`, `ProgressBar`, `RowState`), plus `Panel`, `Logomark` and `NavIcons`.
+- `shared/ui/`: UI primitives (`Button`, `ButtonGroup`, `Card`, `Input`, `Label`, `Switch`, `Textarea`, `Badge`, `AlertDialog`, `DropdownMenu`, `Command`, `Toast`, `ProgressBar`, `RowState`), plus `Panel`, `Logomark` and `NavIcons`. `buttonVariants` (the `Button` variant table) sits in `buttonVariants.ts`, so component files export components only.
 - `shared/layout/`: `PageLayout` and `mainContent` (the skip-link target id).
-- `shared/hooks/`: `usePageMeta`, `useHydrated`.
+- `shared/hooks/`: `usePageMeta`, `useHydrated`, `useToast` (with the `ToastContext` it reads).
 - `shared/lib/`: `utils`, `contrast`, `seo`, `site`, `pageMeta`, `routes`.
 - `shared/types/domain.ts`: `Condition`, `Language`, `CollectionConfig`, `UnresolvedCard`, `ConvertDecklistResult`.
 - `shared/data/collections.json`: the Coleção → card total table, used by the converter and the deck screens.
@@ -63,7 +63,7 @@ features/<name>/
 
 - Folders: lowercase, one word (`decks`, `backup`).
 - `.tsx` files: PascalCase, named after the main component (`DeckEditor.tsx`, `ButtonGroup.tsx`). The shadcn-style kebab-case names in `ui/` are renamed.
-- Hooks: `useX`, in `hooks/` (`useBackup.tsx`, `usePageMeta.ts`). A context hook stays in the file of its provider (`useToast` in `Toast.tsx`).
+- Hooks: `useX`, in `hooks/` (`useBackup.tsx`, `usePageMeta.ts`, `useToast.ts`). A context hook sits in `hooks/` next to its context, not in the provider's component file (`useToast.ts` holds `ToastContext`).
 - `.ts` modules: camelCase (`deckStore.ts`, `rowLogic.ts`).
 - Tests: next to the module, `<module>.test.ts(x)`.
 - Constants: UPPER_SNAKE_CASE (`ROUTES`, `DECK_SIZE`, `MAIN_CONTENT_ID`).

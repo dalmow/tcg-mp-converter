@@ -1,11 +1,6 @@
 import { ChevronDownIcon } from 'lucide-react'
-import { buttonVariants } from '@/shared/ui/Button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/ui/DropdownMenu'
+import { buttonVariants } from '@/shared/ui/buttonVariants'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/ui/DropdownMenu'
 import type { Backup } from '@/features/backup/hooks/useBackup'
 
 type BackupMenuProps = {
@@ -24,8 +19,7 @@ export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
         <DropdownMenuTrigger
           className={buttonVariants({
             variant: 'ghost',
-            className:
-              'h-auto gap-space-2 px-space-6 py-space-3 text-nav-link [&[aria-expanded=true]_svg]:rotate-180',
+            className: 'h-auto gap-space-2 px-space-6 py-space-3 text-nav-link [&[aria-expanded=true]_svg]:rotate-180',
           })}
         >
           Dados

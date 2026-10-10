@@ -22,17 +22,16 @@ export function CardCombobox({ value, suggestions, onValueChange, onPick, ...inp
   // cmdk generates the ids of its listbox and options; read them back for aria-controls / aria-activedescendant.
   const [ids, setIds] = useState<{ list?: string; active?: string }>({})
   const suggestionCount = suggestions.length
+  const activeIndex = suggestions.findIndex((suggestion) => suggestion.key === activeKey)
   useEffect(() => {
     const element = root.current
     if (!showList || !element) return setIds({})
-    const index = suggestions.findIndex((suggestion) => suggestion.key === activeKey)
     setIds({
       list: element.querySelector('[role="listbox"]')?.id || undefined,
-      active: element.querySelectorAll('[role="option"]')[index]?.id || undefined,
+      active: element.querySelectorAll('[role="option"]')[activeIndex]?.id || undefined,
     })
-    // `suggestions` is a new array every render; its length and the active key are what change the DOM ids.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showList, activeKey, suggestionCount])
+    // Depends on the key, index and count, not on `suggestions`: that array is new on every render and would loop.
+  }, [showList, activeKey, activeIndex, suggestionCount])
 
   return (
     <Command
