@@ -13,7 +13,8 @@ The decks `index.ts` also exports React components. A consumer that must stay Re
 - A pure rule (a predicate or a message builder with no React and no feature state) used by two features lives once in `src/shared/lib/`. It is not re-exported through a feature's `index.ts` when that index exports React components.
 - This applies to `src/shared/lib/cardNumber.ts`, which holds `isCardNumberInRange` and `cardNumberOutOfRangeReason`.
 - A pure rule used by one feature stays in that feature's `lib/`, as ADR 0001 §3 says.
-- The existing re-exports from `decks/index.ts` (`deckInvariantError`, `uniqueDecksById`, `parseOwnedText`) are not moved here. Move one when a React-free consumer needs it.
+- Not moved: the collection lookup (`config[code.toUpperCase()]`, one line in each feature) and the "não cadastrada" message. The converter quotes the typed code there and decks does not; that difference is deliberate.
+- The existing re-exports from `decks/index.ts` (`deckInvariantError`, `uniqueDecksById`, `totalQuantity`, `parseOwnedText`) are not moved here. Move one when a React-free consumer needs it.
 
 ## Consequences
 

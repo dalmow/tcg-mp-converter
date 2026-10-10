@@ -97,8 +97,8 @@ export function convertDecklist(
     }
 
     const { sourceLine, collection, number } = parsed.value
-    const registeredCollection = collection.toUpperCase()
-    const total: number | undefined = config[registeredCollection]
+    const collectionKey = collection.toUpperCase()
+    const total: number | undefined = config[collectionKey]
 
     if (total === undefined) {
       unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
@@ -108,12 +108,12 @@ export function convertDecklist(
     if (!isCardNumberInRange(number, total)) {
       unresolvedCards.push({
         line: sourceLine,
-        reason: cardNumberOutOfRangeReason(number, registeredCollection, total),
+        reason: cardNumberOutOfRangeReason(number, collectionKey, total),
       })
       continue
     }
 
-    validLines.push({ ...parsed.value, collection: registeredCollection })
+    validLines.push({ ...parsed.value, collection: collectionKey })
   }
 
   for (const { quantity, name, collection, number } of mergeDuplicates(validLines)) {

@@ -146,4 +146,15 @@ describe('convertDecklist', () => {
 
     expect(result.unresolvedCards).toEqual(lines.map((line) => ({ line, reason })))
   })
+
+  it('reports unresolved lines in the order they appear in the decklist', () => {
+    const decklist = ['1 Mewtwo ZZZ 1', 'x3 Pikachu MEG 10'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Mewtwo ZZZ 1', reason: 'Coleção "ZZZ" não cadastrada' },
+      { line: 'x3 Pikachu MEG 10', reason: 'Linha em formato inválido' },
+    ])
+  })
 })
