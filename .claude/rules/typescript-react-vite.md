@@ -23,7 +23,7 @@ Siga estas regras em todo código novo ou alterado. Em caso de conflito com cód
 - MUST separar componentes de apresentação de lógica de dados quando a complexidade justificar.
 
 ### React: hooks e estado
-- MUST seguir as regras dos hooks e manter o `eslint-plugin-react-hooks` ativo, sem silenciar `exhaustive-deps`.
+- MUST seguir as regras dos hooks e manter `react-hooks/exhaustive-deps` ativo no oxlint, sem silenciar `exhaustive-deps`.
 - MUST derivar valores durante o render em vez de duplicar em estado. Se dá para calcular a partir de props/estado, não crie outro `useState`.
 - MUST NOT usar `useEffect` para transformar dados ou reagir a eventos do usuário. Use cálculo no render ou event handlers. Reserve effects para sincronização com sistemas externos e sempre limpe (cleanup) subscriptions, timers e listeners.
 - MUST manter o estado o mais local possível; só eleve quando necessário.
@@ -53,7 +53,7 @@ Siga estas regras em todo código novo ou alterado. Em caso de conflito com cód
 - MUST revisar o tamanho do bundle (`vite build` + analyzer) ao adicionar dependências pesadas.
 
 ### Qualidade e tooling
-- MUST passar em `tsc --noEmit`, ESLint e o formatter (Prettier ou Biome) sem erros nem warnings antes de concluir qualquer tarefa.
+- MUST passar em `npm run check` (`tsc --noEmit`, oxlint com `--deny-warnings`, Prettier e testes) sem erros nem warnings antes de concluir qualquer tarefa.
 - MUST NOT desabilitar regras de lint sem justificativa em comentário.
 - MUST escrever testes para lógica de negócio, hooks e componentes críticos (Vitest + React Testing Library).
 - MUST testar comportamento do usuário (queries por role/label/text), não detalhes de implementação.

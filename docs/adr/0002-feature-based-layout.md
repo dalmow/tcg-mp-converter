@@ -63,7 +63,7 @@ features/<name>/
 
 - Folders: lowercase, one word (`decks`, `backup`).
 - `.tsx` files: PascalCase, named after the main component (`DeckEditor.tsx`, `ButtonGroup.tsx`). The shadcn-style kebab-case names in `ui/` are renamed.
-- Hooks: `useX`, in `hooks/` (`useBackup.tsx`, `usePageMeta.ts`). A context hook stays in the file of its provider (`useToast` in `Toast.tsx`).
+- Hooks: `useX`, in `hooks/` (`useBackup.tsx`, `usePageMeta.ts`, `useToast.ts`). A context hook sits in `hooks/` next to its context, not in the provider's component file (`useToast.ts` holds `ToastContext`).
 - `.ts` modules: camelCase (`deckStore.ts`, `rowLogic.ts`).
 - Tests: next to the module, `<module>.test.ts(x)`.
 - Constants: UPPER_SNAKE_CASE (`ROUTES`, `DECK_SIZE`, `MAIN_CONTENT_ID`).

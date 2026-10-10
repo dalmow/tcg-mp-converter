@@ -18,4 +18,4 @@ Status: accepted
 - The whole tree was formatted in one commit, `b011fad`. Add it to a local ignore list with `git config blame.ignoreRevsFile .git-blame-ignore-revs` (the repo ships that file), so `git blame` skips it.
 - Run `npm run format` before committing. `npm run check` fails on unformatted files.
 - A parent-directory import (`../`) fails lint. Import across folders through the `@/` alias. The one exception, `src/app/vercelConfig.test.ts` (it reads `vercel.json` at the repo root), carries an `oxlint-disable-next-line` comment that says why.
-- `docs/design-system/mockups/` is excluded from formatting because those files are generated.
+- `docs/design-system/mockups/` is excluded from formatting. Those `.dc.html` artboards are static design references exported from the design tool, and reformatting them would churn exported markup for no benefit.
