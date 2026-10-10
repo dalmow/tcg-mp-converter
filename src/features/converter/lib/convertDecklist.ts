@@ -75,8 +75,9 @@ export function convertDecklist(
   language: Language,
 ): ConvertDecklistResult {
   const lines = decklist
-    .split('\n')
-    .filter((line) => line.trim().length > 0)
+    .split(/\r\n|\r|\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
     .filter((line) => !isSectionHeader(line))
 
   const ligaPokemonLines: string[] = []
@@ -106,6 +107,14 @@ export function convertDecklist(
 
     if (total === undefined) {
       unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
+      continue
+    }
+
+    if (number > total) {
+      unresolvedCards.push({
+        line: sourceLine,
+        reason: `Número ${number} acima do total da coleção "${collection}" (${total})`,
+      })
       continue
     }
 
