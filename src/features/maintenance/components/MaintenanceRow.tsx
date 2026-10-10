@@ -84,13 +84,13 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
             type="number"
             min={0}
             inputMode="numeric"
-            className="h-9 w-14 px-2 text-center text-ui [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="h-9.5 w-14 px-2 text-center text-ui [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             value={unsavedDraft ?? String(owned)}
             readOnly={isUnused}
             aria-invalid={error !== null}
             onChange={(event) => setUnsavedDraft(event.target.value)}
           />
-          <ButtonGroup aria-label={`Ações de ${row.displayName}`}>
+          <ButtonGroup aria-label={`Ações de ${row.displayName}`} className="h-9.5">
             {!isUnused && (
               <SaveButton
                 type="button"
