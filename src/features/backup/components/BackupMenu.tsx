@@ -23,7 +23,7 @@ export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
           })}
         >
           Dados
-          <ChevronDownIcon className="size-[13px] transition-transform" />
+          <ChevronDownIcon className="size-3.25 transition-transform" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-auto min-w-47 p-space-3" align="end" container={menuContainer}>
           <DropdownMenuItem className="px-space-4 py-space-4 text-nav-link" onClick={exportBackup}>
@@ -39,7 +39,7 @@ export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
 }
 
 const listActionClass =
-  'cursor-pointer text-left text-body text-[#cfc9de] transition-colors hover:text-secondary focus-visible:text-secondary focus-visible:outline-none'
+  'cursor-pointer text-left text-body text-ink-soft transition-colors hover:text-secondary focus-visible:text-secondary focus-visible:outline-none'
 
 /** Mobile sheet section: the same actions as the dropdown, stacked. */
 export function BackupList({ backup, onAction }: { backup: Backup; onAction?: () => void }) {

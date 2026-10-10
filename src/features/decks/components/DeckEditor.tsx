@@ -15,6 +15,7 @@ import {
 import { Button } from '@/shared/ui/Button'
 import { ButtonGroup } from '@/shared/ui/ButtonGroup'
 import { Input } from '@/shared/ui/Input'
+import { PAGE_TITLE_CLASS } from '@/shared/layout/PageLayout'
 import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
@@ -127,11 +128,9 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
 
   return (
     <>
-      {stored && (
-        <h1 className="font-display text-h1 text-[length:clamp(20px,2.4vw,24px)]">Editando deck {stored.name}</h1>
-      )}
+      {stored && <h1 className={PAGE_TITLE_CLASS}>Editando deck {stored.name}</h1>}
       <div className="flex flex-wrap items-start gap-space-6">
-        <div className="flex min-w-[220px] flex-1 flex-col gap-space-2">
+        <div className="flex min-w-55 flex-1 flex-col gap-space-2">
           <Input
             className="h-11 px-4 text-body-strong"
             placeholder="Nome do deck"
@@ -152,7 +151,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         </div>
         <ButtonGroup aria-label="Ações do deck" className="h-11 shrink-0">
           <Button size="icon" title="Salvar deck" aria-label="Salvar deck" className="w-11" onClick={saveDeck}>
-            <SaveIcon className="size-[18px]" />
+            <SaveIcon className="size-4.5" />
           </Button>
           <AlertDialog>
             <AlertDialogTrigger
@@ -160,7 +159,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
                 <Button variant="danger" size="icon" title="Excluir deck" aria-label="Excluir deck" className="w-11" />
               }
             >
-              <Trash2Icon className="size-[18px]" />
+              <Trash2Icon className="size-4.5" />
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

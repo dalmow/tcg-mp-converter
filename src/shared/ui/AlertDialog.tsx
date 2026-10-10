@@ -32,13 +32,14 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
 }
 
 function AlertDialogContent({ className, ...props }: AlertDialogPrimitive.Popup.Props) {
+  // Width: a 400px one-off from sm, with 24px kept clear on each side below it. No width token.
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"
         className={cn(
-          'group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-space-7 rounded-3xl border border-border bg-surface-200 p-space-9 text-ink shadow-modal duration-100 outline-none max-w-[calc(100%-3rem)] sm:max-w-[400px] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          'group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-space-7 rounded-3xl border border-border bg-surface-200 p-space-9 text-ink shadow-modal duration-100 outline-none max-w-[calc(100%-3rem)] sm:max-w-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           className,
         )}
         {...props}

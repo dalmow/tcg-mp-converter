@@ -41,12 +41,12 @@ function DeckBlock({ deck, owned }: { deck: Deck; owned: OwnedMap }) {
       <div className="flex items-start justify-between gap-space-5">
         <span className="text-h2 tracking-[0.01em] break-words uppercase">{deck.name}</span>
         {validation.valid ? (
-          <CircleCheck role="img" aria-label="Deck válido" className="size-[18px] shrink-0 text-secondary" />
+          <CircleCheck role="img" aria-label="Deck válido" className="size-4.5 shrink-0 text-secondary" />
         ) : (
-          <CircleAlert role="img" aria-label="Deck inválido" className="size-[18px] shrink-0 text-danger" />
+          <CircleAlert role="img" aria-label="Deck inválido" className="size-4.5 shrink-0 text-danger" />
         )}
       </div>
-      <ProgressBar compact label="Cartas no deck" value={validation.total} max={DECK_SIZE} />
+      <ProgressBar label="Cartas no deck" value={validation.total} max={DECK_SIZE} />
     </DeckTile>
   )
 }
@@ -63,7 +63,7 @@ export default function DeckListPage() {
       title="Meus decks"
       subtitle={DECKS_SUBTITLE}
       actions={
-        <ButtonGroup aria-label="Ações dos decks" className="h-11 shrink-0 border-[1.5px] border-secondary">
+        <ButtonGroup aria-label="Ações dos decks" className="h-11 shrink-0 status-border border-secondary">
           <Link
             to={ROUTES.newDeck}
             aria-label="Novo deck"
@@ -84,7 +84,7 @@ export default function DeckListPage() {
             </Link>
           </Panel>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-[18px] min-[960px]:grid-cols-[repeat(3,280px)] min-[960px]:justify-start">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-4.5 min-[960px]:grid-cols-[repeat(3,280px)] min-[960px]:justify-start">
             {decks.map((deck) => (
               <DeckBlock key={deck.id} deck={deck} owned={owned} />
             ))}

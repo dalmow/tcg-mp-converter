@@ -15,6 +15,7 @@ const tokens = JSON.parse(read('../../../docs/design-system/tokens.json')) as {
   spacing: { tokens: { name: string; value: string }[] }
   radius: { tokens: { name: string; value: string }[] }
   shadow: { tokens: { name: string; value: string }[] }
+  container: { tokens: { name: string; value: string }[] }
 }
 
 const declaration = (name: string) => {
@@ -39,6 +40,10 @@ describe('design tokens in src/index.css match docs/design-system/tokens.json', 
 
   it.each(tokens.spacing.tokens.map((t) => [t.name, t.value]))('%s', (name, value) => {
     expect(declaration(`spacing-${name}`)).toBe(value)
+  })
+
+  it.each(tokens.container.tokens.map((t) => [t.name, t.value]))('container %s', (name, value) => {
+    expect(declaration(`container-${name}`)).toBe(value)
   })
 
   it('type styles', () => {
@@ -130,5 +135,35 @@ describe('shadcn token aliases are gone', () => {
       .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
       .filter((f) => aliasUtility.test(readFileSync(new URL(f, dir), 'utf-8')))
     expect(offenders).toEqual([])
+  })
+})
+
+describe('every token in src/index.css has a consumer', () => {
+  const dir = new URL('../..', import.meta.url)
+  // A token named in a comment is not a consumer, so comments are removed before the search.
+  const withoutComments = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+  // index.css minus its @theme block, so a declaration never counts as its own consumer.
+  const cssRules = withoutComments(css.replace(/@theme static \{[\s\S]*?\n\}/, ''))
+  const sources = readdirSync(dir, { recursive: true, encoding: 'utf-8' })
+    .filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f))
+    .map((f) => withoutComments(readFileSync(new URL(f, dir), 'utf-8')))
+    .concat(cssRules)
+    .join('\n')
+  const themeTokens = [...css.matchAll(/^\s*--(color|spacing|radius|shadow|container|text)-([a-z0-9-]+):/gm)]
+    .map((match) => ({ group: match[1], name: match[2] }))
+    // Sub-variables such as `--text-h1--line-height` belong to their token.
+    .filter(({ name }) => !name.includes('--'))
+  // Fonts are not listed: index.css reads them (`html { font-sans }`), not a component class.
+  const classFor: Record<string, (name: string) => string> = {
+    color: (name) => `-${name}`,
+    spacing: (name) => `-${name}`,
+    radius: (name) => `rounded(?:-[a-z]+)?-${name}`,
+    shadow: (name) => `shadow-${name}`,
+    container: (name) => `max-w-${name}`,
+    text: (name) => `text-${name}`,
+  }
+
+  it.each(themeTokens.map(({ group, name }) => [`${group}-${name}`, classFor[group](name)]))('%s', (_, pattern) => {
+    expect(sources).toMatch(new RegExp(`${pattern}(?![\\w-])`))
   })
 })

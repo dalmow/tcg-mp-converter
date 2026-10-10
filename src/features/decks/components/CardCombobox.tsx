@@ -39,7 +39,7 @@ export function CardCombobox({ value, suggestions, onValueChange, onPick, ...inp
       shouldFilter={false}
       value={activeKey ?? ''}
       onValueChange={setHighlighted}
-      className="relative size-auto overflow-visible rounded-none! bg-transparent p-0"
+      className="relative size-auto overflow-visible rounded-none! bg-transparent p-0!"
     >
       <Input
         {...inputProps}
@@ -67,7 +67,7 @@ export function CardCombobox({ value, suggestions, onValueChange, onPick, ...inp
       {showList && (
         // Keeps focus on the input so the blur handler does not close the list before the pick.
         <CommandList
-          className="absolute top-full z-20 mt-1 w-full rounded-lg border border-border-faint bg-surface-200 shadow-md"
+          className="absolute top-full z-20 mt-space-1 w-full rounded-lg border border-border-faint bg-surface-200 shadow-dropdown"
           onMouseDown={(event) => event.preventDefault()}
         >
           {suggestions.map((suggestion) => (

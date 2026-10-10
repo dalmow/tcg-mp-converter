@@ -2,15 +2,13 @@
 
 import * as React from 'react'
 import { Command as CommandPrimitive } from 'cmdk'
-import { cn } from 'cn'
-
-import { CheckIcon } from 'lucide-react'
+import { cn } from '@/shared/lib/utils'
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
       data-slot="command"
-      className={cn('flex size-full flex-col overflow-hidden rounded-lg! bg-surface-200 p-1 text-ink', className)}
+      className={cn('flex size-full flex-col overflow-hidden rounded-lg! bg-surface-200 p-space-1 text-ink', className)}
       {...props}
     />
   )
@@ -20,7 +18,10 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      className={cn('no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none', className)}
+      className={cn(
+        'no-scrollbar max-h-72 scroll-py-space-1 overflow-x-hidden overflow-y-auto outline-none',
+        className,
+      )}
       {...props}
     />
   )
@@ -31,13 +32,12 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        "group/command-item relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-body outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-secondary-tint-strong data-selected:text-ink [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-secondary",
+        'relative flex cursor-default items-center gap-space-3 rounded-sm px-space-3 py-space-2 text-body outline-hidden select-none data-selected:bg-secondary-tint-strong data-selected:text-ink',
         className,
       )}
       {...props}
     >
       {children}
-      <CheckIcon className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
   )
 }

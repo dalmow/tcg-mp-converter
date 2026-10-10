@@ -142,3 +142,12 @@ describe('Navbar', () => {
     })
   })
 })
+
+describe('icon-only controls', () => {
+  it('give the menu toggle a title equal to its accessible name', () => {
+    renderNavbar()
+
+    const toggle = screen.getByRole('button', { name: 'Abrir menu de navegação' })
+    expect(toggle.getAttribute('title')).toBe('Abrir menu de navegação')
+  })
+})

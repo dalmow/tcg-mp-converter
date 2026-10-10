@@ -113,7 +113,7 @@ function PillGroup<T extends string>({
               className={cn(
                 // h-9.5: 38px DS pill, above the 24px minimum target size (WCAG 2.5.8).
                 // Unselected is a hollow outline, never reduced opacity (which would cut text contrast).
-                'inline-flex h-9.5 cursor-pointer items-center justify-center rounded-md border-[1.5px] text-ui font-bold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ink-faint focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000',
+                'inline-flex h-9.5 cursor-pointer items-center justify-center rounded-md status-border text-ui font-bold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ink-faint focus-visible:ring-offset-2 focus-visible:ring-offset-surface-000',
                 pillClassName,
                 selected ? classes.selected : classes.unselected,
               )}
@@ -177,6 +177,7 @@ export default function ConverterPage() {
 
   return (
     <PageLayout title="Conversor" subtitle="Cole sua decklist e converta pro formato aceito pelas lojas parceiras.">
+      {/* One-off values of this page, no tokens: the fluid column gap and the 260–360px side column from md. */}
       <section className="grid items-start gap-[clamp(28px,4vw,48px)] md:grid-cols-[minmax(0,1fr)_minmax(260px,360px)]">
         <div className="flex flex-col gap-space-6">
           <Label htmlFor="decklist" className="font-display text-h2">

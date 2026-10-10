@@ -24,6 +24,7 @@ export function Navbar() {
   const backup = useBackup()
   const sheetOpen = openedAt === pathname
   const setSheetOpen = (open: boolean) => setOpenedAt(open ? pathname : null)
+  const menuLabel = sheetOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'
 
   useEffect(() => {
     if (!sheetOpen) return
@@ -45,6 +46,7 @@ export function Navbar() {
     }
   }, [sheetOpen])
 
+  // The header blur is a 10px one-off: no blur token, and the surface-header token carries the tint.
   return (
     <header className="sticky top-0 z-20 border-b border-border-faint bg-surface-header backdrop-blur-[10px]">
       <nav ref={setNav} aria-label="Principal" className="relative">
@@ -54,7 +56,7 @@ export function Navbar() {
         >
           Pular para o conteúdo
         </a>
-        <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-space-9 px-[clamp(20px,4vw,40px)] py-space-7">
+        <div className="mx-auto flex max-w-page items-center justify-between gap-space-9 px-page-gutter py-space-7">
           <Link
             to={ROUTES.home}
             className="flex items-center gap-space-4 rounded-sm font-display text-wordmark outline-none focus-visible:ring-1 focus-visible:ring-ink-faint"
@@ -76,7 +78,8 @@ export function Navbar() {
           <button
             ref={toggle}
             type="button"
-            aria-label={sheetOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+            aria-label={menuLabel}
+            title={menuLabel}
             aria-expanded={sheetOpen}
             aria-controls={sheetOpen ? sheetId : undefined}
             onClick={() => setSheetOpen(!sheetOpen)}

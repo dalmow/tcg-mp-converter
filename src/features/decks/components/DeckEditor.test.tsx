@@ -672,3 +672,17 @@ describe('DeckEditor accessibility', () => {
     expect(alert).toBeTruthy()
   })
 })
+
+describe('icon-only row controls', () => {
+  // Rule: the title is the short action shown on hover; the aria-label names the row or panel it acts on.
+  it('title the short action and name the row in the accessible name', async () => {
+    const user = userEvent.setup()
+    renderEditor()
+    await addCard(user, 'Pokémon')
+
+    const remove = screen.getByRole('button', { name: 'Excluir linha 1 de Pokémon' })
+    expect(remove.getAttribute('title')).toBe('Remover carta')
+    const add = panel('Pokémon').getByRole('button', { name: 'Adicionar carta de Pokémon' })
+    expect(add.getAttribute('title')).toBe('Adicionar carta')
+  })
+})
