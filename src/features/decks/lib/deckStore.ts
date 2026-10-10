@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import { createDeckStorage, EMPTY_DATA, type DeckStorage, type PersistedData } from './storage'
-import type { Deck, OwnedEntry, OwnedMap, Result } from '@/features/decks/types/deck'
+import { createDeckStorage, EMPTY_DATA, type DeckStorage } from './storage'
+import type { Deck, OwnedEntry, OwnedMap, PersistedData, Result } from '@/features/decks/types/deck'
 
 export function createDeckStore(storage: DeckStorage) {
   let snapshot = storage.load()

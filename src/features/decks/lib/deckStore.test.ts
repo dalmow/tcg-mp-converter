@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createDeckStore } from './deckStore'
-import type { DeckStorage, PersistedData } from './storage'
-import { EMPTY_DATA } from './storage'
-import type { Deck, OwnedEntry } from '@/features/decks/types/deck'
+import { EMPTY_DATA, type DeckStorage } from './storage'
+import type { Deck, OwnedEntry, PersistedData } from '@/features/decks/types/deck'
 
 function fakeStorage(initial: PersistedData = EMPTY_DATA) {
   let data = initial

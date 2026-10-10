@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildBackup, parseBackup } from './backup'
-import type { PersistedData } from '@/features/decks'
+import type { DeckCard, PersistedData } from '@/features/decks'
 
 const data: PersistedData = {
   decks: [
@@ -22,6 +22,9 @@ const data: PersistedData = {
     fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 10 },
   },
 }
+
+const deck = data.decks[0]
+const card = deck.cards[0]
 
 describe('buildBackup', () => {
   it('builds the payload with version, timestamp, decks and owned', () => {
@@ -54,6 +57,23 @@ describe('parseBackup', () => {
     expect(parseBackup(text).ok).toBe(false)
   })
 
+  it.each([
+    ['an unknown card category', { decks: [{ ...deck, cards: [{ ...card, category: 'item' }] }] }],
+    ['a non-integer card quantity', { decks: [{ ...deck, cards: [{ ...card, quantity: 1.5 }] }] }],
+    ['a decks value that is not an array', { decks: {} }],
+    ['an owned value that is an array', { owned: [] }],
+  ])('rejects a file with %s', (_label, overrides) => {
+    expect(parseBackup(JSON.stringify({ ...buildBackup(data), ...overrides })).ok).toBe(false)
+  })
+
+  it('rejects an owned entry that breaks the schema', () => {
+    const text = JSON.stringify({
+      ...buildBackup(data),
+      owned: { fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: -1 } },
+    })
+    expect(parseBackup(text).ok).toBe(false)
+  })
+
   it('rejects an unsupported version with a specific message', () => {
     const text = JSON.stringify({ ...buildBackup(data), version: 2 })
     expect(parseBackup(text)).toEqual({
@@ -74,11 +94,24 @@ describe('parseBackup', () => {
     expect(result.ok && result.summary.ownedCount).toBe(1)
   })
 
+  it('imports a file without exportedAt', () => {
+    const { exportedAt: _exportedAt, ...withoutTimestamp } = buildBackup(data)
+    expect(parseBackup(JSON.stringify(withoutTimestamp)).ok).toBe(true)
+  })
+
+  it('ignores unknown fields', () => {
+    const text = JSON.stringify({ ...buildBackup(data), decks: [{ ...deck, color: 'red' }] })
+    expect(parseBackup(text)).toEqual({
+      ok: true,
+      data,
+      summary: { deckCount: 1, ownedCount: 2 },
+    })
+  })
+
   it('rejects a deck with a duplicate card key', () => {
-    const card = data.decks[0].cards[0]
     const bad: PersistedData = {
       ...data,
-      decks: [{ ...data.decks[0], cards: [card, card] }],
+      decks: [{ ...deck, cards: [card, card] }],
     }
     expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
       ok: false,
@@ -87,27 +120,28 @@ describe('parseBackup', () => {
   })
 
   it('rejects a deck with more than 60 cards', () => {
-    const cards = [
-      {
-        category: 'pokemon' as const,
-        key: 'MEG-1',
-        displayName: 'A',
-        quantity: 40,
-      },
-      {
-        category: 'pokemon' as const,
-        key: 'MEG-2',
-        displayName: 'B',
-        quantity: 21,
-      },
+    const cards: DeckCard[] = [
+      { category: 'pokemon', key: 'MEG-1', displayName: 'A', quantity: 40 },
+      { category: 'pokemon', key: 'MEG-2', displayName: 'B', quantity: 21 },
     ]
     const bad: PersistedData = {
       ...data,
-      decks: [{ ...data.decks[0], cards }],
+      decks: [{ ...deck, cards }],
     }
     expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
       ok: false,
       error: 'Deck "Alakazam" tem mais de 60 cartas',
+    })
+  })
+
+  it('rejects two decks that share an id', () => {
+    const bad: PersistedData = {
+      ...data,
+      decks: [deck, { ...deck, name: 'Outro' }],
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
+      ok: false,
+      error: 'Dois decks têm o mesmo id',
     })
   })
 })

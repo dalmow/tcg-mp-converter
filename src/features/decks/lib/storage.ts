@@ -1,12 +1,9 @@
-import { CARD_CATEGORIES } from '@/features/decks/types/deck'
-import type { CardCategory, Deck, DeckCard, OwnedEntry, OwnedMap, Result } from '@/features/decks/types/deck'
+import { z } from 'zod'
+import { deckInvariantError, uniqueDecksById } from './deckRules'
+import { deckSchema, ownedEntrySchema } from '@/features/decks/types/deck'
+import type { Deck, OwnedMap, PersistedData } from '@/features/decks/types/deck'
 
 export const STORAGE_KEY = 'ptcg:v1'
-
-export interface PersistedData {
-  decks: Deck[]
-  owned: OwnedMap
-}
 
 export const EMPTY_DATA: PersistedData = { decks: [], owned: {} }
 
@@ -23,53 +20,41 @@ export interface DeckStorage {
   subscribe(onExternalChange: () => void): () => void
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
+/** Keeps the valid decks that pass the invariants, and only the first deck of each id. */
+function recoverDecks(value: unknown): Deck[] {
+  const parsedDecks = z.array(z.unknown()).safeParse(value)
+  if (!parsedDecks.success) return []
 
-function isCategory(value: unknown): value is CardCategory {
-  return typeof value === 'string' && (CARD_CATEGORIES as readonly string[]).includes(value)
-}
-
-function isCount(value: unknown, min: number): value is number {
-  return typeof value === 'number' && Number.isInteger(value) && value >= min
-}
-
-function isDeckCard(value: unknown): value is DeckCard {
-  return (
-    isRecord(value) &&
-    isCategory(value.category) &&
-    typeof value.key === 'string' &&
-    typeof value.displayName === 'string' &&
-    isCount(value.quantity, 1)
-  )
-}
-
-function isDeck(value: unknown): value is Deck {
-  return (
-    isRecord(value) &&
-    typeof value.id === 'string' &&
-    typeof value.name === 'string' &&
-    Array.isArray(value.cards) &&
-    value.cards.every(isDeckCard)
-  )
-}
-
-function isOwnedEntry(value: unknown): value is OwnedEntry {
-  return (
-    isRecord(value) && typeof value.displayName === 'string' && isCategory(value.category) && isCount(value.quantity, 0)
-  )
-}
-
-/** Validates unknown input (storage or backup file) into `PersistedData`. */
-export function parsePersistedData(value: unknown): Result<{ data: PersistedData }> {
-  if (!isRecord(value) || !Array.isArray(value.decks) || !isRecord(value.owned)) {
-    return { ok: false, error: 'Dados inválidos' }
+  const validDecks: Deck[] = []
+  for (const item of parsedDecks.data) {
+    const parsedDeck = deckSchema.safeParse(item)
+    if (parsedDeck.success && deckInvariantError(parsedDeck.data) === null) validDecks.push(parsedDeck.data)
   }
-  if (!value.decks.every(isDeck) || !Object.values(value.owned).every(isOwnedEntry)) {
-    return { ok: false, error: 'Dados inválidos' }
+  return uniqueDecksById(validDecks)
+}
+
+function recoverOwned(value: unknown): OwnedMap {
+  const parsedOwned = z.record(z.string(), z.unknown()).safeParse(value)
+  if (!parsedOwned.success) return {}
+
+  const owned: OwnedMap = {}
+  for (const [key, item] of Object.entries(parsedOwned.data)) {
+    const parsedEntry = ownedEntrySchema.safeParse(item)
+    if (parsedEntry.success) owned[key] = parsedEntry.data
   }
-  return { ok: true, data: { decks: value.decks, owned: value.owned as OwnedMap } }
+  return owned
+}
+
+/**
+ * Keeps every valid deck and owned entry, and drops the rest, so one bad entry does not erase the saved
+ * data. Each container is checked on its own, so a broken or missing `owned` keeps valid decks and vice
+ * versa. A value that is not an object falls back to empty. The return type is PersistedData, so a field
+ * added to the schema fails typecheck here until it is recovered.
+ */
+export function recoverPersistedData(value: unknown): PersistedData {
+  const parsedShape = z.object({ decks: z.unknown().optional(), owned: z.unknown().optional() }).safeParse(value)
+  if (!parsedShape.success) return EMPTY_DATA
+  return { decks: recoverDecks(parsedShape.data.decks), owned: recoverOwned(parsedShape.data.owned) }
 }
 
 /** Calls `onChange` when another tab changes the stored data; returns the cleanup function. */
@@ -88,12 +73,11 @@ export function createDeckStorage(
 ): DeckStorage {
   return {
     load() {
-      // Corrupt or unreadable storage falls back to empty; the next save replaces it.
+      // Unreadable storage falls back to empty; the next save replaces it.
       try {
         const raw = backend.getItem(STORAGE_KEY)
         if (raw === null) return EMPTY_DATA
-        const parsed = parsePersistedData(JSON.parse(raw))
-        return parsed.ok ? parsed.data : EMPTY_DATA
+        return recoverPersistedData(JSON.parse(raw))
       } catch {
         return EMPTY_DATA
       }

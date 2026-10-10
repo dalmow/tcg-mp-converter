@@ -1,6 +1,7 @@
 import type { CollectionConfig } from '@/shared/types/domain'
 import { parseCard } from './cardParser'
 import { addDeckCard } from './deckRules'
+import { isCountAtLeast } from '@/features/decks/types/deck'
 import type { CardCategory, Deck, DeckCard, OwnedMap } from '@/features/decks/types/deck'
 import { parseIntegerText, parseOwnedText } from './rowLogic'
 
@@ -120,7 +121,7 @@ export function buildDeckSave(
     // and the 60-card cap are still reported in the same attempt.
     deck = added.deck
     const ownedQuantity = parseOwnedText(row.ownedText ?? '')
-    if (row.ownedText !== null && !Number.isInteger(ownedQuantity)) {
+    if (row.ownedText !== null && !isCountAtLeast(ownedQuantity, 0)) {
       rowErrors[row.id] = OWNED_INVALID
       continue
     }

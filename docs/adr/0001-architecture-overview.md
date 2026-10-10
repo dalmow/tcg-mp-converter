@@ -9,6 +9,7 @@ Personal tool that converts a Pokémon TCG Decklist into the search format of si
 ## Stack
 
 - TypeScript 6, React 19, react-router 8, Vite 8, Tailwind 4.
+- Zod 4: runtime schemas for persisted and imported data (`src/features/decks/types/deck.ts`).
 - UI: `@base-ui/react` primitives (wrappers in `src/shared/ui/`), `cmdk` for the card combobox.
 - Tests: Vitest. Lint: oxlint.
 - Hosting: Vercel (`vercel.json`: `cleanUrls`, rewrites of `/decks/new`, `/decks/:id`, `/maintenance` to `/spa.html`).

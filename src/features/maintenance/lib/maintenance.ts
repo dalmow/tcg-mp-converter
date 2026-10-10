@@ -1,4 +1,4 @@
-import type { CardCategory, Deck, OwnedEntry, OwnedMap } from '@/features/decks'
+import { parseOwnedText, type CardCategory, type Deck, type OwnedEntry, type OwnedMap } from '@/features/decks'
 
 export interface MaintenanceEntry {
   key: string
@@ -46,8 +46,6 @@ export function toOwnedEntry(entry: MaintenanceEntry, quantity: number): OwnedEn
 
 /** Parses the owned-quantity input: empty counts as 0; otherwise a non-negative integer, else null. */
 export function parseOwnedQuantity(text: string): number | null {
-  const trimmed = text.trim()
-  if (trimmed === '') return 0
-  if (!/^\d+$/.test(trimmed)) return null
-  return Number(trimmed)
+  const quantity = parseOwnedText(text)
+  return Number.isNaN(quantity) ? null : quantity
 }

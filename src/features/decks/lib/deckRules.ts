@@ -1,10 +1,31 @@
 import type { CollectionConfig } from '@/shared/types/domain'
 import { parseCard } from './cardParser'
-import { DECK_SIZE, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
+import { DECK_SIZE, isCountAtLeast, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
 import type { Deck, DeckCard, OwnedMap, Result } from '@/features/decks/types/deck'
 
 export function totalQuantity(cards: DeckCard[]): number {
   return cards.reduce((sum, card) => sum + card.quantity, 0)
+}
+
+/** Returns a Portuguese error for the first deck invariant the deck breaks, or null. Shared by storage and backup. */
+export function deckInvariantError(deck: Deck): string | null {
+  if (new Set(deck.cards.map((card) => card.key)).size !== deck.cards.length) {
+    return `Deck "${deck.name}" tem cartas duplicadas`
+  }
+  if (totalQuantity(deck.cards) > DECK_SIZE) {
+    return `Deck "${deck.name}" tem mais de ${DECK_SIZE} cartas`
+  }
+  return null
+}
+
+/** Keeps the first deck of each id. Deck ids are what the store matches on, so two decks cannot share one. */
+export function uniqueDecksById(decks: Deck[]): Deck[] {
+  const seenIds = new Set<string>()
+  return decks.filter((deck) => {
+    if (seenIds.has(deck.id)) return false
+    seenIds.add(deck.id)
+    return true
+  })
 }
 
 /** Largest quantity a row may take, given the other rows of the deck. */
@@ -14,7 +35,7 @@ export function maxQuantityFor(deck: Deck, key: string): number {
 }
 
 export function validateQuantity(deck: Deck, key: string, quantity: number): string | null {
-  if (!Number.isInteger(quantity) || quantity < 1) {
+  if (!isCountAtLeast(quantity, 1)) {
     return 'Quantidade deve ser um número inteiro maior que zero'
   }
   const max = maxQuantityFor(deck, key)

@@ -65,6 +65,7 @@ export function CardRow({
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
+  // Not isCountAtLeast: a blank quantity is NaN, and this check must not flag the owned input for it.
   const ownedInvalid = !Number.isInteger(ownedQuantity) || ownedQuantity < quantity
   function fieldA11y(invalid: boolean, described: boolean) {
     return {

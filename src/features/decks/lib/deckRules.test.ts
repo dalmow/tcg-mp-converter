@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDeckCard, maxQuantityFor, validateDeck, validateQuantity } from './deckRules'
+import { addDeckCard, deckInvariantError, maxQuantityFor, validateDeck, validateQuantity } from './deckRules'
 import type { Deck, DeckCard, OwnedMap } from '@/features/decks/types/deck'
 
 const collections = { MEG: 132, BLK: 86, SVI: 198 }
@@ -16,6 +16,12 @@ function ownedFor(cards: DeckCard[], extra = 0): OwnedMap {
     cards.map((c) => [c.key, { displayName: c.displayName, category: c.category, quantity: c.quantity + extra }]),
   )
 }
+
+describe('deckInvariantError', () => {
+  it('accepts a deck with unique keys and exactly 60 cards', () => {
+    expect(deckInvariantError(deck([{ ...fire, quantity: 60 }]))).toBeNull()
+  })
+})
 
 describe('addDeckCard / quantity', () => {
   it('rejects a duplicate key', () => {
