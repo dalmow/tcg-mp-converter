@@ -62,19 +62,19 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
 
   return (
     <li data-satisfied={satisfied} className="flex flex-col gap-space-2">
-      <RowState state={state} className="flex flex-wrap items-center justify-between gap-space-4 px-4 py-3.5">
+      <RowState state={state} className="flex flex-wrap items-center justify-between gap-space-7 px-4 py-3.5">
         <div className="flex min-w-40 flex-col gap-space-2">
           <span className="text-body-strong">{row.displayName}</span>
           <div className="flex flex-wrap items-center gap-space-2">
-            <span className="text-caption text-ink-faint">Decks:</span>
+            <span className="text-caption text-ink-subtle">Decks:</span>
             {isUnused ? (
-              <span className="text-caption text-ink-faint">nenhum</span>
+              <span className="text-caption text-ink-subtle">nenhum</span>
             ) : (
               row.decks.map((deck) => <Badge key={deck}>{deck}</Badge>)
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-space-3">
+        <div className="flex flex-wrap items-center gap-space-5">
           <span className="text-ui whitespace-nowrap text-ink-muted">Precisa: {row.needed}</span>
           <label htmlFor={inputId} className="sr-only">
             Adquirido de {row.displayName}
@@ -90,15 +90,17 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
             onChange={(event) => setUnsavedDraft(event.target.value)}
           />
           <ButtonGroup aria-label={`Ações de ${row.displayName}`}>
-            <SaveButton
-              type="button"
-              size="icon-lg"
-              title="Salvar"
-              aria-label={`Salvar ${row.displayName}`}
-              onClick={save}
-            >
-              <SaveIcon />
-            </SaveButton>
+            {!isUnused && (
+              <SaveButton
+                type="button"
+                size="icon-lg"
+                title="Salvar"
+                aria-label={`Salvar ${row.displayName}`}
+                onClick={save}
+              >
+                <SaveIcon />
+              </SaveButton>
+            )}
             {isUnused && (
               <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                 <AlertDialogTrigger

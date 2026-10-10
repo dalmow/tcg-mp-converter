@@ -1,19 +1,25 @@
 import type { ReactNode } from 'react'
+import { cn } from '@/shared/lib/utils'
 import { MAIN_CONTENT_ID } from './mainContent'
 
 type PageLayoutProps = {
   title?: string
   /** Supporting sentence under the title. Setting it turns the title into the visible DS title block. */
   subtitle?: string
+  /** Tighter 28px gap between blocks, as in the Manutenção and DeckEditor artboards (default 40px). */
+  compact?: boolean
   children?: ReactNode
 }
 
-export function PageLayout({ title, subtitle, children }: PageLayoutProps) {
+export function PageLayout({ title, subtitle, compact, children }: PageLayoutProps) {
   return (
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="mx-auto flex max-w-[1240px] flex-col gap-space-12 px-[clamp(20px,4vw,40px)] pt-[clamp(32px,5vw,48px)] pb-[clamp(56px,7vw,88px)] outline-none"
+      className={cn(
+        'mx-auto flex max-w-[1240px] flex-col px-[clamp(20px,4vw,40px)] pt-[clamp(32px,5vw,48px)] pb-[clamp(56px,7vw,88px)] outline-none',
+        compact ? 'gap-space-10' : 'gap-space-12',
+      )}
     >
       {title && !subtitle && <h1 className="sr-only">{title}</h1>}
       {title && subtitle && (
