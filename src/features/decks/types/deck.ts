@@ -8,12 +8,13 @@ export const MAX_COPIES_PER_NAME = 4
 /**
  * The one rule for quantities, shared by the forms and every stored or imported count. Not zod's int(): that
  * rejects values above 2^53 that a form can save. Infinity (a digit string past the float range) is rejected.
+ * `bound` may be a runtime value, such as the quantity a row must cover.
  */
-export function isCount(value: number, min: number): boolean {
-  return Number.isInteger(value) && value >= min
+export function isCountAtLeast(value: number, bound: number): boolean {
+  return Number.isInteger(value) && value >= bound
 }
 
-const countSchema = (min: number) => z.number().refine((value) => isCount(value, min))
+const countSchema = (min: number) => z.number().refine((value) => isCountAtLeast(value, min))
 
 const cardCategorySchema = z.enum(CARD_CATEGORIES)
 export type CardCategory = z.infer<typeof cardCategorySchema>

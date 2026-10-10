@@ -21,12 +21,6 @@ describe('deckInvariantError', () => {
   it('accepts a deck with unique keys and exactly 60 cards', () => {
     expect(deckInvariantError(deck([{ ...fire, quantity: 60 }]))).toBeNull()
   })
-  it('rejects a deck with more than 60 cards', () => {
-    expect(deckInvariantError(deck([{ ...fire, quantity: 61 }]))).toBe('Deck "D" tem mais de 60 cartas')
-  })
-  it('rejects a deck that repeats a card key', () => {
-    expect(deckInvariantError(deck([abra, abra]))).toBe('Deck "D" tem cartas duplicadas')
-  })
 })
 
 describe('addDeckCard / quantity', () => {

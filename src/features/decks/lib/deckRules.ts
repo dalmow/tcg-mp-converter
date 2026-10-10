@@ -1,6 +1,6 @@
 import type { CollectionConfig } from '@/shared/types/domain'
 import { parseCard } from './cardParser'
-import { DECK_SIZE, isCount, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
+import { DECK_SIZE, isCountAtLeast, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
 import type { Deck, DeckCard, OwnedMap, Result } from '@/features/decks/types/deck'
 
 export function totalQuantity(cards: DeckCard[]): number {
@@ -35,7 +35,7 @@ export function maxQuantityFor(deck: Deck, key: string): number {
 }
 
 export function validateQuantity(deck: Deck, key: string, quantity: number): string | null {
-  if (!isCount(quantity, 1)) {
+  if (!isCountAtLeast(quantity, 1)) {
     return 'Quantidade deve ser um número inteiro maior que zero'
   }
   const max = maxQuantityFor(deck, key)

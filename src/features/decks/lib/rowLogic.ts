@@ -2,7 +2,7 @@ import type { CollectionConfig } from '@/shared/types/domain'
 import { normalizeName, parseCard } from './cardParser'
 import type { ParsedCard } from './cardParser'
 import { validateQuantity } from './deckRules'
-import { isCount, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
+import { isCountAtLeast, MAX_COPIES_PER_NAME } from '@/features/decks/types/deck'
 import type { CardCategory, Deck, OwnedMap } from '@/features/decks/types/deck'
 
 const MAX_SUGGESTIONS = 8
@@ -68,9 +68,10 @@ export function parseIntegerText(text: string): number {
   return /^\d+$/.test(trimmed) ? Number(trimmed) : Number.NaN
 }
 
-/** Empty owned text counts as 0. */
+/** Empty owned text counts as 0. NaN when the text is not a count the stored data accepts. */
 export function parseOwnedText(text: string): number {
-  return text.trim() === '' ? 0 : parseIntegerText(text)
+  const quantity = text.trim() === '' ? 0 : parseIntegerText(text)
+  return isCountAtLeast(quantity, 0) ? quantity : Number.NaN
 }
 
 export interface RowInput {
@@ -88,9 +89,9 @@ export function deriveRowState(context: RowContext, input: RowInput) {
   // `otherRows` excludes this row, so there is no key to exclude; '' matches none.
   const quantityError = validateQuantity(otherRows, '', quantity)
   const warning =
-    parsed.ok && isCount(quantity, 0)
+    parsed.ok && isCountAtLeast(quantity, 0)
       ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
-  const valid = parsed.ok && !quantityError && isCount(ownedQuantity, quantity) && !warning
+  const valid = parsed.ok && !quantityError && isCountAtLeast(ownedQuantity, quantity) && !warning
   return { parsed, quantity, ownedQuantity, quantityError, warning, valid }
 }

@@ -60,8 +60,8 @@ describe('parseBackup', () => {
   it.each([
     ['an unknown card category', { decks: [{ ...deck, cards: [{ ...card, category: 'item' }] }] }],
     ['a non-integer card quantity', { decks: [{ ...deck, cards: [{ ...card, quantity: 1.5 }] }] }],
-    ['decks that is not an array', { decks: {} }],
-    ['owned that is an array', { owned: [] }],
+    ['a decks value that is not an array', { decks: {} }],
+    ['an owned value that is an array', { owned: [] }],
   ])('rejects a file with %s', (_label, overrides) => {
     expect(parseBackup(JSON.stringify({ ...buildBackup(data), ...overrides })).ok).toBe(false)
   })
@@ -94,6 +94,11 @@ describe('parseBackup', () => {
     expect(result.ok && result.summary.ownedCount).toBe(1)
   })
 
+  it('imports a file without exportedAt', () => {
+    const { exportedAt: _exportedAt, ...withoutTimestamp } = buildBackup(data)
+    expect(parseBackup(JSON.stringify(withoutTimestamp)).ok).toBe(true)
+  })
+
   it('ignores unknown fields', () => {
     const text = JSON.stringify({ ...buildBackup(data), decks: [{ ...deck, color: 'red' }] })
     expect(parseBackup(text)).toEqual({
@@ -112,10 +117,9 @@ describe('parseBackup', () => {
   })
 
   it('rejects a deck with a duplicate card key', () => {
-    const card = data.decks[0].cards[0]
     const bad: PersistedData = {
       ...data,
-      decks: [{ ...data.decks[0], cards: [card, card] }],
+      decks: [{ ...deck, cards: [card, card] }],
     }
     expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
       ok: false,
@@ -130,7 +134,7 @@ describe('parseBackup', () => {
     ]
     const bad: PersistedData = {
       ...data,
-      decks: [{ ...data.decks[0], cards }],
+      decks: [{ ...deck, cards }],
     }
     expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
       ok: false,
@@ -141,7 +145,7 @@ describe('parseBackup', () => {
   it('rejects two decks that share an id', () => {
     const bad: PersistedData = {
       ...data,
-      decks: [data.decks[0], { ...data.decks[0], name: 'Outro' }],
+      decks: [deck, { ...deck, name: 'Outro' }],
     }
     expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
       ok: false,

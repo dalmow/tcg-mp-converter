@@ -20,14 +20,9 @@ export interface DeckStorage {
   subscribe(onExternalChange: () => void): () => void
 }
 
-// Loose shapes: each container is checked on its own, so a broken or missing `owned` keeps valid decks and vice versa.
-const storedShapeSchema = z.object({ decks: z.unknown().optional(), owned: z.unknown().optional() })
-const storedDecksSchema = z.array(z.unknown())
-const storedOwnedSchema = z.record(z.string(), z.unknown())
-
 /** Keeps the valid decks that pass the invariants, and only the first deck of each id. */
 function recoverDecks(value: unknown): Deck[] {
-  const parsedDecks = storedDecksSchema.safeParse(value)
+  const parsedDecks = z.array(z.unknown()).safeParse(value)
   if (!parsedDecks.success) return []
 
   const validDecks: Deck[] = []
@@ -39,7 +34,7 @@ function recoverDecks(value: unknown): Deck[] {
 }
 
 function recoverOwned(value: unknown): OwnedMap {
-  const parsedOwned = storedOwnedSchema.safeParse(value)
+  const parsedOwned = z.record(z.string(), z.unknown()).safeParse(value)
   if (!parsedOwned.success) return {}
 
   const owned: OwnedMap = {}
@@ -52,10 +47,11 @@ function recoverOwned(value: unknown): OwnedMap {
 
 /**
  * Keeps every valid deck and owned entry, and drops the rest, so one bad entry does not erase the saved
- * data. A value that is not an object falls back to empty.
+ * data. Each container is checked on its own, so a broken or missing `owned` keeps valid decks and vice
+ * versa. A value that is not an object falls back to empty.
  */
 export function recoverPersistedData(value: unknown): PersistedData {
-  const parsedShape = storedShapeSchema.safeParse(value)
+  const parsedShape = z.object({ decks: z.unknown().optional(), owned: z.unknown().optional() }).safeParse(value)
   if (!parsedShape.success) return EMPTY_DATA
   return { decks: recoverDecks(parsedShape.data.decks), owned: recoverOwned(parsedShape.data.owned) }
 }

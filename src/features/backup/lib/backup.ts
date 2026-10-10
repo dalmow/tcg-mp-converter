@@ -9,11 +9,12 @@ import {
 
 export const BACKUP_VERSION = 1
 
-const backupFileSchema = persistedDataSchema.extend({ version: z.number() })
-const backupVersionSchema = backupFileSchema.pick({ version: true })
+const backupFileSchema = persistedDataSchema.extend({ version: z.number(), exportedAt: z.string() })
+export type BackupFile = z.infer<typeof backupFileSchema>
 
-/** `exportedAt` is written on export; import does not read it. */
-export type BackupFile = z.infer<typeof backupFileSchema> & { exportedAt: string }
+const backupVersionSchema = backupFileSchema.pick({ version: true })
+// Import does not read `exportedAt`, so a file without it still imports.
+const importedBackupSchema = backupFileSchema.omit({ exportedAt: true })
 
 export interface BackupSummary {
   deckCount: number
@@ -55,7 +56,7 @@ export function parseBackup(text: string): Result<{ data: PersistedData; summary
   if (parsedVersion.data.version !== BACKUP_VERSION) {
     return { ok: false, error: 'Versão de backup não suportada' }
   }
-  const parsedBackup = backupFileSchema.safeParse(raw)
+  const parsedBackup = importedBackupSchema.safeParse(raw)
   if (!parsedBackup.success) return { ok: false, error: INVALID_FILE_ERROR }
 
   const { decks, owned } = parsedBackup.data

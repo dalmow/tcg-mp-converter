@@ -281,6 +281,12 @@ describe('DeckEditor', () => {
     expect(getDeckStore().getSnapshot().owned).toEqual({})
   })
 
+  it('does not mark Adquirido invalid while the quantity is still blank', async () => {
+    renderEditor()
+    const { row } = await addRow('Pokémon', '', 'Abra MEG 54')
+    expect(row.getByLabelText(/^Adquirido/).getAttribute('aria-invalid')).toBeNull()
+  })
+
   it.each<[PanelName, string, string | RegExp]>([
     ['Pokémon', 'Abra XYZ 54', 'Coleção XYZ não cadastrada'],
     ['Pokémon', 'Abra MEG 9999', /fora do total/],
