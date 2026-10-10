@@ -38,7 +38,7 @@ src/
 - `shared/ui/`: UI primitives (`Button`, `ButtonGroup`, `Card`, `Input`, `Label`, `Switch`, `Textarea`, `Badge`, `AlertDialog`, `DropdownMenu`, `Command`, `Toast`, `ProgressBar`, `RowState`), plus `Panel`, `Logomark` and `NavIcons`. `buttonVariants` (the `Button` variant table) sits in `buttonVariants.ts`, so component files export components only.
 - `shared/layout/`: `PageLayout` and `mainContent` (the skip-link target id).
 - `shared/hooks/`: `usePageMeta`, `useHydrated`, `useToast` (with the `ToastContext` it reads).
-- `shared/lib/`: `utils`, `contrast`, `seo`, `site`, `pageMeta`, `routes`.
+- `shared/lib/`: `utils`, `contrast`, `seo`, `site`, `pageMeta`, `routes`, `cardNumber`.
 - `shared/types/domain.ts`: `Condition`, `Language`, `CollectionConfig`, `UnresolvedCard`, `ConvertDecklistResult`.
 - `shared/data/collections.json`: the Coleção → card total table, used by the converter and the deck screens.
 
@@ -79,5 +79,5 @@ features/<name>/
 
 - Move only, with `git mv` and no behavior change. The existing tests moved with their modules and had only their import paths and read paths changed. One exception: the `unselected badges do not rely on opacity` check read a converter source file from the shared contrast test, so it moved to `ConverterPage.test.tsx`, where it reads the file with a `?raw` import.
 - When another feature needs a helper that is private today, widen that feature's `index.ts`. Do not import its `lib/` or `components/` directly.
-- Code moves to `shared/` on its third repetition (rule of three, `AGENTS.md`). Two uses keep it in place.
+- Code moves to `shared/` on its third repetition (rule of three, `AGENTS.md`). Two uses keep it in place. Pure rules are an exception when a React-free consumer needs them: see [ADR 0004](0004-pure-rules-in-shared.md).
 - The Vitest scope issue is separate. `npm test` also runs the copies in `.claude/worktrees/`, which pre-date this layout (DAL-52).

@@ -42,4 +42,4 @@ Idioma de impressão da carta: `PTEN`, `PT`, `EN`. Selecionado globalmente para 
 Plataforma de compra de cards avulsos com seu próprio formato de linha de busca. Marketplaces suportadas: Liga Pokemon, MYPCards.
 
 **Carta não resolvida**:
-Carta da Decklist que não pode ser convertida — Coleção não cadastrada ou linha malformada. Reportada no painel de erros com o motivo, sem interromper a conversão das demais cartas.
+Carta da Decklist que não pode ser convertida — Coleção não cadastrada, número fora de 1 até o total da Coleção ou linha malformada. Reportada no painel de erros com o motivo, sem interromper a conversão das demais cartas.

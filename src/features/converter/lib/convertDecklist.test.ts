@@ -75,4 +75,86 @@ describe('convertDecklist', () => {
       { line: 'x3 Pikachu MEG 10', reason: 'Linha em formato inválido' },
     ])
   })
+
+  it.each([
+    ['CRLF', '\r\n'],
+    ['CR', '\r'],
+  ])('gives the same output for %s line endings as for LF', (_, lineEnding) => {
+    const lines = ['Pokemon: 1', '1 Abra MEG 53', '1 Abra MEG', '']
+
+    const lfResult = convertDecklist(lines.join('\n'), { MEG: 132 }, 'NM', 'PTEN')
+    const result = convertDecklist(lines.join(lineEnding), { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(lfResult.ligaPokemon).toBe('1 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result).toEqual(lfResult)
+  })
+
+  it('trims surrounding whitespace from each line before parsing and reporting it', () => {
+    const decklist = ['   1 Abra MEG 53   ', '   1 Abra MEG   '].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('1 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.unresolvedCards).toEqual([{ line: '1 Abra MEG', reason: 'Linha em formato inválido' }])
+  })
+
+  it('reports a card number above the collection total as unresolved, keeping the card at the total', () => {
+    const decklist = ['1 Abra MEG 53', '1 Abra MEG 54'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 53 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('1 Abra (053/053) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.mypCards).toBe('1 Abra (053/053)')
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Abra MEG 54', reason: 'Número 54 fora do total da coleção MEG (53)' },
+    ])
+  })
+
+  it('reports a card number of zero as unresolved', () => {
+    const result = convertDecklist('1 Abra MEG 0', { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('')
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Abra MEG 0', reason: 'Número 0 fora do total da coleção MEG (132)' },
+    ])
+  })
+
+  it('merges duplicate lines whose collection codes differ only in case', () => {
+    const decklist = ['2 Abra MEG 53', '1 Abra meg 53'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('3 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
+    expect(result.mypCards).toBe('3 Abra (053/132)')
+  })
+
+  it.each([
+    {
+      case: 'out-of-range',
+      lines: ['1 Abra MEG 54', '2 Abra MEG 54'],
+      config: { MEG: 53 },
+      reason: 'Número 54 fora do total da coleção MEG (53)',
+    },
+    {
+      case: 'unregistered',
+      lines: ['1 Mewtwo ZZZ 1', '2 Mewtwo ZZZ 1'],
+      config: { MEG: 132 },
+      reason: 'Coleção "ZZZ" não cadastrada',
+    },
+  ])('reports every $case line of a repeated card, not only the first', ({ lines, config, reason }) => {
+    const result = convertDecklist(lines.join('\n'), config, 'NM', 'PTEN')
+
+    expect(result.unresolvedCards).toEqual(lines.map((line) => ({ line, reason })))
+  })
+
+  it('reports unresolved lines in the order they appear in the decklist', () => {
+    const decklist = ['1 Mewtwo ZZZ 1', 'x3 Pikachu MEG 10'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Mewtwo ZZZ 1', reason: 'Coleção "ZZZ" não cadastrada' },
+      { line: 'x3 Pikachu MEG 10', reason: 'Linha em formato inválido' },
+    ])
+  })
 })
