@@ -127,4 +127,27 @@ describe('convertDecklist', () => {
     expect(result.ligaPokemon).toBe('3 Abra (053/132) [QUALIDADE=NM][IDIOMA=PTEN]')
     expect(result.mypCards).toBe('3 Abra (053/132)')
   })
+
+  it('reports every out-of-range line of a repeated card, not only the first', () => {
+    const decklist = ['1 Abra MEG 54', '2 Abra MEG 54'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 53 }, 'NM', 'PTEN')
+
+    expect(result.ligaPokemon).toBe('')
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Abra MEG 54', reason: 'Número 54 fora do total da coleção MEG (53)' },
+      { line: '2 Abra MEG 54', reason: 'Número 54 fora do total da coleção MEG (53)' },
+    ])
+  })
+
+  it('reports every line with an unregistered collection, not only the first', () => {
+    const decklist = ['1 Mewtwo ZZZ 1', '2 Mewtwo ZZZ 1'].join('\n')
+
+    const result = convertDecklist(decklist, { MEG: 132 }, 'NM', 'PTEN')
+
+    expect(result.unresolvedCards).toEqual([
+      { line: '1 Mewtwo ZZZ 1', reason: 'Coleção "ZZZ" não cadastrada' },
+      { line: '2 Mewtwo ZZZ 1', reason: 'Coleção "ZZZ" não cadastrada' },
+    ])
+  })
 })

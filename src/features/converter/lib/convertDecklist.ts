@@ -22,7 +22,7 @@ interface ParsedLine {
 const sectionHeaderPattern = /:\s*\d+$/
 
 function isSectionHeader(line: string): boolean {
-  return sectionHeaderPattern.test(line.trim())
+  return sectionHeaderPattern.test(line)
 }
 
 const integerPattern = /^\d+$/
@@ -30,7 +30,7 @@ const integerPattern = /^\d+$/
 type ParseLineResult = { ok: true; value: ParsedLine } | { ok: false }
 
 function parseLine(line: string): ParseLineResult {
-  const tokens = line.trim().split(/\s+/)
+  const tokens = line.split(/\s+/)
   const quantityToken = tokens[0]
   const numberToken = tokens[tokens.length - 1]
   const collection = tokens[tokens.length - 2]
@@ -56,7 +56,7 @@ function mergeDuplicates(parsedLines: ParsedLine[]): ParsedLine[] {
   const merged = new Map<string, ParsedLine>()
 
   for (const parsedLine of parsedLines) {
-    const key = `${parsedLine.collection.toUpperCase()}/${parsedLine.number}`
+    const key = `${parsedLine.collection}/${parsedLine.number}`
     const existing = merged.get(key)
 
     if (existing) {
@@ -95,32 +95,32 @@ export function convertDecklist(
       continue
     }
 
-    validLines.push(parsed.value)
-  }
-
-  const parsedLines = mergeDuplicates(validLines)
-
-  for (const { sourceLine, quantity, name, collection, number } of parsedLines) {
-    const normalizedCollection = Object.keys(config).find(
-      (registeredCollection) => registeredCollection.toUpperCase() === collection.toUpperCase(),
+    const { sourceLine, collection, number } = parsed.value
+    const registeredCollection = Object.keys(config).find(
+      (registered) => registered.toUpperCase() === collection.toUpperCase(),
     )
-    const total = normalizedCollection === undefined ? undefined : config[normalizedCollection]
 
-    if (total === undefined) {
+    if (registeredCollection === undefined) {
       unresolvedCards.push({ line: sourceLine, reason: `Coleção "${collection}" não cadastrada` })
       continue
     }
 
+    const total = config[registeredCollection]
+
     if (!isCardNumberInRange(number, total)) {
       unresolvedCards.push({
         line: sourceLine,
-        reason: cardNumberOutOfRangeReason(number, collection.toUpperCase(), total),
+        reason: cardNumberOutOfRangeReason(number, registeredCollection, total),
       })
       continue
     }
 
+    validLines.push({ ...parsed.value, collection: registeredCollection })
+  }
+
+  for (const { quantity, name, collection, number } of mergeDuplicates(validLines)) {
     const numberFormatted = padLeft3(number)
-    const totalFormatted = padLeft3(total)
+    const totalFormatted = padLeft3(config[collection])
 
     ligaPokemonLines.push(
       `${quantity} ${name} (${numberFormatted}/${totalFormatted}) [QUALIDADE=${condition}][IDIOMA=${language}]`,

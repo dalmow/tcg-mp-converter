@@ -1,5 +1,5 @@
 export function isCardNumberInRange(cardNumber: number, total: number): boolean {
-  return Number.isInteger(cardNumber) && cardNumber >= 1 && cardNumber <= total
+  return cardNumber >= 1 && cardNumber <= total
 }
 
 export function cardNumberOutOfRangeReason(cardNumber: number, collection: string, total: number): string {
