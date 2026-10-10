@@ -43,7 +43,6 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   const [focusRowId, setFocusRowId] = useState<string | null>(null)
 
   const dirty = isDirty(name, rows, stored)
-  const cardTotal = draftTotalQuantity(rows, collections)
   usePageMeta(deckEditorMeta(deckId, initial && (stored?.name ?? initial.name)))
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
   const leavingRef = useRef(false)
@@ -168,7 +167,12 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
           />
         </ButtonGroup>
       </div>
-      <ProgressBar label="Progresso do deck" value={cardTotal} max={DECK_SIZE} suffix="cartas" />
+      <ProgressBar
+        label="Progresso do deck"
+        value={draftTotalQuantity(rows, collections)}
+        max={DECK_SIZE}
+        suffix="cartas"
+      />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] items-start gap-space-8">
         {CARD_CATEGORIES.map((category) => (
           <CategoryPanel

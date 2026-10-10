@@ -21,6 +21,15 @@ describe('ProgressBar', () => {
     expect(screen.getByText('15').className).toContain('text-ink')
     const suffix = screen.getByText('/60 cartas')
     expect(suffix.className).toContain('text-ink-subtle')
+    expect(suffix.className).toContain('font-semibold')
+  })
+
+  it('draws the default label as an uppercase eyebrow in the muted ink of the artboard', () => {
+    render(<ProgressBar label="Progresso do deck" value={15} max={60} suffix="cartas" />)
+
+    const label = screen.getByText('Progresso do deck')
+    expect(label.className).toContain('uppercase')
+    expect(label.className).toContain('text-ink-muted')
   })
 
   it('omits the unit when no suffix is given', () => {

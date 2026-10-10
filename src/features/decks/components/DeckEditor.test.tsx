@@ -71,6 +71,10 @@ function savedDeck(): Deck | undefined {
   return getDeckStore().getSnapshot().decks[0]
 }
 
+function progressBar() {
+  return screen.getByRole('progressbar', { name: 'Progresso do deck' })
+}
+
 /** The visible "{count}/60 cartas" text of the progress bar. */
 function cardCountText() {
   return screen.getByText('/60 cartas').parentElement?.textContent
@@ -127,7 +131,7 @@ describe('DeckEditor', () => {
 
   it('shows the draft card count against the 60-card total above the panels', async () => {
     renderEditor()
-    const bar = screen.getByRole('progressbar', { name: 'Progresso do deck' })
+    const bar = progressBar()
     expect(cardCountText()).toBe('0/60 cartas')
     expect(
       bar.compareDocumentPosition(screen.getByRole('region', { name: 'Pokémon' })) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -138,7 +142,7 @@ describe('DeckEditor', () => {
     expect(cardCountText()).toBe('6/60 cartas')
     expect(bar.getAttribute('aria-valuenow')).toBe('6')
 
-    // A row that does not resolve to a card yet does not count.
+    // A row that is not a valid card yet does not count.
     await addRow('Energias', '5', 'Abra XYZ 54')
     expect(cardCountText()).toBe('6/60 cartas')
   })
@@ -147,7 +151,7 @@ describe('DeckEditor', () => {
     renderEditor()
     await addRow('Energias', '', 'Psíquica')
     expect(cardCountText()).toBe('0/60 cartas')
-    expect(screen.getByRole('progressbar', { name: 'Progresso do deck' }).getAttribute('aria-valuenow')).toBe('0')
+    expect(progressBar().getAttribute('aria-valuenow')).toBe('0')
   })
 
   it('uses "#" as the quantity placeholder', async () => {

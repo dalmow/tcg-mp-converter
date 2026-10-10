@@ -63,7 +63,7 @@ export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: Coll
   return { id: '', name: '', cards }
 }
 
-/** Cards the draft already holds: the quantities of the rows that resolve to a card with a whole quantity. */
+/** Cards the draft already holds: the quantities of the rows that form a valid card with a whole quantity. */
 export function draftTotalQuantity(rows: DraftRow[], collections: CollectionConfig): number {
   const cards = rows.map((row) => rowToCard(row, collections))
   // A blank quantity parses to NaN, which is not a count.
