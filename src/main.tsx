@@ -17,7 +17,8 @@ const app = (
     <RouterProvider router={router} />
   </StrictMode>
 )
-const root = document.getElementById('root')!
+const root = document.getElementById('root')
+if (!root) throw new Error('index.html has no #root element')
 
 // Public pages are prerendered and hydrated; every other route starts from the empty shell.
 if (root.hasChildNodes()) hydrateRoot(root, app)

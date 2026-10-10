@@ -10,6 +10,12 @@ import { ROUTES } from '@/shared/lib/routes'
 
 afterEach(cleanup)
 
+function openSheetOf(toggle: HTMLElement): HTMLElement {
+  const sheet = document.getElementById(toggle.getAttribute('aria-controls') ?? '')
+  if (!sheet) throw new Error('navigation sheet is not mounted')
+  return sheet
+}
+
 function renderNavbar(path: string = ROUTES.converter) {
   const router = createMemoryRouter(
     [
@@ -65,7 +71,7 @@ describe('Navbar', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Abrir menu de navegação' }))
       const toggle = screen.getByRole('button', { name: 'Fechar menu de navegação' })
       expect(toggle.getAttribute('aria-expanded')).toBe('true')
-      const sheet = document.getElementById(toggle.getAttribute('aria-controls')!)!
+      const sheet = openSheetOf(toggle)
       expect(within(sheet).getByRole('link', { name: 'Decks' })).toBeTruthy()
       expect(within(sheet).getByRole('link', { name: 'Conversor' })).toBeTruthy()
       expect(within(sheet).getByRole('link', { name: 'Manutenção' })).toBeTruthy()
@@ -77,7 +83,7 @@ describe('Navbar', () => {
       renderNavbar()
       await userEvent.click(screen.getByRole('button', { name: 'Abrir menu de navegação' }))
       const toggle = screen.getByRole('button', { name: 'Fechar menu de navegação' })
-      const sheet = document.getElementById(toggle.getAttribute('aria-controls')!)!
+      const sheet = openSheetOf(toggle)
       expect(screen.getByRole('navigation', { name: 'Principal' }).contains(sheet)).toBe(true)
     })
 
@@ -85,7 +91,7 @@ describe('Navbar', () => {
       renderNavbar()
       await userEvent.click(screen.getByRole('button', { name: 'Abrir menu de navegação' }))
       const toggle = screen.getByRole('button', { name: 'Fechar menu de navegação' })
-      const sheet = document.getElementById(toggle.getAttribute('aria-controls')!)!
+      const sheet = openSheetOf(toggle)
       await userEvent.click(within(sheet).getByRole('link', { name: 'Decks' }))
       expect(screen.getByRole('button', { name: 'Abrir menu de navegação' })).toBeTruthy()
     })
@@ -106,7 +112,7 @@ describe('Navbar', () => {
       renderNavbar(ROUTES.converter)
       await userEvent.click(screen.getByRole('button', { name: 'Abrir menu de navegação' }))
       const toggle = screen.getByRole('button', { name: 'Fechar menu de navegação' })
-      const sheet = document.getElementById(toggle.getAttribute('aria-controls')!)!
+      const sheet = openSheetOf(toggle)
       await userEvent.click(within(sheet).getByRole('link', { name: 'Conversor' }))
       expect(screen.getByRole('button', { name: 'Abrir menu de navegação' })).toBeTruthy()
     })

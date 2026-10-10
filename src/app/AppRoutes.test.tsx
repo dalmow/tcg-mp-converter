@@ -74,7 +74,7 @@ describe('AppRoutes', () => {
     await userEvent.tab()
     const skip = screen.getByRole('link', { name: 'Pular para o conteúdo' })
     expect(document.activeElement).toBe(skip)
-    const target = document.getElementById(skip.getAttribute('href')!.slice(1))
+    const target = document.getElementById((skip.getAttribute('href') ?? '').slice(1))
     expect(target?.tagName).toBe('MAIN')
     expect(target?.getAttribute('tabindex')).toBe('-1')
   })
@@ -93,7 +93,7 @@ describe('AppRoutes', () => {
     await screen.findByRole('menu')
     const controlled = trigger.getAttribute('aria-controls')
     expect(controlled).toBeTruthy()
-    expect(document.getElementById(controlled!)).toBeTruthy()
+    expect(document.getElementById(controlled ?? '')).toBeTruthy()
   })
 
   it('offers the backup items in the Dados dropdown', async () => {

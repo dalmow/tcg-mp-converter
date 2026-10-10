@@ -162,7 +162,7 @@ describe('DeckEditor', () => {
     const user = userEvent.setup()
     await user.type(screen.getByPlaceholderText('Nome do deck'), 'Alakazam')
     await save(user)
-    expect(router.state.location.pathname).toBe(deckPath(savedDeck()!.id))
+    expect(router.state.location.pathname).toBe(deckPath(savedDeck()?.id ?? ''))
     expect(router.state.historyAction).toBe('REPLACE')
     expect((await screen.findByRole('status')).textContent).toContain('Deck salvo')
   })

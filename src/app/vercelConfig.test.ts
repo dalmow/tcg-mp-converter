@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+// oxlint-disable-next-line import/no-relative-parent-imports -- vercel.json lives at the repo root, outside src/
 import vercelConfig from '../../vercel.json'
 import { ROUTES } from '@/shared/lib/routes'
 import { PUBLIC_PAGES } from '@/shared/lib/pageMeta'
