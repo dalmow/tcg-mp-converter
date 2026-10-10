@@ -60,8 +60,16 @@ export function CardRow({
   const { quantityText, text } = row
   // A null owned edit follows the stored owned map; a string is an unsaved edit of this draft.
   const ownedText = row.ownedText ?? (row.originalKey ? String(owned[row.originalKey]?.quantity ?? 0) : '')
-  const { parsed, quantity, ownedQuantity, warning, valid } = deriveRowState(context, { text, quantityText, ownedText })
+  const { parsed, quantity, ownedQuantity, warning, valid, missing } = deriveRowState(context, {
+    text,
+    quantityText,
+    ownedText,
+  })
   const cellState = valid ? 'complete' : 'pendency'
+  const pendencyText =
+    missing > 0
+      ? `Linha com pendências — faltam ${missing} ${missing === 1 ? 'carta' : 'cartas'}`
+      : 'Linha com pendências'
   const message = error ?? warning
   const where = `da linha ${position} de ${categoryTitle}`
   // A save error concerns the whole row; the copies warning concerns the card and its quantity only.
@@ -134,7 +142,7 @@ export function CardRow({
             type="number"
             min={0}
             className={CELL_INPUT_CLASS}
-            placeholder="Adq."
+            placeholder="Tem"
             aria-label={`Adquirido ${where}`}
             {...fieldA11y(ownedInvalid || Boolean(error), Boolean(error))}
             value={ownedText}
@@ -161,7 +169,7 @@ export function CardRow({
         ) : (
           <CircleAlertIcon className="size-3" aria-hidden="true" />
         )}
-        {valid ? 'Linha válida' : 'Linha com pendências'}
+        {valid ? 'Linha válida' : pendencyText}
       </p>
       {message && (
         <p id={messageId} role={error ? 'alert' : 'status'} className="pl-0.5 text-caption text-danger-soft">

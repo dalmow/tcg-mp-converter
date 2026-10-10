@@ -55,11 +55,14 @@ describe('design token contrast (WCAG 2.2 AA)', () => {
     expect(contrastRatio(token('danger'), token(surface))).toBeGreaterThanOrEqual(text)
   })
 
-  it.each(['ink', 'ink-muted', 'ink-faint', 'ink-subtle'])('--color-%s text reads on every surface', (ink) => {
-    for (const surface of surfaces) {
-      expect(contrastRatio(token(ink), token(surface))).toBeGreaterThanOrEqual(text)
-    }
-  })
+  it.each(['ink', 'ink-soft', 'ink-muted', 'ink-faint', 'ink-subtle'])(
+    '--color-%s text reads on every surface',
+    (ink) => {
+      for (const surface of surfaces) {
+        expect(contrastRatio(token(ink), token(surface))).toBeGreaterThanOrEqual(text)
+      }
+    },
+  )
 
   it('dark text on the secondary fill is >= 4.5:1', () => {
     expect(contrastRatio(token('surface-000'), token('secondary'))).toBeGreaterThanOrEqual(text)

@@ -78,10 +78,10 @@ export function CategoryPanel({
       </CardHeader>
       <CardContent ref={content} className="flex flex-col gap-space-4">
         {/* Names come from each input's own label; the header only aligns the columns visually. */}
-        <div aria-hidden="true" className={`${ROW_GRID_CLASS} text-eyebrow text-ink-faint uppercase`}>
+        <div aria-hidden="true" className={`${ROW_GRID_CLASS} text-micro-label text-ink-subtle uppercase`}>
           <span className="text-center">#</span>
           <span>Carta</span>
-          <span className="text-center">Adq.</span>
+          <span className="text-center">Tem</span>
         </div>
         {categoryRows.map((row, index) => (
           <CardRow

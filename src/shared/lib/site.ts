@@ -8,7 +8,7 @@ export const SITE_NAME = 'PTCG Tools'
 export const DEFAULT_SITE_URL = 'https://ptcgtools.dalm.dev'
 
 export const SITE_DESCRIPTION =
-  'Converta decklists de Pokémon TCG para o formato de busca da Liga Pokemon e da MYPCards, monte decks e controle as cartas que você possui.'
+  'Converta decklists de Pokémon TCG para o formato de busca da Liga Pokémon e da MYPCards, monte decks e controle as cartas que você possui.'
 
 /** Path (relative to the site origin) of the 1200x630 social share image. */
 export const SHARE_IMAGE_PATH = '/og-image.png'

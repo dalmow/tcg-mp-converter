@@ -123,7 +123,7 @@ function Hero() {
           <h1 className="font-display text-[length:clamp(34px,4.2vw,52px)] leading-[1.08] font-bold tracking-[-0.02em]">
             Monte, converta e mantenha em ordem seus decks favoritos
           </h1>
-          <p className="max-w-[52ch] text-modal-title leading-[1.6] font-normal text-ink-muted">
+          <p className="max-w-[52ch] text-modal-title leading-[1.6] font-normal text-ink-soft">
             O PTCG Tools nasceu de um jogador para outros jogadores cansados do trabalho manual. Hoje você monta seus
             decks, converte a lista para o formato das lojas brasileiras — facilitando a compra — e mantém sob controle
             as cartas que já tem.
@@ -139,7 +139,7 @@ function Hero() {
 
 function ToolsSection() {
   return (
-    <Section className="scroll-mt-[88px] pb-[clamp(72px,8vw,112px)]">
+    <Section className="pb-[clamp(72px,8vw,112px)]">
       <div className={CONTAINER}>
         <div className="mb-space-12 flex max-w-[560px] flex-col gap-space-5">
           <h2 className="font-display text-[length:clamp(24px,2.6vw,32px)] leading-[1.2] font-bold tracking-[-0.01em]">
@@ -199,7 +199,7 @@ function LandingFooter() {
           <Logomark size={20} />
           {SITE_NAME}
         </div>
-        <span className="text-caption text-ink-faint">© 2026 dalm.dev</span>
+        <span className="text-caption text-ink-faint">© {new Date().getFullYear()} dalm.dev</span>
       </div>
     </footer>
   )

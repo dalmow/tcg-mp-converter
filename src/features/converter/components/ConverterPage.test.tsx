@@ -152,7 +152,7 @@ describe('ConverterPage results', () => {
   it('names each result textarea after its marketplace heading', () => {
     renderPage()
 
-    expect(screen.getByRole('textbox', { name: 'Liga Pokemon' })).toBeTruthy()
+    expect(screen.getByRole('textbox', { name: 'Liga Pokémon' })).toBeTruthy()
     expect(screen.getByRole('textbox', { name: 'MYPCards' })).toBeTruthy()
   })
 })
@@ -183,7 +183,7 @@ describe('ConverterPage design system copy', () => {
     expect(screen.getByRole('textbox', { name: 'Decklist' }).getAttribute('placeholder')).toBe(
       'Cole sua decklist aqui…',
     )
-    for (const name of ['Liga Pokemon', 'MYPCards']) {
+    for (const name of ['Liga Pokémon', 'MYPCards']) {
       expect(screen.getByRole('textbox', { name }).getAttribute('placeholder')).toBe('O resultado aparecerá aqui…')
     }
   })

@@ -93,5 +93,10 @@ export function deriveRowState(context: RowContext, input: RowInput) {
       ? copiesWarning(parsed.card, copiesInDeck(otherRows, { parsed: parsed.card, quantity }, collections))
       : null
   const valid = parsed.ok && !quantityError && isCountAtLeast(ownedQuantity, quantity) && !warning
-  return { parsed, quantity, ownedQuantity, quantityError, warning, valid }
+  // Copies still to buy. Shown only for a resolved card; 0 while the quantity or owned count is not a whole number.
+  const missing =
+    parsed.ok && Number.isInteger(quantity) && Number.isInteger(ownedQuantity)
+      ? Math.max(quantity - ownedQuantity, 0)
+      : 0
+  return { parsed, quantity, ownedQuantity, quantityError, warning, valid, missing }
 }
