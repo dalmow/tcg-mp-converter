@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { appRoutes } from './AppRoutes'
-import { ROUTES } from '@/shared/lib/routes'
+import { deckPath, ROUTES } from '@/shared/lib/routes'
 
 // Every page throws while rendering, so only the route's error element can answer.
 const { renderFailure } = vi.hoisted(() => ({
@@ -33,13 +33,17 @@ function renderAt(path: string) {
 }
 
 describe('route error boundaries', () => {
-  it.each([[ROUTES.home], [ROUTES.decks], [ROUTES.newDeck], ['/decks/abc'], [ROUTES.converter], [ROUTES.maintenance]])(
-    'shows the error state instead of a blank page on %s',
-    async (path) => {
-      renderAt(path)
-      expect(await screen.findByRole('heading', { level: 1, name: 'Algo deu errado' })).toBeTruthy()
-    },
-  )
+  it.each([
+    [ROUTES.home],
+    [ROUTES.decks],
+    [ROUTES.newDeck],
+    [deckPath('abc')],
+    [ROUTES.converter],
+    [ROUTES.maintenance],
+  ])('shows the error state instead of a blank page on %s', async (path) => {
+    renderAt(path)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Algo deu errado' })).toBeTruthy()
+  })
 
   it('links back to the home page from the error state', async () => {
     renderAt(ROUTES.maintenance)

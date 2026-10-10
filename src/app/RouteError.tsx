@@ -10,7 +10,8 @@ import { buttonVariants } from '@/shared/ui/buttonVariants'
  * The error itself stays out of the UI; the user only gets a way back to the home page.
  */
 export function RouteError() {
-  // The failed page never mounted, so its own metadata is missing; this replaces the previous route's title and canonical.
+  // The failed page never mounted, so it set no metadata of its own. This replaces the previous route's
+  // title, robots and canonical.
   usePageMeta(PAGE_META.routeError)
   return (
     <PageLayout title="Algo deu errado" subtitle={PAGE_META.routeError.description}>
