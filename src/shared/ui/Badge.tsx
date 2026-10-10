@@ -7,7 +7,7 @@ import { cn } from 'cn'
 // The `cn` merge drops a named text size (`text-caption`) that sits next to a text color, so the caption
 // token (11px, 600) is written as an arbitrary length from its CSS variable.
 const badgeVariants = cva(
-  'group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-pill border border-transparent px-2 py-0.5 font-semibold text-[length:var(--text-caption)] whitespace-nowrap transition-all focus-visible:border-ink-faint focus-visible:ring-1 focus-visible:ring-ink-faint has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-danger [&>svg]:pointer-events-none [&>svg]:size-3!',
+  'group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-pill border border-transparent px-2 py-0.5 font-semibold text-[length:var(--text-caption)] leading-[var(--text-caption--line-height)] whitespace-nowrap transition-all focus-visible:border-ink-faint focus-visible:ring-1 focus-visible:ring-ink-faint has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-danger [&>svg]:pointer-events-none [&>svg]:size-3!',
   {
     variants: {
       variant: {

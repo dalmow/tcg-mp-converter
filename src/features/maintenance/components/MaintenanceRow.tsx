@@ -86,6 +86,7 @@ export function MaintenanceRow({ row, owned, onSave, onDelete }: MaintenanceRowP
             inputMode="numeric"
             className="h-9 w-14 px-2 text-center text-ui [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             value={unsavedDraft ?? String(owned)}
+            readOnly={isUnused}
             aria-invalid={error !== null}
             onChange={(event) => setUnsavedDraft(event.target.value)}
           />
