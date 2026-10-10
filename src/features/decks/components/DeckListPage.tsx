@@ -21,7 +21,7 @@ const DECKS_SUBTITLE =
 
 // Artboard values without a spacing or breakpoint token: the 22px card padding sits between space-8 and space-9,
 // the 280px tile column and 18px gap are the artboard's fixed grid. Three tiles need 876px of content width, which
-// the page padding leaves from 960px up; the artboard breakpoint (760px) overflows between 761px and 955px.
+// the page padding leaves from about 952px up; the artboard breakpoint (760px) overflows from 761px to about 952px.
 const DECK_TILE_CLASS =
   'min-h-32 gap-space-10 px-(--card-spacing) [--card-spacing:22px] transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary'
 
