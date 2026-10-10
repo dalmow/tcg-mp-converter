@@ -30,6 +30,8 @@ describe('ProgressBar', () => {
     const label = screen.getByText('Progresso do deck')
     expect(label.className).toContain('uppercase')
     expect(label.className).toContain('text-ink-muted')
+    // The artboard puts 10px between the label and the count.
+    expect(label.parentElement?.className).toContain('gap-space-4')
   })
 
   it('omits the unit when no suffix is given', () => {
@@ -72,7 +74,7 @@ describe('ProgressBar', () => {
     render(<ProgressBar compact label="Progresso do deck" value={45} max={60} />)
 
     expect(screen.getByRole('progressbar', { name: 'Progresso do deck' }).getAttribute('aria-valuenow')).toBe('45')
-    expect(screen.getByText('45/60')).toBeTruthy()
+    expect(screen.getByText('45/60').className).toContain('text-caption')
     expect(screen.queryByText('Progresso do deck')).toBeNull()
   })
 })

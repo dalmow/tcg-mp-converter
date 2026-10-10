@@ -40,7 +40,7 @@ A "Decks:" caption in `ink-subtle` introduces a row of `chip-accent` badges, one
 
 ### Progress
 
-A progress indicator is a 6px track with the literal count beside it ("45/60") on the right, and no label row. The track is `border-faint`-colored with 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border, and no "X faltam" sentence repeats the count. The deck list tiles are its one use. Its label is the accessible name only, so the count is the one visible signal.
+A progress indicator is a 6px track with a literal count ("45/60" or "15/60 cartas") beside it, in one of two layouts. The compact layout is the bare track with the count on the right and no label row; the deck list tiles use it, and its label is the accessible name only, so the count is the one visible signal. The default layout adds a label row above the track: an uppercase eyebrow caption on the left ("Progresso do deck"), then the count on the right as a bold `ink` number and a semibold `ink-subtle` suffix. The deck editor uses it. Its eyebrow caption is `ink-muted`, as the editor artboard shows it; this is the one accepted exception to the `ink-faint` eyebrow rule above. The track is `border-faint`-colored with 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border, and no "X faltam" sentence repeats the count.
 
 ### Toggle
 

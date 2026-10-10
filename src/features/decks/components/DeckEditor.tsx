@@ -8,6 +8,7 @@ import { Input } from '@/shared/ui/Input'
 import { PAGE_TITLE_CLASS } from '@/shared/layout/PageLayout'
 import { ProgressBar } from '@/shared/ui/ProgressBar'
 import { buttonVariants } from '@/shared/ui/buttonVariants'
+import { cn } from '@/shared/lib/utils'
 import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
@@ -122,7 +123,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             to={ROUTES.decks}
             title={BACK_TO_DECKS_LABEL}
             aria-label={BACK_TO_DECKS_LABEL}
-            className={buttonVariants({ variant: 'ghost', size: 'icon-sm', className: 'text-ink-muted' })}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), 'text-ink-muted')}
           >
             <ChevronLeftIcon aria-hidden />
           </Link>

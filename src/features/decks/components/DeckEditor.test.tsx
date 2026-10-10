@@ -142,7 +142,7 @@ describe('DeckEditor', () => {
     expect(cardCountText()).toBe('6/60 cartas')
     expect(bar.getAttribute('aria-valuenow')).toBe('6')
 
-    // A row that is not a valid card yet does not count.
+    // A row that does not parse as a card yet does not count.
     await addRow('Energias', '5', 'Abra XYZ 54')
     expect(cardCountText()).toBe('6/60 cartas')
   })
@@ -216,6 +216,10 @@ describe('DeckEditor', () => {
     const title = screen.getByRole('heading', { level: 1, name: 'Editando deck Alakazam' })
     expect(back.getAttribute('href')).toBe(ROUTES.decks)
     expect(back.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    // The outline of the ghost variant must survive the muted icon colour: no conflicting border class.
+    const classes = back.className.split(/\s+/)
+    expect(classes).toContain('border-border')
+    expect(classes).not.toContain('border-transparent')
 
     await userEvent.setup().click(back)
     expect(await screen.findByRole('heading', { name: 'Lista' })).toBeTruthy()

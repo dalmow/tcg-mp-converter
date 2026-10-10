@@ -53,21 +53,30 @@ export function isBlankRow(row: DraftRow): boolean {
 }
 
 /** The deck formed by every other row that is already a valid card, for per-row rule checks. */
-export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: CollectionConfig): Deck {
+/** The card of every row that parses, in draft order. A row with a blank quantity still gives a card (NaN). */
+function draftCards(rows: DraftRow[], collections: CollectionConfig): DeckCard[] {
   const cards: DeckCard[] = []
   for (const row of rows) {
-    if (row.id === rowId) continue
     const card = rowToCard(row, collections)
     if (card) cards.push(card)
   }
-  return { id: '', name: '', cards }
+  return cards
 }
 
-/** Cards the draft already holds: the quantities of the rows that form a valid card with a whole quantity. */
+export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: CollectionConfig): Deck {
+  return {
+    id: '',
+    name: '',
+    cards: draftCards(
+      rows.filter((row) => row.id !== rowId),
+      collections,
+    ),
+  }
+}
+
+/** Cards the draft already holds: the quantities of the rows that parse as a card with a whole quantity. */
 export function draftTotalQuantity(rows: DraftRow[], collections: CollectionConfig): number {
-  const cards = rows.map((row) => rowToCard(row, collections))
-  // A blank quantity parses to NaN, which is not a count.
-  return totalQuantity(cards.filter((card): card is DeckCard => card !== null && isCountAtLeast(card.quantity, 1)))
+  return totalQuantity(draftCards(rows, collections).filter((card) => isCountAtLeast(card.quantity, 1)))
 }
 
 /** True when the draft differs from the saved deck in name, rows or edited owned quantities. */

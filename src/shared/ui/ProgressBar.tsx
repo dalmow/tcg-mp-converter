@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cn } from '@/shared/lib/utils'
 
 type ProgressBarProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-  /** Eyebrow caption on the left of the label row. */
+  /** Eyebrow caption on the left of the label row. Compact has no label row: the label is its accessible name only. */
   label: string
   value: number
   max: number
@@ -40,7 +40,7 @@ function ProgressBar({ className, label, value, max, suffix, compact, ...props }
 
   return (
     <div data-slot="progress-bar" className={cn('flex flex-col gap-space-2', className)} {...props}>
-      <div className="flex items-baseline justify-between gap-space-3">
+      <div className="flex items-baseline justify-between gap-space-4">
         <span id={labelId} className="text-eyebrow uppercase text-ink-muted">
           {label}
         </span>

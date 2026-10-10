@@ -116,7 +116,7 @@ describe('buildDeckSave', () => {
 })
 
 describe('draftTotalQuantity', () => {
-  it('sums the quantities of the rows that form a valid card', () => {
+  it('sums the quantities of the rows that parse as a card', () => {
     const rows = [
       row({ id: 'a', quantityText: '2', text: 'abra meg 54' }),
       row({ id: 'b', category: 'trainer', quantityText: '4', text: 'Ordem da chefia' }),
@@ -132,7 +132,7 @@ describe('draftTotalQuantity', () => {
     expect(draftTotalQuantity(rows, collections)).toBe(2)
   })
 
-  it('leaves out a row that is not a valid card yet', () => {
+  it('leaves out a row that does not parse as a card yet', () => {
     const rows = [
       row({ id: 'a', quantityText: '2', text: 'abra meg 54' }),
       row({ id: 'b', quantityText: '5', text: 'Abra XYZ 54' }),
