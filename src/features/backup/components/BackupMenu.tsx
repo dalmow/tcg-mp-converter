@@ -39,7 +39,7 @@ export function BackupMenu({ menuContainer, backup }: BackupMenuProps) {
 }
 
 const listActionClass =
-  'cursor-pointer text-left text-body text-nav-resting transition-colors hover:text-secondary focus-visible:text-secondary focus-visible:outline-none'
+  'cursor-pointer text-left text-body text-ink-soft transition-colors hover:text-secondary focus-visible:text-secondary focus-visible:outline-none'
 
 /** Mobile sheet section: the same actions as the dropdown, stacked. */
 export function BackupList({ backup, onAction }: { backup: Backup; onAction?: () => void }) {
