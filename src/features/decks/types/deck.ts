@@ -5,6 +5,9 @@ export const CARD_CATEGORIES = ['pokemon', 'trainer', 'energy'] as const
 export const DECK_SIZE = 60
 export const MAX_COPIES_PER_NAME = 4
 
+/** Whole number from `min`. Same rule the forms apply (Number.isInteger), so every quantity a form saves reloads. */
+const countSchema = (min: number) => z.number().refine((value) => Number.isInteger(value) && value >= min)
+
 const cardCategorySchema = z.enum(CARD_CATEGORIES)
 export type CardCategory = z.infer<typeof cardCategorySchema>
 
@@ -12,7 +15,7 @@ const deckCardSchema = z.object({
   category: cardCategorySchema,
   key: z.string(),
   displayName: z.string(),
-  quantity: z.number().int().min(1),
+  quantity: countSchema(1),
 })
 export type DeckCard = z.infer<typeof deckCardSchema>
 
@@ -26,11 +29,11 @@ export type Deck = z.infer<typeof deckSchema>
 export const ownedEntrySchema = z.object({
   displayName: z.string(),
   category: cardCategorySchema,
-  quantity: z.number().int().min(0),
+  quantity: countSchema(0),
 })
 export type OwnedEntry = z.infer<typeof ownedEntrySchema>
 
-export const ownedMapSchema = z.record(z.string(), ownedEntrySchema)
+const ownedMapSchema = z.record(z.string(), ownedEntrySchema)
 export type OwnedMap = z.infer<typeof ownedMapSchema>
 
 export const persistedDataSchema = z.object({

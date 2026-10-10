@@ -18,9 +18,14 @@ export function deckInvariantError(deck: Deck): string | null {
   return null
 }
 
-/** Deck ids are what the store matches on, so two decks cannot share one. Shared by storage and backup. */
-export function duplicateDeckIdError(decks: Deck[]): string | null {
-  return new Set(decks.map((deck) => deck.id)).size === decks.length ? null : 'Dois decks têm o mesmo id'
+/** Keeps the first deck of each id. Deck ids are what the store matches on, so two decks cannot share one. */
+export function uniqueDecksById(decks: Deck[]): Deck[] {
+  const seenIds = new Set<string>()
+  return decks.filter((deck) => {
+    if (seenIds.has(deck.id)) return false
+    seenIds.add(deck.id)
+    return true
+  })
 }
 
 /** Largest quantity a row may take, given the other rows of the deck. */

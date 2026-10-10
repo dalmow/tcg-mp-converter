@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import {
   deckInvariantError,
-  duplicateDeckIdError,
   persistedDataSchema,
+  uniqueDecksById,
   type PersistedData,
   type Result,
 } from '@/features/decks'
@@ -22,6 +22,7 @@ export interface BackupSummary {
 }
 
 const INVALID_FILE_ERROR = 'Arquivo de backup inválido'
+const DUPLICATE_DECK_ID_ERROR = 'Dois decks têm o mesmo id'
 
 export function buildBackup(data: PersistedData, now: Date = new Date()): BackupFile {
   return { version: BACKUP_VERSION, exportedAt: now.toISOString(), ...data }
@@ -58,8 +59,7 @@ export function parseBackup(text: string): Result<{ data: PersistedData; summary
   if (!parsedBackup.success) return { ok: false, error: INVALID_FILE_ERROR }
 
   const { decks, owned } = parsedBackup.data
-  const idError = duplicateDeckIdError(decks)
-  if (idError) return { ok: false, error: idError }
+  if (uniqueDecksById(decks).length !== decks.length) return { ok: false, error: DUPLICATE_DECK_ID_ERROR }
   for (const deck of decks) {
     const invariantError = deckInvariantError(deck)
     if (invariantError) return { ok: false, error: invariantError }

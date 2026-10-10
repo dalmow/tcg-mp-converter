@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { deckInvariantError } from '@/features/decks/lib/deckRules'
+import { deckInvariantError, uniqueDecksById } from './deckRules'
 import { deckSchema, ownedEntrySchema } from '@/features/decks/types/deck'
 import type { Deck, OwnedMap, PersistedData } from '@/features/decks/types/deck'
 
@@ -20,35 +20,30 @@ export interface DeckStorage {
   subscribe(onExternalChange: () => void): () => void
 }
 
-// Loose shapes: each container is checked on its own, so a broken `owned` keeps valid decks and vice versa.
-const storedShapeSchema = z.object({ decks: z.unknown(), owned: z.unknown() })
+// Loose shapes: each container is checked on its own, so a broken or missing `owned` keeps valid decks and vice versa.
+const storedShapeSchema = z.object({ decks: z.unknown().optional(), owned: z.unknown().optional() })
 const storedDecksSchema = z.array(z.unknown())
 const storedOwnedSchema = z.record(z.string(), z.unknown())
 
-/** Keeps the first deck of each id that is valid and passes the invariants; drops the rest. */
+/** Keeps the valid decks that pass the invariants, and only the first deck of each id. */
 function recoverDecks(value: unknown): Deck[] {
-  const items = storedDecksSchema.safeParse(value)
-  if (!items.success) return []
+  const parsedDecks = storedDecksSchema.safeParse(value)
+  if (!parsedDecks.success) return []
 
-  const decks: Deck[] = []
-  const seenIds = new Set<string>()
-  for (const item of items.data) {
+  const validDecks: Deck[] = []
+  for (const item of parsedDecks.data) {
     const parsedDeck = deckSchema.safeParse(item)
-    if (!parsedDeck.success) continue
-    const deck = parsedDeck.data
-    if (seenIds.has(deck.id) || deckInvariantError(deck) !== null) continue
-    seenIds.add(deck.id)
-    decks.push(deck)
+    if (parsedDeck.success && deckInvariantError(parsedDeck.data) === null) validDecks.push(parsedDeck.data)
   }
-  return decks
+  return uniqueDecksById(validDecks)
 }
 
 function recoverOwned(value: unknown): OwnedMap {
-  const entries = storedOwnedSchema.safeParse(value)
-  if (!entries.success) return {}
+  const parsedOwned = storedOwnedSchema.safeParse(value)
+  if (!parsedOwned.success) return {}
 
   const owned: OwnedMap = {}
-  for (const [key, item] of Object.entries(entries.data)) {
+  for (const [key, item] of Object.entries(parsedOwned.data)) {
     const parsedEntry = ownedEntrySchema.safeParse(item)
     if (parsedEntry.success) owned[key] = parsedEntry.data
   }
@@ -60,9 +55,9 @@ function recoverOwned(value: unknown): OwnedMap {
  * data. A value that is not an object falls back to empty.
  */
 export function recoverPersistedData(value: unknown): PersistedData {
-  const shape = storedShapeSchema.safeParse(value)
-  if (!shape.success) return EMPTY_DATA
-  return { decks: recoverDecks(shape.data.decks), owned: recoverOwned(shape.data.owned) }
+  const parsedShape = storedShapeSchema.safeParse(value)
+  if (!parsedShape.success) return EMPTY_DATA
+  return { decks: recoverDecks(parsedShape.data.decks), owned: recoverOwned(parsedShape.data.owned) }
 }
 
 /** Calls `onChange` when another tab changes the stored data; returns the cleanup function. */

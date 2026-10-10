@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  addDeckCard,
-  deckInvariantError,
-  duplicateDeckIdError,
-  maxQuantityFor,
-  validateDeck,
-  validateQuantity,
-} from './deckRules'
+import { addDeckCard, deckInvariantError, maxQuantityFor, validateDeck, validateQuantity } from './deckRules'
 import type { Deck, DeckCard, OwnedMap } from '@/features/decks/types/deck'
 
 const collections = { MEG: 132, BLK: 86, SVI: 198 }
@@ -33,20 +26,6 @@ describe('deckInvariantError', () => {
   })
   it('rejects a deck that repeats a card key', () => {
     expect(deckInvariantError(deck([abra, abra]))).toBe('Deck "D" tem cartas duplicadas')
-  })
-})
-
-describe('duplicateDeckIdError', () => {
-  it('accepts decks with distinct ids', () => {
-    expect(
-      duplicateDeckIdError([
-        { ...deck([abra]), id: '1' },
-        { ...deck([fire]), id: '2' },
-      ]),
-    ).toBeNull()
-  })
-  it('rejects two decks that share an id', () => {
-    expect(duplicateDeckIdError([deck([abra]), deck([fire])])).toBe('Dois decks têm o mesmo id')
   })
 })
 

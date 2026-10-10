@@ -34,10 +34,15 @@ describe('recoverPersistedData', () => {
     expect(recoverPersistedData({ decks: [deck], owned: [] })).toEqual({ decks: [deck], owned: {} })
   })
 
+  it('keeps the valid decks when the owned key is missing', () => {
+    expect(recoverPersistedData({ decks: [deck] })).toEqual({ decks: [deck], owned: {} })
+  })
+
   it.each([
     ['without id', { name: 'x', cards: [] }],
     ['with an unknown category', { ...deck, cards: [{ ...card, category: 'item' }] }],
     ['with a non-integer quantity', { ...deck, cards: [{ ...card, quantity: 1.5 }] }],
+    ['with duplicate card keys', { ...deck, cards: [card, card] }],
   ])('drops a deck %s and keeps the valid decks', (_label, invalidDeck) => {
     expect(recoverPersistedData({ decks: [invalidDeck, deck], owned }).decks).toEqual([deck])
   })
@@ -50,6 +55,11 @@ describe('recoverPersistedData', () => {
   it('drops owned entries that do not match the schema and keeps the others', () => {
     const invalidEntry = { displayName: 'a', category: 'trainer', quantity: -1 }
     expect(recoverPersistedData({ decks: [], owned: { ...owned, bad: invalidEntry } }).owned).toEqual(owned)
+  })
+
+  it('keeps owned quantities above the safe integer range, as the forms can save them', () => {
+    const huge: OwnedMap = { fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 1e20 } }
+    expect(recoverPersistedData({ decks: [], owned: huge }).owned).toEqual(huge)
   })
 
   it('strips unknown fields from a valid deck', () => {

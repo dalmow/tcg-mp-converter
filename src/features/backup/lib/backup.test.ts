@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildBackup, parseBackup } from './backup'
-import { recoverPersistedData, type PersistedData } from '@/features/decks'
+import type { DeckCard, PersistedData } from '@/features/decks'
 
 const data: PersistedData = {
   decks: [
@@ -54,6 +54,14 @@ describe('parseBackup', () => {
     expect(parseBackup(text).ok).toBe(false)
   })
 
+  it('rejects an owned entry that breaks the schema', () => {
+    const text = JSON.stringify({
+      ...buildBackup(data),
+      owned: { fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: -1 } },
+    })
+    expect(parseBackup(text).ok).toBe(false)
+  })
+
   it('rejects an unsupported version with a specific message', () => {
     const text = JSON.stringify({ ...buildBackup(data), version: 2 })
     expect(parseBackup(text)).toEqual({
@@ -82,33 +90,50 @@ describe('parseBackup', () => {
       summary: { deckCount: 1, ownedCount: 2 },
     })
   })
-})
 
-describe('parseBackup agrees with storage recovery on deck invariants', () => {
-  const deck = data.decks[0]
-  const card = deck.cards[0]
-
-  it.each([
-    ['repeats a card key', { ...deck, cards: [card, card] }],
-    [
-      'has more than 60 cards',
-      {
-        ...deck,
-        cards: [
-          { ...card, quantity: 40 },
-          { ...card, key: 'MEG-2', quantity: 21 },
-        ],
-      },
-    ],
-  ])('rejects the backup and drops from storage a deck that %s', (_label, invalidDeck) => {
-    const decks = [invalidDeck]
-    expect(parseBackup(JSON.stringify(buildBackup({ decks, owned: {} }))).ok).toBe(false)
-    expect(recoverPersistedData({ decks, owned: {} }).decks).toEqual([])
+  it('accepts owned quantities above the safe integer range, as the forms can save them', () => {
+    const huge: PersistedData = {
+      ...data,
+      owned: { fogo: { displayName: 'Energia Fogo', category: 'energy', quantity: 1e20 } },
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(huge))).ok).toBe(true)
   })
 
-  it('rejects the backup and keeps only the first of two decks that share an id', () => {
-    const decks = [deck, { ...deck, name: 'Outro' }]
-    expect(parseBackup(JSON.stringify(buildBackup({ decks, owned: {} }))).ok).toBe(false)
-    expect(recoverPersistedData({ decks, owned: {} }).decks).toEqual([deck])
+  it('rejects a deck with a duplicate card key', () => {
+    const card = data.decks[0].cards[0]
+    const bad: PersistedData = {
+      ...data,
+      decks: [{ ...data.decks[0], cards: [card, card] }],
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
+      ok: false,
+      error: 'Deck "Alakazam" tem cartas duplicadas',
+    })
+  })
+
+  it('rejects a deck with more than 60 cards', () => {
+    const cards: DeckCard[] = [
+      { category: 'pokemon', key: 'MEG-1', displayName: 'A', quantity: 40 },
+      { category: 'pokemon', key: 'MEG-2', displayName: 'B', quantity: 21 },
+    ]
+    const bad: PersistedData = {
+      ...data,
+      decks: [{ ...data.decks[0], cards }],
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
+      ok: false,
+      error: 'Deck "Alakazam" tem mais de 60 cartas',
+    })
+  })
+
+  it('rejects two decks that share an id', () => {
+    const bad: PersistedData = {
+      ...data,
+      decks: [data.decks[0], { ...data.decks[0], name: 'Outro' }],
+    }
+    expect(parseBackup(JSON.stringify(buildBackup(bad)))).toEqual({
+      ok: false,
+      error: 'Dois decks têm o mesmo id',
+    })
   })
 })

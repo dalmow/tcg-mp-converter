@@ -12,5 +12,4 @@ export type {
   Result,
 } from '@/features/decks/types/deck'
 export { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
-export { recoverPersistedData } from '@/features/decks/lib/storage'
-export { deckInvariantError, duplicateDeckIdError, totalQuantity } from '@/features/decks/lib/deckRules'
+export { deckInvariantError, totalQuantity, uniqueDecksById } from '@/features/decks/lib/deckRules'
