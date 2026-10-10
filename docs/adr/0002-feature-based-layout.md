@@ -35,9 +35,9 @@ src/
 
 `shared/` holds what more than one feature or the app shell uses:
 
-- `shared/ui/`: UI primitives (`Button`, `ButtonGroup`, `Card`, `Input`, `Label`, `Switch`, `Textarea`, `Badge`, `AlertDialog`, `DropdownMenu`, `Command`, `Toast`, `ProgressBar`, `RowState`), plus `Panel`, `Logomark` and `NavIcons`.
+- `shared/ui/`: UI primitives (`Button`, `ButtonGroup`, `Card`, `Input`, `Label`, `Switch`, `Textarea`, `Badge`, `AlertDialog`, `DropdownMenu`, `Command`, `Toast`, `ProgressBar`, `RowState`), plus `Panel`, `Logomark` and `NavIcons`. `buttonVariants` (the `Button` variant table) sits in `buttonVariants.ts`, so component files export components only.
 - `shared/layout/`: `PageLayout` and `mainContent` (the skip-link target id).
-- `shared/hooks/`: `usePageMeta`, `useHydrated`.
+- `shared/hooks/`: `usePageMeta`, `useHydrated`, `useToast` (with the `ToastContext` it reads).
 - `shared/lib/`: `utils`, `contrast`, `seo`, `site`, `pageMeta`, `routes`.
 - `shared/types/domain.ts`: `Condition`, `Language`, `CollectionConfig`, `UnresolvedCard`, `ConvertDecklistResult`.
 - `shared/data/collections.json`: the Coleção → card total table, used by the converter and the deck screens.
