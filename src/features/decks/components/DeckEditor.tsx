@@ -11,15 +11,16 @@ import { buttonVariants } from '@/shared/ui/buttonVariants'
 import { useToast } from '@/shared/hooks/useToast'
 import collections from '@/shared/data/collections.json'
 import { getDeckStore, useDeckData } from '@/features/decks/lib/deckStore'
-import { totalQuantity } from '@/features/decks/lib/deckRules'
 import { CARD_CATEGORIES, CATEGORY_TITLES, DECK_SIZE } from '@/features/decks/types/deck'
 import { deckEditorMeta } from '@/shared/lib/pageMeta'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import type { CardCategory } from '@/features/decks/types/deck'
 import { deckPath, ROUTES } from '@/shared/lib/routes'
 import { CategoryPanel } from './CategoryPanel'
-import { buildDeckSave, isDirty, newRow, otherRowsDeck, rowsFromDeck } from '@/features/decks/lib/draft'
+import { buildDeckSave, draftCardTotal, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
 import type { DraftRow } from '@/features/decks/lib/draft'
+
+const BACK_TO_DECKS_LABEL = 'Voltar para Meus decks'
 
 /** Create and edit share this panel; `deckId` is absent on `/decks/new`. */
 export function DeckEditor({ deckId }: { deckId?: string }) {
@@ -42,8 +43,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   const [focusRowId, setFocusRowId] = useState<string | null>(null)
 
   const dirty = isDirty(name, rows, stored)
-  // '' matches no row id, so every row that is already a valid card counts.
-  const cardTotal = totalQuantity(otherRowsDeck(rows, '', collections).cards)
+  const cardTotal = draftCardTotal(rows, collections)
   usePageMeta(deckEditorMeta(deckId, initial && (stored?.name ?? initial.name)))
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
   const leavingRef = useRef(false)
@@ -121,8 +121,8 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
         <div className="flex items-center gap-space-4">
           <Link
             to={ROUTES.decks}
-            title="Voltar para Meus decks"
-            aria-label="Voltar para Meus decks"
+            title={BACK_TO_DECKS_LABEL}
+            aria-label={BACK_TO_DECKS_LABEL}
             className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
           >
             <ChevronLeftIcon aria-hidden />

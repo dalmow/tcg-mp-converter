@@ -138,9 +138,16 @@ describe('DeckEditor', () => {
     expect(cardCountText()).toBe('6/60 cartas')
     expect(bar.getAttribute('aria-valuenow')).toBe('6')
 
-    // A row that is not a valid card yet does not count, as in the saved deck.
+    // A row that does not resolve to a card yet does not count.
     await addRow('Energias', '5', 'Abra XYZ 54')
     expect(cardCountText()).toBe('6/60 cartas')
+  })
+
+  it('keeps a row whose quantity is still blank out of the count', async () => {
+    renderEditor()
+    await addRow('Energias', '', 'Psíquica')
+    expect(cardCountText()).toBe('0/60 cartas')
+    expect(screen.getByRole('progressbar', { name: 'Progresso do deck' }).getAttribute('aria-valuenow')).toBe('0')
   })
 
   it('uses "#" as the quantity placeholder', async () => {
@@ -204,7 +211,7 @@ describe('DeckEditor', () => {
     const back = screen.getByRole('link', { name: 'Voltar para Meus decks' })
     const title = screen.getByRole('heading', { level: 1, name: 'Editando deck Alakazam' })
     expect(back.getAttribute('href')).toBe(ROUTES.decks)
-    expect(back.parentElement).toBe(title.parentElement)
+    expect(back.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 
     await userEvent.setup().click(back)
     expect(await screen.findByRole('heading', { name: 'Lista' })).toBeTruthy()

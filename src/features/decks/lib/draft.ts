@@ -63,6 +63,17 @@ export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: Coll
   return { id: '', name: '', cards }
 }
 
+/** Cards the draft already holds: the quantities of the rows that resolve to a card with a whole quantity. */
+export function draftCardTotal(rows: DraftRow[], collections: CollectionConfig): number {
+  let total = 0
+  for (const row of rows) {
+    const card = rowToCard(row, collections)
+    // A blank quantity parses to NaN, which is not a count.
+    if (card && isCountAtLeast(card.quantity, 1)) total += card.quantity
+  }
+  return total
+}
+
 /** True when the draft differs from the saved deck in name, rows or edited owned quantities. */
 export function isDirty(name: string, rows: DraftRow[], saved: Deck | undefined): boolean {
   if (name.trim() !== (saved?.name ?? '')) return true
