@@ -15,6 +15,7 @@ import { ROUTES } from '@/shared/lib/routes'
 // The page gutter and content width every page shares, so the landing sections line up with the app pages.
 const PAGE_GUTTER = 'px-page-gutter'
 const PAGE_CONTAINER = 'mx-auto max-w-page'
+// Section paddings, fluid heading sizes and illustration sizes on this page are one-off values, not tokens.
 
 interface Feature {
   title: string
@@ -113,7 +114,6 @@ function Section({ className, children }: { className?: string; children: ReactN
   return <section className={cn(PAGE_GUTTER, className)}>{children}</section>
 }
 
-// Fluid section paddings and heading sizes are one-off values of this page, not tokens.
 function Hero() {
   return (
     <Section className="pt-[clamp(56px,8vw,96px)] pb-[clamp(64px,8vw,96px)]">

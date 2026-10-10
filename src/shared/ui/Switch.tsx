@@ -4,7 +4,7 @@ import { Switch as SwitchPrimitive } from '@base-ui/react/switch'
 import { cn } from 'cn'
 
 // The design system toggle: a 40×22px track. The knob slot is 20px with a 1px margin, so the 18px knob sits 2px in.
-// The 1px vertical margin keeps the 24px row slot that the layouts around the toggle were built on.
+// The 1px vertical margin keeps the 24px row slot that the layouts around the toggle were built on (see README, Toggle).
 function Switch({ className, ...props }: SwitchPrimitive.Root.Props) {
   return (
     <SwitchPrimitive.Root

@@ -177,6 +177,7 @@ export default function ConverterPage() {
 
   return (
     <PageLayout title="Conversor" subtitle="Cole sua decklist e converta pro formato aceito pelas lojas parceiras.">
+      {/* One-off values of this page, no tokens: the fluid column gap and the 260–360px side column from md. */}
       <section className="grid items-start gap-[clamp(28px,4vw,48px)] md:grid-cols-[minmax(0,1fr)_minmax(260px,360px)]">
         <div className="flex flex-col gap-space-6">
           <Label htmlFor="decklist" className="font-display text-h2">

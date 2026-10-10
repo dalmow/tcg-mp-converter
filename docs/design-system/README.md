@@ -40,13 +40,11 @@ A "Decks:" caption in `ink-subtle` introduces a row of `chip-accent` badges, one
 
 ### Progress
 
-A progress indicator is a label row (an `eyebrow` caption left, a bold count + `ink-subtle` suffix right — "15" + "/60 cartas") above a 6px track: `border-faint`-colored track, `radius-sm`-adjacent 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border — it sits directly on the page or panel behind it, label text only, no "X faltam" sentence duplicating the count already shown.
-
-The deck list tiles use the compact layout (`ProgressBar compact`): the bare bar with the literal count beside it ("45/60") on the right, no label row. The label stays as the accessible name only, so the count is the one visible signal.
+A progress indicator is a 6px track with the literal count beside it ("45/60") on the right, and no label row. The track is `border-faint`-colored with 3px corner rounding, filled with `linear-gradient(90deg, danger, primary)` left to right. It never carries its own panel background or border, and no "X faltam" sentence repeats the count. The deck list tiles are its one use. Its label is the accessible name only, so the count is the one visible signal.
 
 ### Toggle
 
-A toggle is a 40×22px `radius-pill` track, `secondary` when on (there is no visual "off" tint beyond the track going to `border`-level grey — off state: `rgba(255,255,255,0.14)`), with an 18×18px `surface-000`-colored knob that slides between a 2px inset on either edge.
+A toggle is a 40×22px `radius-pill` track, `secondary` when on (there is no visual "off" tint beyond the track going to `border`-level grey — off state: `rgba(255,255,255,0.14)`), with an 18×18px `surface-000`-colored knob that slides between a 2px inset on either edge. The track sits in a 24px slot, with a 1px vertical margin, because the Manutenção row was laid out around that slot.
 
 ### Modal
 
@@ -77,6 +75,7 @@ These are deliberate, and the code keeps them. Anything else that differs from t
 - Fixed sizes that have no token use the numeric Tailwind scale, which is the same px: `size-4.5` is the 18px icon, `size-3.25` the 13px one, `min-w-55` the 220px input column.
 - Deck list tiles keep a 22px card padding (`[--card-spacing:22px]`) and a fixed 280px tile column, both from the artboard grid.
 - The card suggestion list uses `shadow-dropdown`, the dropdown shadow of this system.
+- Panels set no text size of their own: their content sets `text-body`, `text-ui` or the size it needs.
 - The Manutenção row is color-only, as the Brand, accent and signal section explains.
 - The no-op row fill (`rgba(255,255,255,0.03)`), the 10px header blur and the fluid landing sizes are one-off values, not tokens.
 
@@ -86,7 +85,7 @@ This folder is the source of truth for the design system; the private claude.ai 
 
 Tokens live in `src/index.css`, inside the `@theme static` block, and are exposed as Tailwind utilities (`bg-surface-100`, `text-ink-muted`, `rounded-2xl`, `shadow-modal`, `text-h2`, `p-space-8`, `max-w-page`, `px-page-gutter`, the `nav:` breakpoint at 860px). `src/shared/lib/designTokens.test.ts` fails when `src/index.css` and `tokens.json` drift apart, and fails when a declared token has no class in `src`, so change both together and remove a token from both when nothing uses it. Spacing tokens are named `space-N` (not `N`) so the numeric Tailwind scale (`p-4`) keeps its meaning; `page-gutter` is the only named spacing token, because it is fluid.
 
-Three utilities in `src/index.css` cover shared patterns: `status-border` (the 1.5px border of a filled primary or a status row), `hide-number-spinners` (quantity inputs without the browser stepper) and `no-scrollbar` (the card suggestion list). The state variants `data-open`, `data-closed`, `data-checked`, `data-unchecked`, `data-selected` and `data-disabled` are defined there too, from the attributes Base UI and cmdk set.
+Three utilities in `src/index.css` cover shared patterns: `status-border` (the 1.5px border of a filled primary or a status row), `hide-number-spinners` (the number cells of the deck editor and Manutenção without the browser stepper) and `no-scrollbar` (the card suggestion list). The state variants `data-open`, `data-closed`, `data-checked`, `data-unchecked`, `data-selected` and `data-disabled` are defined there too, from the attributes Base UI and cmdk set.
 
 Fonts are self-hosted through `@fontsource-variable/space-grotesk` (display) and `@fontsource-variable/manrope` (body); no Google Fonts request is made. There is no monospace family or token: code-like text, such as an unresolved decklist line in the converter, uses `font-body`. The artboards in `mockups/` still link Google Fonts because they are static references, not app code.
 

@@ -32,6 +32,7 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
 }
 
 function AlertDialogContent({ className, ...props }: AlertDialogPrimitive.Popup.Props) {
+  // Width: a 400px one-off from sm, with 24px kept clear on each side below it. No width token.
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />

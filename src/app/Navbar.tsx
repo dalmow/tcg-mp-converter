@@ -46,6 +46,7 @@ export function Navbar() {
     }
   }, [sheetOpen])
 
+  // The header blur is a 10px one-off: no blur token, and the surface-header token carries the tint.
   return (
     <header className="sticky top-0 z-20 border-b border-border-faint bg-surface-header backdrop-blur-[10px]">
       <nav ref={setNav} aria-label="Principal" className="relative">

@@ -140,11 +140,13 @@ describe('shadcn token aliases are gone', () => {
 
 describe('every token in src/index.css has a consumer', () => {
   const dir = new URL('../..', import.meta.url)
+  // A token named in a comment is not a consumer, so comments are removed before the search.
+  const withoutComments = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
   // index.css minus its @theme block, so a declaration never counts as its own consumer.
-  const cssRules = css.replace(/@theme static \{[\s\S]*?\n\}/, '')
+  const cssRules = withoutComments(css.replace(/@theme static \{[\s\S]*?\n\}/, ''))
   const sources = readdirSync(dir, { recursive: true, encoding: 'utf-8' })
     .filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f))
-    .map((f) => readFileSync(new URL(f, dir), 'utf-8'))
+    .map((f) => withoutComments(readFileSync(new URL(f, dir), 'utf-8')))
     .concat(cssRules)
     .join('\n')
   const themeTokens = [...css.matchAll(/^\s*--(color|spacing|radius|shadow|container|text)-([a-z0-9-]+):/gm)]

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cn } from 'cn'
+import { cn } from '@/shared/lib/utils'
 
 // The panel surface: border, radius, fill and the 20px inner padding that every child aligns to.
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
@@ -7,7 +7,7 @@ function Card({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="card"
       className={cn(
-        'flex flex-col gap-space-6 overflow-hidden rounded-2xl border border-border-faint bg-surface-100 py-(--card-spacing) text-body text-ink [--card-spacing:var(--spacing-space-8)]',
+        'flex flex-col gap-space-6 overflow-hidden rounded-2xl border border-border-faint bg-surface-100 py-(--card-spacing) text-ink [--card-spacing:var(--spacing-space-8)]',
         className,
       )}
       {...props}

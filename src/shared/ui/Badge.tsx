@@ -1,6 +1,8 @@
 import type { ComponentProps } from 'react'
 import { cn } from '@/shared/lib/utils'
 
+// Uses the project cn, not the raw one: `text-caption` is a font size only the project config knows, and the raw
+// merge would treat it as a color and drop it next to `text-secondary`.
 /** The design system `chip-accent`: a static badge, one per deck that uses the card. */
 function Badge({ className, ...props }: ComponentProps<'span'>) {
   return (

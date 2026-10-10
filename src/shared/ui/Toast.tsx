@@ -40,6 +40,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
+      {/* The stack stays inside the viewport on narrow screens: a one-off width, not a token. */}
       <div
         role="region"
         aria-label="Notificações"
