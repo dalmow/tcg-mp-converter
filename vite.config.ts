@@ -4,9 +4,9 @@ import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { createServer, defineConfig, type Plugin } from 'vite'
-import { PUBLIC_PAGES } from './src/lib/pageMeta.ts'
-import { applyPageToShell, buildHeadTags, buildRobotsTxt, buildSitemapXml, SHELL_PAGE } from './src/lib/seo.ts'
-import { DEFAULT_SITE_URL } from './src/lib/site.ts'
+import { PUBLIC_PAGES } from './src/shared/lib/pageMeta.ts'
+import { applyPageToShell, buildHeadTags, buildRobotsTxt, buildSitemapXml, SHELL_PAGE } from './src/shared/lib/seo.ts'
+import { DEFAULT_SITE_URL } from './src/shared/lib/site.ts'
 
 const siteUrl = process.env.SITE_URL || DEFAULT_SITE_URL
 

@@ -68,7 +68,7 @@ Two icons break the line-only rule on purpose: the toast error dot (a small soli
 
 This folder is the source of truth for the design system; the private claude.ai artifacts it was exported from are no longer needed. `mockups/` holds the `.dc.html` artboards and their `theme.css`.
 
-Tokens live in `src/index.css`, inside the `@theme static` block, and are exposed as Tailwind utilities (`bg-surface-100`, `text-ink-muted`, `rounded-2xl`, `shadow-modal`, `text-h2`, `p-space-8`, the `nav:` breakpoint at 860px). `src/lib/designTokens.test.ts` fails when `src/index.css` and `tokens.json` drift apart, so change both together. Spacing tokens are named `space-N` (not `N`) so the numeric Tailwind scale (`p-4`) keeps its meaning.
+Tokens live in `src/index.css`, inside the `@theme static` block, and are exposed as Tailwind utilities (`bg-surface-100`, `text-ink-muted`, `rounded-2xl`, `shadow-modal`, `text-h2`, `p-space-8`, the `nav:` breakpoint at 860px). `src/shared/lib/designTokens.test.ts` fails when `src/index.css` and `tokens.json` drift apart, so change both together. Spacing tokens are named `space-N` (not `N`) so the numeric Tailwind scale (`p-4`) keeps its meaning.
 
 Fonts are self-hosted through `@fontsource-variable/space-grotesk` (display) and `@fontsource-variable/manrope` (body); no Google Fonts request is made. The artboards in `mockups/` still link Google Fonts because they are static references, not app code.
 

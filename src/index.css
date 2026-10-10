@@ -6,7 +6,7 @@
 
 /*
  * Design system tokens. Source of truth: docs/design-system/tokens.json
- * (src/lib/designTokens.test.ts fails when the two drift apart).
+ * (src/shared/lib/designTokens.test.ts fails when the two drift apart).
  */
 @theme static {
   --color-surface-000: #0a090e;

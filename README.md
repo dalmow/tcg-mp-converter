@@ -48,9 +48,9 @@ npm run dev
 
 Metadados (description, canonical, Open Graph, Twitter Card, JSON-LD),
 `robots.txt` e `sitemap.xml` são gerados no build por um plugin em
-`vite.config.ts`, a partir de `src/lib/site.ts` e `src/lib/seo.ts`. A URL
+`vite.config.ts`, a partir de `src/shared/lib/site.ts` e `src/shared/lib/seo.ts`. A URL
 canônica vem de `DEFAULT_SITE_URL` ou da variável de ambiente `SITE_URL`.
 A imagem de compartilhamento (`public/og-image.png`, 1200x630) é gerada a
 partir de `docs/assets/og-image.svg`.
 
-As páginas públicas (`PUBLIC_PAGES` em `src/lib/pageMeta.ts`: landing `/` e conversor) são pré-renderizadas no build (`dist/index.html`, `dist/converter.html`) e hidratadas no navegador. O roteador é `createBrowserRouter` (URLs limpas; links antigos `/#/rota` são redirecionados). O shell vazio vai para `dist/spa.html`, que o `vercel.json` serve para as demais rotas (`/decks`, `/maintenance`, edição de deck), com `noindex`.
+As páginas públicas (`PUBLIC_PAGES` em `src/shared/lib/pageMeta.ts`: landing `/` e conversor) são pré-renderizadas no build (`dist/index.html`, `dist/converter.html`) e hidratadas no navegador. O roteador é `createBrowserRouter` (URLs limpas; links antigos `/#/rota` são redirecionados). O shell vazio vai para `dist/spa.html`, que o `vercel.json` serve para as demais rotas (`/decks`, `/maintenance`, edição de deck), com `noindex`.

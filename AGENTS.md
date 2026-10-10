@@ -50,7 +50,7 @@ Antes de criar qualquer função, hook, componente, tipo, arquivo, util ou compo
 
 ### Checklist obrigatório (nesta ordem)
 1. MUST consultar o `codebase-memory-mcp` por símbolos, nomes e responsabilidades semelhantes (ex.: `formatDate`, `useDebounce`, `Button`, validações, clientes de API, tipos).
-2. MUST verificar os locais comuns de código compartilhado (`shared/`, `lib/`, `utils/`, `hooks/`, `components/ui/`) e a feature vizinha.
+2. MUST verificar os locais comuns de código compartilhado (`src/shared/ui/`, `src/shared/lib/`, `src/shared/hooks/`) e a feature vizinha (`src/features/<nome>/`, ver `docs/adr/0002-feature-based-layout.md`).
 3. MUST verificar se uma dependência já instalada no projeto resolve o problema antes de escrever código próprio ou adicionar uma biblioteca nova.
 4. Se existir algo parecido: MUST reutilizar. Se não atender 100%, estender ou generalizar o existente em vez de criar uma variação paralela.
 5. Só crie algo novo se nada existente servir, e em uma frase informe o que foi procurado e por que não serviu.

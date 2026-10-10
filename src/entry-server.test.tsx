@@ -4,9 +4,9 @@ import { hydrateRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { act } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AppRoutes } from '@/AppRoutes'
-import { renderApp } from '@/entry-server'
-import { PUBLIC_PAGES } from '@/lib/pageMeta'
+import { AppRoutes } from '@/app/AppRoutes'
+import { renderApp } from './entry-server'
+import { PUBLIC_PAGES } from '@/shared/lib/pageMeta'
 
 afterEach(() => {
   document.body.innerHTML = ''

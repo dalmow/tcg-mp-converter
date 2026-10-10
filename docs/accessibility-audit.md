@@ -15,7 +15,7 @@ are tracked in DAL-24.
 | Automated, rules | axe-core (latest via npm, scratch dir, tags `wcag2a/2aa/21a/21aa/22aa/best-practice`) driven by playwright-core + system Chrome | Run on all 4 screens plus the not-found state, and on these states: converter with result and unresolved cards, new deck with save errors, combobox open, delete-deck dialog, discard-changes dialog, "Dados" menu open, success toast |
 | Automated, scoring | Lighthouse (accessibility category, desktop) via `lighthouse` + `chrome-launcher` | Run on Decks, New deck, Converter, Maintenance |
 | Manual, keyboard | Playwright Tab-order / focus probes (scripted) | Done for Decks, Edit deck, Converter, Maintenance, dialogs, menu, combobox |
-| Manual, code review | Read of pages, `components/`, `ui/` wrappers, `index.css` | Done |
+| Manual, code review | Read of pages, features, `shared/ui/` wrappers, `index.css` | Done |
 | Manual, layout | 320 px reflow probe; 1.5/0.12em/0.16em text-spacing override | Reflow measured; text-spacing override screenshot taken but **not visually reviewed in detail** |
 | Screen reader testing (NVDA, JAWS, VoiceOver, TalkBack) | - | **NOT PERFORMED.** No screen reader is available in this environment. Everything about announcements below is inferred from roles/attributes and must be verified by a human with a screen reader. |
 
@@ -138,7 +138,7 @@ that fix many screens at once, then per-screen refinements).
 - **Fix:** Set `document.title` per route (e.g. "Decks - PTCG ..." / "Editando deck X - ..." ) with a small `useDocumentTitle` hook in `PageLayout`/`DeckEditor`.
 
 ### A-09 Success/error toasts: transient, no pause, tiny close target
-- **Status:** Fixed (DAL-29). Error toasts no longer auto-dismiss (they stay until closed); success toasts still dismiss after 5 s but the timer is paused while the toast is hovered or has focus inside and restarts when it leaves. The close button hit area is now 24x24 px (`size-6`). Regression tests in `src/components/ui/toast.test.tsx`. Screen-reader announcement is still untested.
+- **Status:** Fixed (DAL-29). Error toasts no longer auto-dismiss (they stay until closed); success toasts still dismiss after 5 s but the timer is paused while the toast is hovered or has focus inside and restarts when it leaves. The close button hit area is now 24x24 px (`size-6`). Regression tests in `src/shared/ui/Toast.test.tsx`. Screen-reader announcement is still untested.
 - **Screens:** All (toast region mounted globally)
 - **WCAG:** 2.2.1 Timing Adjustable (A), 4.1.3 Status Messages (AA), 2.5.8 Target Size (Minimum) (AA)
 - **Severity:** Moderate
