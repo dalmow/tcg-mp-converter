@@ -586,6 +586,27 @@ describe('DeckEditor accessibility', () => {
     expect(screen.getByText('1 sugestão').getAttribute('role')).toBe('status')
   })
 
+  it('titles the owned column "Tem" and uses the same word as the owned placeholder', async () => {
+    renderEditor()
+    const scope = panel('Pokémon')
+    expect(scope.getByText('Tem')).toBeTruthy()
+    expect(scope.queryByText('Adq.')).toBeNull()
+    const { row } = await addRow('Pokémon', '1', 'Abra MEG 54')
+    expect(row.getByLabelText(/^Adquirido/).getAttribute('placeholder')).toBe('Tem')
+  })
+
+  it('counts the copies still missing in the pendency sentence', async () => {
+    renderEditor()
+    const { element } = await addRow('Treinadores', '4', 'Ordem da chefia', '1')
+    expect(within(element).getByText('Linha com pendências — faltam 3 carta(s)')).toBeTruthy()
+  })
+
+  it('counts a single missing copy with the same pattern', async () => {
+    renderEditor()
+    const { element } = await addRow('Treinadores', '1', 'Ordem da chefia')
+    expect(within(element).getByText('Linha com pendências — faltam 1 carta(s)')).toBeTruthy()
+  })
+
   it('ties a row error to its inputs and shows a non-colour cue', async () => {
     renderEditor()
     const user = userEvent.setup()

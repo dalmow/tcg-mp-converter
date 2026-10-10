@@ -74,6 +74,11 @@ export function parseOwnedText(text: string): number {
   return isCountAtLeast(quantity, 0) ? quantity : Number.NaN
 }
 
+/** Copies a row still needs to buy. 0 while its quantity or owned count is not a whole number yet. */
+export function missingCopies(quantity: number, ownedQuantity: number): number {
+  return Number.isInteger(quantity) && Number.isInteger(ownedQuantity) ? Math.max(quantity - ownedQuantity, 0) : 0
+}
+
 export interface RowInput {
   text: string
   quantityText: string

@@ -215,7 +215,7 @@ export default function ConverterPage() {
       </section>
 
       <section className="grid gap-space-10 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-        <MarketplaceResult title="Liga Pokemon" text={result?.ligaPokemon ?? ''} />
+        <MarketplaceResult title="Liga Pokémon" text={result?.ligaPokemon ?? ''} />
         <MarketplaceResult title="MYPCards" text={result?.mypCards ?? ''} />
       </section>
 
@@ -230,7 +230,7 @@ export default function ConverterPage() {
           <ul className="flex flex-col gap-space-1 text-body">
             {result.unresolvedCards.map((card, index) => (
               <li key={index} className="text-ink-muted">
-                <span className="font-mono text-ink">{card.line}</span> — {card.reason}
+                <span className="font-body text-ink">{card.line}</span> — {card.reason}
               </li>
             ))}
           </ul>
