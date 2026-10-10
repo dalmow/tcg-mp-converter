@@ -6,9 +6,8 @@ import { PageLayout } from '@/shared/layout/PageLayout'
 import { Panel } from '@/shared/ui/Panel'
 import { Switch } from '@/shared/ui/Switch'
 import { useToast } from '@/shared/ui/Toast'
-import { getDeckStore, useDeckData } from '@/features/decks'
+import { CARD_CATEGORIES, type CardCategory, getDeckStore, useDeckData } from '@/features/decks'
 import { deriveMaintenance, isSatisfied, toOwnedEntry } from '@/features/maintenance/lib/maintenance'
-import { CARD_CATEGORIES, type CardCategory } from '@/features/decks'
 
 const CATEGORY_TITLES: Record<CardCategory, string> = {
   pokemon: 'Pokémon',

@@ -1,12 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { MenuIcon, XIcon } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router'
-import { BackupList, BackupMenu } from '@/features/backup'
+import { BackupList, BackupMenu, useBackup } from '@/features/backup'
 import { Logomark } from '@/shared/ui/Logomark'
 import { MAIN_CONTENT_ID } from '@/shared/layout/mainContent'
 import { navLinkClass, sheetRowClass } from './navLinkClass'
 import { ConverterIcon, DecksIcon, MaintenanceIcon } from '@/shared/ui/NavIcons'
-import { useBackup } from '@/features/backup'
 import { ROUTES } from '@/shared/lib/routes'
 
 const links = [

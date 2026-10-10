@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The code was organized by technical type: `src/components/` (with `deck-editor/`, `maintenance/`, `ui/`), `src/lib/` (with `deck/`), `src/pages/`, and hooks were split between `components/` and `lib/`. Finding everything one feature needs meant jumping across three trees. `.claude/rules/typescript-react-vite.md` asks for `features/<name>/` with shared modules in `shared/`. The redesign issues in the "Redesign: Ajustes" milestone depend on this layout.
+The code was organized by technical type: `src/components/` (with `deck-editor/`, `maintenance/`, `ui/`), `src/lib/` (with `deck/`), `src/pages/`, and hooks were split between `components/` and `lib/`. Finding everything one feature needs meant jumping across three trees. `.claude/rules/typescript-react-vite.md` asks for `features/<name>/` with shared modules in `shared/`. The other issues in the "Redesign: Convenções" milestone and every issue in "Redesign: Ajustes" depend on this layout.
 
 ## Decision
 
@@ -13,7 +13,7 @@ The code was organized by technical type: `src/components/` (with `deck-editor/`
 ```
 src/
   main.tsx, entry-server.tsx, index.css   entry points, fixed by index.html, vite.config.ts and the CSS import
-  app/        composition: AppRoutes, Navbar (app shell), navLinkClass
+  app/        composition: AppRoutes, Navbar (app shell), navLinkClass, vercelConfig.test
   features/   one folder per feature; may import shared/ and other features' index.ts
   shared/     cross-feature UI, hooks, pure helpers, domain types, static data; imports nothing from app/ or features/
 ```
@@ -57,7 +57,7 @@ features/<name>/
 
 - There is no `pages/` folder. A route component is the feature's page. `app/AppRoutes.tsx` composes the routes. Route components keep their default export. That is the seam for `React.lazy` in DAL-59.
 - There is no `api/` folder. The app has no backend, so persistence lives in `decks/lib/storage.ts`. When a backend exists, add `api/` to that feature.
-- `lib/` is added to the folder list of `.claude/rules/typescript-react-vite.md`. Pure logic has no other home there.
+- This differs from the folder list in `.claude/rules/typescript-react-vite.md` (`components,hooks,api,types`): `lib/` is added and `api/` is omitted. That file is not changed in this decision; update it to match.
 
 ### Naming
 
@@ -70,14 +70,14 @@ features/<name>/
 
 ### Import rules
 
-- Use the `@/` alias for every import that leaves the folder. No `../` in `src/`.
+- Use the `@/` alias for every import that leaves the folder. No `../` in module imports under `src/`. A test that reads a file by path (`readFileSync(new URL('../../index.css', import.meta.url))`) keeps that path relative to the test file. It is a file read, not a module import.
 - `./name` is allowed only for a file in the same folder. Use `@/` for a sibling subfolder (`@/features/decks/lib/deckStore`).
 - Import another feature through `@/features/<name>` only.
-- Files outside `src/` (`vite.config.ts`, the test that reads `vercel.json`) keep relative paths. The alias maps `src/` only.
+- Module imports of files outside `src/` keep relative paths, because the alias maps `src/` only. Current cases: `vite.config.ts`, and `vercel.json` imported by `src/app/vercelConfig.test.ts`.
 
 ## Consequences
 
-- Move only, with `git mv` and no behavior change. The existing tests moved with their modules and had only their import paths and read paths changed.
+- Move only, with `git mv` and no behavior change. The existing tests moved with their modules and had only their import paths and read paths changed. One exception: the `unselected badges do not rely on opacity` check read a converter source file from the shared contrast test, so it moved to `ConverterPage.test.tsx`, where it reads the file with a `?raw` import.
 - When another feature needs a helper that is private today, widen that feature's `index.ts`. Do not import its `lib/` or `components/` directly.
 - Code moves to `shared/` on its third repetition (rule of three, `AGENTS.md`). Two uses keep it in place.
 - The Vitest scope issue is separate. `npm test` also runs the copies in `.claude/worktrees/`, which pre-date this layout (DAL-52).

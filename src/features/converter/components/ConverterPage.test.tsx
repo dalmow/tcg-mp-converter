@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import ConverterPage from './ConverterPage'
+import converterSource from './ConverterPage.tsx?raw'
 import { ToastProvider } from '@/shared/ui/Toast'
 
 afterEach(() => {
@@ -223,6 +224,12 @@ describe('ConverterPage design system copy', () => {
 
     const panel = screen.getByRole('region', { name: 'Cartas não resolvidas' })
     expect(within(panel).getByText('not a card line')).toBeTruthy()
+  })
+})
+
+describe('ConverterPage unselected states', () => {
+  it('unselected badges do not rely on opacity', () => {
+    expect(converterSource).not.toMatch(/opacity-\d+/)
   })
 })
 

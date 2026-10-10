@@ -3,9 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { contrastRatio, parseColor, parseOklch } from './contrast'
 
-const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf-8')
-const css = read('../../index.css')
-const converterSource = read('../../features/converter/components/ConverterPage.tsx')
+const css = readFileSync(new URL('../../index.css', import.meta.url), 'utf-8')
 
 const resolve = (value: string): string => {
   const ref = value.match(/^var\(--([a-z0-9-]+)\)$/)
@@ -74,8 +72,4 @@ describe('design token contrast (WCAG 2.2 AA)', () => {
       expect(contrastRatio(token('surface-000'), token(`quality-${quality}`))).toBeGreaterThanOrEqual(text)
     },
   )
-
-  it('unselected badges do not rely on opacity', () => {
-    expect(converterSource).not.toMatch(/opacity-\d+/)
-  })
 })

@@ -1,7 +1,4 @@
-import { totalQuantity } from '@/features/decks'
-import { parsePersistedData, type PersistedData } from '@/features/decks'
-import { DECK_SIZE } from '@/features/decks'
-import type { Result } from '@/features/decks'
+import { DECK_SIZE, parsePersistedData, totalQuantity, type PersistedData, type Result } from '@/features/decks'
 
 export const BACKUP_VERSION = 1
 
