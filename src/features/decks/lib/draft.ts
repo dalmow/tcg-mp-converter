@@ -1,6 +1,6 @@
 import type { CollectionConfig } from '@/shared/types/domain'
 import { parseCard } from './cardParser'
-import { addDeckCard } from './deckRules'
+import { addDeckCard, totalQuantity } from './deckRules'
 import { isCountAtLeast } from '@/features/decks/types/deck'
 import type { CardCategory, Deck, DeckCard, OwnedMap } from '@/features/decks/types/deck'
 import { parseIntegerText } from '@/shared/lib/integer'
@@ -64,14 +64,10 @@ export function otherRowsDeck(rows: DraftRow[], rowId: string, collections: Coll
 }
 
 /** Cards the draft already holds: the quantities of the rows that resolve to a card with a whole quantity. */
-export function draftCardTotal(rows: DraftRow[], collections: CollectionConfig): number {
-  let total = 0
-  for (const row of rows) {
-    const card = rowToCard(row, collections)
-    // A blank quantity parses to NaN, which is not a count.
-    if (card && isCountAtLeast(card.quantity, 1)) total += card.quantity
-  }
-  return total
+export function draftTotalQuantity(rows: DraftRow[], collections: CollectionConfig): number {
+  const cards = rows.map((row) => rowToCard(row, collections))
+  // A blank quantity parses to NaN, which is not a count.
+  return totalQuantity(cards.filter((card): card is DeckCard => card !== null && isCountAtLeast(card.quantity, 1)))
 }
 
 /** True when the draft differs from the saved deck in name, rows or edited owned quantities. */

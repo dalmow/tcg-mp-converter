@@ -17,7 +17,7 @@ import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import type { CardCategory } from '@/features/decks/types/deck'
 import { deckPath, ROUTES } from '@/shared/lib/routes'
 import { CategoryPanel } from './CategoryPanel'
-import { buildDeckSave, draftCardTotal, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
+import { buildDeckSave, draftTotalQuantity, isDirty, newRow, rowsFromDeck } from '@/features/decks/lib/draft'
 import type { DraftRow } from '@/features/decks/lib/draft'
 
 const BACK_TO_DECKS_LABEL = 'Voltar para Meus decks'
@@ -43,7 +43,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
   const [focusRowId, setFocusRowId] = useState<string | null>(null)
 
   const dirty = isDirty(name, rows, stored)
-  const cardTotal = draftCardTotal(rows, collections)
+  const cardTotal = draftTotalQuantity(rows, collections)
   usePageMeta(deckEditorMeta(deckId, initial && (stored?.name ?? initial.name)))
   // Set right before an intentional navigation (after saving or deleting), which must not prompt.
   const leavingRef = useRef(false)
@@ -123,7 +123,7 @@ export function DeckEditor({ deckId }: { deckId?: string }) {
             to={ROUTES.decks}
             title={BACK_TO_DECKS_LABEL}
             aria-label={BACK_TO_DECKS_LABEL}
-            className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+            className={buttonVariants({ variant: 'ghost', size: 'icon-sm', className: 'text-ink-muted' })}
           >
             <ChevronLeftIcon aria-hidden />
           </Link>
