@@ -6,12 +6,14 @@ type PageLayoutProps = {
   title?: string
   /** Supporting sentence under the title. Setting it turns the title into the visible DS title block. */
   subtitle?: string
+  /** Page actions aligned to the end of the title block. Rendered only with a subtitle, as the title block is. */
+  actions?: ReactNode
   /** Tighter 28px gap between blocks, as in the Manutenção and DeckEditor artboards (default 40px). */
   compact?: boolean
   children?: ReactNode
 }
 
-export function PageLayout({ title, subtitle, compact, children }: PageLayoutProps) {
+export function PageLayout({ title, subtitle, actions, compact, children }: PageLayoutProps) {
   return (
     <main
       id={MAIN_CONTENT_ID}
@@ -23,9 +25,12 @@ export function PageLayout({ title, subtitle, compact, children }: PageLayoutPro
     >
       {title && !subtitle && <h1 className="sr-only">{title}</h1>}
       {title && subtitle && (
-        <div className="flex flex-col gap-space-2">
-          <h1 className="font-display text-h1 text-[length:clamp(20px,2.4vw,24px)]">{title}</h1>
-          <p className="max-w-[560px] text-body text-ink-muted">{subtitle}</p>
+        <div className="flex flex-wrap items-end justify-between gap-space-7">
+          <div className="flex flex-col gap-space-2">
+            <h1 className="font-display text-h1 text-[length:clamp(20px,2.4vw,24px)]">{title}</h1>
+            <p className="max-w-[560px] text-body text-ink-muted">{subtitle}</p>
+          </div>
+          {actions}
         </div>
       )}
       {children}

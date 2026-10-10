@@ -31,12 +31,18 @@ beforeEach(() => seed([]))
 afterEach(cleanup)
 
 describe('DeckListPage', () => {
-  it('shows only the new deck block when there are no decks', () => {
+  it('shows an empty state with the new deck action when there are no decks', () => {
     renderPage()
-    const links = screen.getAllByRole('link')
-    expect(links).toHaveLength(1)
-    expect(links[0].getAttribute('href')).toBe('/decks/new')
+    expect(screen.getByText('Nenhum deck salvo ainda.')).toBeTruthy()
+    const actions = screen.getAllByRole('link', { name: 'Novo deck' })
+    expect(actions.map((action) => action.getAttribute('href'))).toEqual(['/decks/new', '/decks/new'])
     expect(screen.getByRole('heading', { level: 1, name: 'Meus decks' })).toBeTruthy()
+  })
+
+  it('groups the new deck action in the page header', () => {
+    renderPage()
+    const group = screen.getByRole('group', { name: 'Ações dos decks' })
+    expect(within(group).getByRole('link', { name: 'Novo deck' }).getAttribute('href')).toBe('/decks/new')
   })
 
   it('shows a valid deck with a check, count and link to the editor', () => {
@@ -59,22 +65,23 @@ describe('DeckListPage', () => {
     expect(within(link).queryByText(/falta/)).toBeNull()
   })
 
-  it('shows how many cards are missing when only the owned rule fails', () => {
+  it('flags a deck missing owned cards by icon and count, without a missing-cards sentence', () => {
     const cards = [abra, fire]
     seed([{ id: 'd1', name: 'Mega Absol', cards }], ownedFor(cards, 1))
     renderPage()
     const link = screen.getByRole('link', { name: /Mega Absol/ })
     expect(within(link).getByRole('img', { name: 'Deck inválido' })).toBeTruthy()
-    expect(within(link).getByText('faltam 2 cartas')).toBeTruthy()
+    expect(within(link).getByText('60/60')).toBeTruthy()
+    expect(within(link).queryByText(/faltam/)).toBeNull()
   })
 
-  it('renders the new deck block after all decks', () => {
+  it('lists the new deck action before the deck links', () => {
     seed([
       { id: 'd1', name: 'A', cards: [] },
       { id: 'd2', name: 'B', cards: [] },
     ])
     renderPage()
     const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'))
-    expect(hrefs).toEqual(['/decks/d1', '/decks/d2', '/decks/new'])
+    expect(hrefs).toEqual(['/decks/new', '/decks/d1', '/decks/d2'])
   })
 })
